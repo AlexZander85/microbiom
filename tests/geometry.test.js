@@ -1,0 +1,11 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {iso,depthOf,coil,slabOf} from '../iso-kit.mjs';
+import {lathe,frameAlong,rodOut} from '../lathe.mjs';
+import {tubePieces} from '../tube.mjs';
+import {glCamera,burst,settle} from '../gl.mjs';
+const P={origin:[150,90],scale:2,azimuth:43,elevation:29};
+test('Canvas and WebGL share exactly the same projection contract',()=>{const cam=glCamera(P),p=[5,-8,13],a=iso(p,P);const b=[cam.origin[0]+cam.k*(p[0]*cam.cam[0]-p[1]*cam.cam[1]),cam.origin[1]+cam.k*((p[0]*cam.cam[1]+p[1]*cam.cam[0])*cam.cam[2]-p[2]*cam.cam[3])];assert.deepEqual(a,b);});
+test('geometry paths contain finite coordinates at rotated views',()=>{for(const angle of[0,43,90,180,271]){const view={...P,azimuth:angle},F=frameAlong([0,0,0],[1,0,0]);const objects=[lathe([[-5,0],[-4,2],[4,2],[5,0]],F,view,{smooth:true}),slabOf({x:-10,y:-10,w:20,d:20,r:3},0,4,view),rodOut(F,0,10,1,view,{stroke:4}).paths];for(const o of objects){assert.ok(o.fill.length>0);assert.ok(!/NaN|Infinity/.test(JSON.stringify(o)));}assert.ok(Number.isFinite(depthOf([1,2,3],view)));}});
+test('tube pieces have depth anchors, and spring has front and back runs',()=>{const pieces=tubePieces([[0,0,0],[10,1,3],[20,3,4]],.8,P,{maxLength:5});assert.ok(pieces.length>1);assert.ok(pieces.every(p=>p.mid.length===3&&p.body&&p.shine&&p.shade));const spring=coil(0,15,[0,0],2,5,'x',P);assert.ok(spring.front&&spring.back);});
+test('burst has smooth onset, bounded amplitude, and decays',()=>{assert.equal(burst(-1,.075,.4),0);assert.equal(burst(0,.075,.4),0);assert.ok(burst(.001,.075,.4)<.001);assert.ok(burst(.075,.075,.4)<=1);assert.ok(burst(2,.075,.4)<.01);});
+test('critically damped camera settles and can reverse without resets',()=>{const s={x:0,v:0};for(let i=0;i<60;i++)settle(s,1,1/60,.15);assert.ok(s.x>.98&&s.x<=1);for(let i=0;i<120;i++)settle(s,0,1/60,.15);assert.ok(Math.abs(s.x)<.001);settle(s,4,1/60,.15,true);assert.equal(s.x,4);assert.equal(s.v,0);});

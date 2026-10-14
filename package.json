@@ -1,0 +1,8 @@
+{
+ "name":"microcosmos",
+ "version":"0.2.0",
+ "private":true,
+ "type":"module",
+ "description":"Dependency-free Russian educational microbiome explorer",
+ "scripts":{"test":"node --test tests/*.test.js","serve":"python3 -m http.server 8000 --bind 0.0.0.0"}
+}
