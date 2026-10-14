@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="ru">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Микрокосмос · сравнение рендереров</title><link rel="stylesheet" href="renderer-lab.css"></head>
+<body>
+<header><a href="index.html">← Микрокосмос</a><span>ИНЖЕНЕРНАЯ ЛАБОРАТОРИЯ · НЕ ЗАМЕНА ОСНОВНОГО ПРОЕКТА</span></header>
+<main>
+ <div class="heading"><div><p class="eyebrow">ОДИН МИР · ДВА РЕНДЕРЕРА</p><h1>Проверяем, а не предполагаем.</h1></div><p>Одинаковые меши anatomy, 3 600 представителей, шейдеры и камера. Модель заморожена; DPR = 1, без теней, LOD и отсечения экземпляров.</p></div>
+ <nav aria-label="Рендерер"><a id="native-link" href="?renderer=native">Чистый WebGL2</a><a id="three-link" href="?renderer=three">Three.js 0.186.1</a><span id="signature"></span></nav>
+ <div class="toolbar"><label><input id="mucus" type="checkbox" checked> Слои слизи</label><label><input id="block" type="checkbox"> Слизь блокирует выбор</label><label><input id="layers" type="checkbox"> Выбирать слои</label><button id="reset">Исходная камера</button><button id="benchmark">Замер 10 секунд</button><button id="export" disabled>Экспорт JSON</button></div>
+ <div class="stage"><canvas id="scene" tabindex="0" aria-label="3D-сцена: перетаскивание и стрелки — поворот, колесо и плюс/минус — приближение"></canvas><div id="badge"></div><p id="hint">Перетащите сцену, чтобы повернуть. Колесо — приблизиться. Клик — проверить выбор.</p></div>
+ <div class="layers"><span>Подсветка слоя:</span><button data-layer="0">Эпителий с криптами</button><button data-layer="1">Плотная слизь</button><button data-layer="2">Рыхлая слизь</button><small>Наведите указатель или переведите фокус клавиатурой.</small></div>
+ <section class="readout"><div><h2>Сцена и выбор</h2><p id="stats">Загрузка…</p><p id="selection" role="status">Точный выбор по треугольникам с окклюзией проверяется в Three.js. Непрозрачная ткань блокирует луч; политика прозрачной слизи переключается отдельно.</p></div><div><h2>Результат измерения</h2><pre id="result">Замер ещё не выполнен.</pre></div></section>
+ <p id="error" role="alert" hidden></p>
+ <footer>Прототип не добавляет иммунологию, PDE или физические столкновения. Three.js поставляется локально по лицензии MIT; CDN не используется. Замер зависит от GPU и браузера и не гарантирует 60 FPS.</footer>
+</main><script type="module" src="src/render-lab/app.js"></script>
+</body></html>

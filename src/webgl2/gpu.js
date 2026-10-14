@@ -1,5 +1,5 @@
 export const STRIDE=17; // XYZ, scale XYZ, quaternion XYZW, RGB, opacity, glow, phase, unused
-const VS=`#version 300 es
+export const VS=`#version 300 es
 precision highp float;
 layout(location=0) in vec3 position;layout(location=1) in vec3 normal;
 layout(location=2) in vec3 iPos;layout(location=3) in vec3 iScale;layout(location=4) in vec4 iQ;
@@ -10,7 +10,7 @@ vec3 rotate(vec3 v,vec4 q){return v+2.*cross(q.xyz,cross(q.xyz,v)+q.w*v);}
 void main(){vec3 p=position*iScale;vWorld=rotate(p,iQ)+iPos;
  vNormal=normalize(rotate(normal/max(iScale,vec3(.0001)),iQ));vColor=iColor;vGlow=iMeta.x;
  gl_Position=uVP*vec4(vWorld,1.);}`;
-const FS=`#version 300 es
+export const FS=`#version 300 es
 precision highp float;
 in vec3 vNormal;in vec3 vWorld;in vec4 vColor;in float vGlow;
 uniform vec3 uEye;uniform vec3 uFogColor;uniform float uFog;uniform float uOpacity;uniform float uMaterial;uniform float uTime;

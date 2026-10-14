@@ -1,5 +1,5 @@
 import {GPU,STRIDE,writeInstance,colorOf} from './gpu.js';
-import {sphere,capsule,revolve,combine,tube,catmull,torus,segment,surface,heightAt} from './geometry.js';
+import {sphere,capsule,revolve,combine,tube,catmull,torus,segment,surface,heightAt,microbeGeometry} from './geometry.js';
 import {perspective,lookAt,multiply,project,rayFromCamera,raySphere,quatFromY,mix,mix3,unit,vsub} from './math.js';
 import {settle,smooth,burst} from '../../gl.mjs';
 import {byId,SITES} from '../data.js';
@@ -13,9 +13,7 @@ export class World{
  canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();this.lost=true;});
  canvas.addEventListener('webglcontextrestored',()=>{try{this.gpu=new GPU(canvas);this.resources=[];this.bodyGroups=[];this.tissueGroups=[];this.dynamic={};this.initMeshes();this.buildBody();this.setSite();this.lost=false;this.contextGeneration++;}catch(e){this.restoreError=e.message;}});
  }
- initMeshes(){const g=this.gpu;this.ball=g.mesh(sphere(8,6));this.rod=g.mesh(capsule(8,8));this.ring=g.mesh(torus(1,.02,32));this.particle=g.mesh(sphere(6,4));const basic=capsule(8,7),ball=sphere(8,6);
- this.microMeshes={rod:this.rod,oval:g.mesh(sphere(8,6)),cocci:g.mesh(combine([instancePart(ball,[0,0,0],[1,1,1]),instancePart(ball,[1.3,.6,0],[.8,.8,.8]),instancePart(ball,[-1.1,.3,0],[.85,.85,.85])])),yeast:g.mesh(combine([instancePart(ball,[0,0,0],[1,1.3,1]),instancePart(ball,[.8,1.25,0],[.5,.6,.5])])),protist:this.ball,branch:g.mesh(combine([segment([0,-1.6,0],[0,.2,0],.5,basic),segment([0,0,0],[-1,1.5,0],.45,basic),segment([0,0,0],[1,1.5,0],.45,basic)])),spiral:g.mesh(tube(Array.from({length:35},(_,i)=>[Math.sin(i*.5)*.7,-2+i*.12,Math.cos(i*.5)*.7]),.35,7))};
- const head=sphere(5,3),stick=capsule(4,3),parts=[instancePart(head,[0,1.5,0],[1.1,1.2,1.1]),segment([0,1,0],[0,-1,0],.18,stick)];for(let i=0;i<6;i++){const a=i*Math.PI/3,p=[Math.cos(a)*1.1,-1.6,Math.sin(a)*1.1],q=[p[0]*1.3,-2.3,p[2]*1.3];parts.push(segment([0,-.5,0],p,.08,stick),segment(p,q,.06,stick));}this.microMeshes.phage=g.mesh(combine(parts));
+ initMeshes(){const g=this.gpu;this.ball=g.mesh(sphere(8,6));this.rod=g.mesh(capsule(8,8));this.ring=g.mesh(torus(1,.02,32));this.particle=g.mesh(sphere(6,4));this.microMeshes=Object.fromEntries(Object.entries(microbeGeometry()).map(([key,data])=>[key,g.mesh(data)]));
  for(const key of Object.keys(this.microMeshes))this.speciesBuffers[key]=new Float32Array(8000*STRIDE);
  this.miscBuffer=new Float32Array(3000*STRIDE);this.particleBuffer=new Float32Array(4000*STRIDE);
  this.cellShell=g.mesh(capsule(28,24));this.dna=g.mesh(tube(Array.from({length:90},(_,i)=>[Math.sin(i/89*Math.PI*2)*.55,-.7+1.4*i/89,Math.cos(i/89*Math.PI*2)*.55]),.035,6));this.plasmid=g.mesh(torus(.45,.035));this.spring=g.mesh(tube(Array.from({length:85},(_,i)=>[Math.cos(i/84*Math.PI*14)*.27,-1+i/84*2,Math.sin(i/84*Math.PI*14)*.27]),.04,6));

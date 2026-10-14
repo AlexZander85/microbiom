@@ -1,0 +1,209 @@
+{
+  "testedAt": "2026-10-14T21:21:14.085Z",
+  "browser": "153.0.8010.0",
+  "threeVersion": "0.186.1",
+  "method": "Frozen shared fixture; one active context; sequential AB/BA/AB; 10 warmup frames; canvas DPR 1; no culling; identical shaders; no gl.finish",
+  "durationPerTrialMs": 10000,
+  "pixelComparison": {
+    "channels": 2181600,
+    "changedChannels": 1008,
+    "meanAbsoluteError": 0.015853960396039604,
+    "maxError": 97
+  },
+  "trials": [
+    {
+      "trial": 1,
+      "engine": "native",
+      "threeVersion": "0.186.1",
+      "signature": "08f2df7e",
+      "count": 3600,
+      "viewport": [
+        1010,
+        540
+      ],
+      "dpr": 1,
+      "camera": {
+        "yaw": 0.2,
+        "pitch": 0.46,
+        "distance": 29.5
+      },
+      "showMucus": true,
+      "highlight": -1,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "calls": 9,
+      "triangles": 635672,
+      "instances": 3603,
+      "method": "requestAnimationFrame, shared frozen fixture, no GPU finish",
+      "elapsedMs": 10349.5,
+      "frames": 27,
+      "meanFPS": 2.60882168220687,
+      "medianMs": 383.3000000000002,
+      "p95Ms": 400,
+      "submitMedianMs": 0.19999999995343387,
+      "caveat": "Submission time includes possible driver stalls; it is not an isolated GPU timing."
+    },
+    {
+      "trial": 2,
+      "engine": "three",
+      "threeVersion": "0.186.1",
+      "signature": "08f2df7e",
+      "count": 3600,
+      "viewport": [
+        1010,
+        540
+      ],
+      "dpr": 1,
+      "camera": {
+        "yaw": 0.2,
+        "pitch": 0.46,
+        "distance": 29.5
+      },
+      "showMucus": true,
+      "highlight": -1,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "calls": 9,
+      "triangles": 635672,
+      "instances": 3603,
+      "method": "requestAnimationFrame, shared frozen fixture, no GPU finish",
+      "elapsedMs": 10249.6,
+      "frames": 24,
+      "meanFPS": 2.3415547923821416,
+      "medianMs": 450,
+      "p95Ms": 483.40000000000146,
+      "submitMedianMs": 0.30000000004656613,
+      "caveat": "Submission time includes possible driver stalls; it is not an isolated GPU timing."
+    },
+    {
+      "trial": 3,
+      "engine": "three",
+      "threeVersion": "0.186.1",
+      "signature": "08f2df7e",
+      "count": 3600,
+      "viewport": [
+        1010,
+        540
+      ],
+      "dpr": 1,
+      "camera": {
+        "yaw": 0.2,
+        "pitch": 0.46,
+        "distance": 29.5
+      },
+      "showMucus": true,
+      "highlight": -1,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "calls": 9,
+      "triangles": 635672,
+      "instances": 3603,
+      "method": "requestAnimationFrame, shared frozen fixture, no GPU finish",
+      "elapsedMs": 10099.7,
+      "frames": 21,
+      "meanFPS": 2.0792696812776614,
+      "medianMs": 483.2999999999993,
+      "p95Ms": 516.6000000000004,
+      "submitMedianMs": 0.40000000002328306,
+      "caveat": "Submission time includes possible driver stalls; it is not an isolated GPU timing."
+    },
+    {
+      "trial": 4,
+      "engine": "native",
+      "threeVersion": "0.186.1",
+      "signature": "08f2df7e",
+      "count": 3600,
+      "viewport": [
+        1010,
+        540
+      ],
+      "dpr": 1,
+      "camera": {
+        "yaw": 0.2,
+        "pitch": 0.46,
+        "distance": 29.5
+      },
+      "showMucus": true,
+      "highlight": -1,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "calls": 9,
+      "triangles": 635672,
+      "instances": 3603,
+      "method": "requestAnimationFrame, shared frozen fixture, no GPU finish",
+      "elapsedMs": 10332.9,
+      "frames": 22,
+      "meanFPS": 2.1291215438066757,
+      "medianMs": 466.6999999999998,
+      "p95Ms": 483.39999999999964,
+      "submitMedianMs": 0.2999999999301508,
+      "caveat": "Submission time includes possible driver stalls; it is not an isolated GPU timing."
+    },
+    {
+      "trial": 5,
+      "engine": "native",
+      "threeVersion": "0.186.1",
+      "signature": "08f2df7e",
+      "count": 3600,
+      "viewport": [
+        1010,
+        540
+      ],
+      "dpr": 1,
+      "camera": {
+        "yaw": 0.2,
+        "pitch": 0.46,
+        "distance": 29.5
+      },
+      "showMucus": true,
+      "highlight": -1,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "calls": 9,
+      "triangles": 635672,
+      "instances": 3603,
+      "method": "requestAnimationFrame, shared frozen fixture, no GPU finish",
+      "elapsedMs": 10432.9,
+      "frames": 22,
+      "meanFPS": 2.1087137804445555,
+      "medianMs": 466.7000000000007,
+      "p95Ms": 500,
+      "submitMedianMs": 0.2999999999301508,
+      "caveat": "Submission time includes possible driver stalls; it is not an isolated GPU timing."
+    },
+    {
+      "trial": 6,
+      "engine": "three",
+      "threeVersion": "0.186.1",
+      "signature": "08f2df7e",
+      "count": 3600,
+      "viewport": [
+        1010,
+        540
+      ],
+      "dpr": 1,
+      "camera": {
+        "yaw": 0.2,
+        "pitch": 0.46,
+        "distance": 29.5
+      },
+      "showMucus": true,
+      "highlight": -1,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "calls": 9,
+      "triangles": 635672,
+      "instances": 3603,
+      "method": "requestAnimationFrame, shared frozen fixture, no GPU finish",
+      "elapsedMs": 10249.6,
+      "frames": 21,
+      "meanFPS": 2.048860443334374,
+      "medianMs": 483.3000000000011,
+      "p95Ms": 516.6999999999998,
+      "submitMedianMs": 0.39999999990686774,
+      "caveat": "Submission time includes possible driver stalls; it is not an isolated GPU timing."
+    }
+  ],
+  "externalRequests": [],
+  "errors": []
+}

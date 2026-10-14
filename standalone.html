@@ -2269,11 +2269,11 @@ const {frameAlong,pointOf,profileCurve,resample,unit3,sub3} = __modules["lathe.m
 const {qrotate,quatFromY} = __modules["src/webgl2/math.js"];
 function revolve(profile,radial=16,rows=18){
  const curve=profileCurve(profile.map(([s,r])=>[s,r,true])),F=frameAlong([0,0,0],[0,1,0]);const vertices=[],indices=[];
- for(let i=0;i<=rows;i++){const s=curve.s0+(curve.s1-curve.s0)*i/rows,r=Math.max(.0001,curve.radius(s)),slope=curve.slope(s);for(let j=0;j<=radial;j++){const angle=j/radial*Math.PI*2,p=pointOf(F,s,r,angle),n=unit3(F.u.map((v,k)=>v*Math.cos(angle)+F.v[k]*Math.sin(angle)-F.a[k]*slope));vertices.push(...p,...n);}}
+ for(let i=0;i<=rows;i++){const s=curve.s0+(curve.s1-curve.s0)*i/rows,r=Math.max(0,curve.radius(s)),slope=curve.slope(s);for(let j=0;j<=radial;j++){const angle=j/radial*Math.PI*2,p=pointOf(F,s,r,angle),n=unit3(F.u.map((v,k)=>v*Math.cos(angle)+F.v[k]*Math.sin(angle)-F.a[k]*slope));vertices.push(...p,...n);}}
  for(let i=0;i<rows;i++)for(let j=0;j<radial;j++){const a=i*(radial+1)+j,b=a+radial+1;indices.push(a,a+1,b,b,a+1,b+1);}
  return{vertices,indices};
 }
-function sphere(radial=14,rows=10){const p=[];for(let i=0;i<=rows;i++){const a=-Math.PI/2+i/rows*Math.PI;p.push([Math.sin(a),Math.max(0,Math.cos(a))]);}return revolve(p,radial,rows);}
+function sphere(radial=14,rows=10){const p=[];for(let i=0;i<=rows;i++){const a=-Math.PI/2+i/rows*Math.PI;p.push([Math.sin(a),i===0||i===rows?0:Math.max(0,Math.cos(a))]);}return revolve(p,radial,rows);}
 function capsule(radial=12,rows=12){return revolve([[-1.7,0],[-1.5,.6],[-1,1],[1,1],[1.5,.6],[1.7,0]],radial,rows);}
 function combine(parts){const vertices=[],indices=[];for(const {mesh,pos=[0,0,0],scale=[1,1,1],q=[0,0,0,1]}of parts){const offset=vertices.length/6;for(let i=0;i<mesh.vertices.length;i+=6){const v=qrotate(mesh.vertices.slice(i,i+3).map((v,j)=>v*scale[j]),q),n=unit3(qrotate(mesh.vertices.slice(i+3,i+6).map((v,j)=>v/scale[j]),q));vertices.push(...v.map((v,j)=>v+pos[j]),...n);}for(const i of mesh.indices)indices.push(i+offset);}return{vertices,indices};}
 function catmull(points,steps=8){const out=[];for(let i=0;i<points.length-1;i++){const p0=points[Math.max(0,i-1)],p1=points[i],p2=points[i+1],p3=points[Math.min(points.length-1,i+2)];for(let j=0;j<steps;j++){const t=j/steps;out.push(p1.map((v,k)=>.5*((2*v)+(-p0[k]+p2[k])*t+(2*p0[k]-5*v+4*p2[k]-p3[k])*t*t+(-p0[k]+3*v-3*p2[k]+p3[k])*t*t*t)));}}out.push(points.at(-1));return out;}
@@ -2290,7 +2290,27 @@ function heightAt(site,x,z){
  return Math.cos(x*.25)*.5+Math.sin(z*.27)*.3;
 }
 
-return {revolve,sphere,capsule,combine,catmull,tube,torus,segment,surface,heightAt};
+// Shared by the production renderer and the renderer comparison. No Three dependency.
+function microbeGeometry() {
+ const basic=capsule(8,7), ball=sphere(8,6);
+ const part=(mesh,pos,scale)=>({mesh,pos,scale});
+ const meshes={
+  rod:capsule(8,8), oval:ball, protist:ball,
+  cocci:combine([part(ball,[0,0,0],[1,1,1]),part(ball,[1.3,.6,0],[.8,.8,.8]),part(ball,[-1.1,.3,0],[.85,.85,.85])]),
+  yeast:combine([part(ball,[0,0,0],[1,1.3,1]),part(ball,[.8,1.25,0],[.5,.6,.5])]),
+  branch:combine([segment([0,-1.6,0],[0,.2,0],.5,basic),segment([0,0,0],[-1,1.5,0],.45,basic),segment([0,0,0],[1,1.5,0],.45,basic)]),
+  spiral:tube(Array.from({length:35},(_,i)=>[Math.sin(i*.5)*.7,-2+i*.12,Math.cos(i*.5)*.7]),.35,7)
+ };
+ const head=sphere(5,3),stick=capsule(4,3),parts=[part(head,[0,1.5,0],[1.1,1.2,1.1]),segment([0,1,0],[0,-1,0],.18,stick)];
+ for(let i=0;i<6;i++){
+  const a=i*Math.PI/3,p=[Math.cos(a)*1.1,-1.6,Math.sin(a)*1.1],q=[p[0]*1.3,-2.3,p[2]*1.3];
+  parts.push(segment([0,-.5,0],p,.08,stick),segment(p,q,.06,stick));
+ }
+ meshes.phage=combine(parts);
+ return meshes;
+}
+
+return {revolve,sphere,capsule,combine,catmull,tube,torus,segment,surface,heightAt,microbeGeometry};
 })();
 __modules["src/webgl2/gpu.js"] = (() => {
 const STRIDE=17; // XYZ, scale XYZ, quaternion XYZW, RGB, opacity, glow, phase, unused
@@ -2344,7 +2364,7 @@ class GPU{
  draw(mesh,count,opacity=1,material=0,depthWrite=true){if(!count||opacity<.002)return;const g=this.gl;g.uniform1f(this.u.uOpacity,opacity);g.uniform1f(this.u.uMaterial,material);g.depthMask(depthWrite);g.bindVertexArray(mesh.vao);g.drawElementsInstanced(g.TRIANGLES,mesh.count,g.UNSIGNED_INT,0,count);this.calls++;this.triangles+=mesh.count/3*count;this.instances+=count;}
 }
 
-return {STRIDE,colorOf,writeInstance,GPU};
+return {STRIDE,VS,FS,colorOf,writeInstance,GPU};
 })();
 __modules["src/webgl2/cloud.js"] = (() => {
 const {rng,clamp} = __modules["src/model.js"];
@@ -2369,7 +2389,7 @@ return {RepresentativeCloud};
 })();
 __modules["src/webgl2/world.js"] = (() => {
 const {GPU,STRIDE,writeInstance,colorOf} = __modules["src/webgl2/gpu.js"];
-const {sphere,capsule,revolve,combine,tube,catmull,torus,segment,surface,heightAt} = __modules["src/webgl2/geometry.js"];
+const {sphere,capsule,revolve,combine,tube,catmull,torus,segment,surface,heightAt,microbeGeometry} = __modules["src/webgl2/geometry.js"];
 const {perspective,lookAt,multiply,project,rayFromCamera,raySphere,quatFromY,mix,mix3,unit,vsub} = __modules["src/webgl2/math.js"];
 const {settle,smooth,burst} = __modules["gl.mjs"];
 const {byId,SITES} = __modules["src/data.js"];
@@ -2383,9 +2403,7 @@ class World{
  canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();this.lost=true;});
  canvas.addEventListener('webglcontextrestored',()=>{try{this.gpu=new GPU(canvas);this.resources=[];this.bodyGroups=[];this.tissueGroups=[];this.dynamic={};this.initMeshes();this.buildBody();this.setSite();this.lost=false;this.contextGeneration++;}catch(e){this.restoreError=e.message;}});
  }
- initMeshes(){const g=this.gpu;this.ball=g.mesh(sphere(8,6));this.rod=g.mesh(capsule(8,8));this.ring=g.mesh(torus(1,.02,32));this.particle=g.mesh(sphere(6,4));const basic=capsule(8,7),ball=sphere(8,6);
- this.microMeshes={rod:this.rod,oval:g.mesh(sphere(8,6)),cocci:g.mesh(combine([instancePart(ball,[0,0,0],[1,1,1]),instancePart(ball,[1.3,.6,0],[.8,.8,.8]),instancePart(ball,[-1.1,.3,0],[.85,.85,.85])])),yeast:g.mesh(combine([instancePart(ball,[0,0,0],[1,1.3,1]),instancePart(ball,[.8,1.25,0],[.5,.6,.5])])),protist:this.ball,branch:g.mesh(combine([segment([0,-1.6,0],[0,.2,0],.5,basic),segment([0,0,0],[-1,1.5,0],.45,basic),segment([0,0,0],[1,1.5,0],.45,basic)])),spiral:g.mesh(tube(Array.from({length:35},(_,i)=>[Math.sin(i*.5)*.7,-2+i*.12,Math.cos(i*.5)*.7]),.35,7))};
- const head=sphere(5,3),stick=capsule(4,3),parts=[instancePart(head,[0,1.5,0],[1.1,1.2,1.1]),segment([0,1,0],[0,-1,0],.18,stick)];for(let i=0;i<6;i++){const a=i*Math.PI/3,p=[Math.cos(a)*1.1,-1.6,Math.sin(a)*1.1],q=[p[0]*1.3,-2.3,p[2]*1.3];parts.push(segment([0,-.5,0],p,.08,stick),segment(p,q,.06,stick));}this.microMeshes.phage=g.mesh(combine(parts));
+ initMeshes(){const g=this.gpu;this.ball=g.mesh(sphere(8,6));this.rod=g.mesh(capsule(8,8));this.ring=g.mesh(torus(1,.02,32));this.particle=g.mesh(sphere(6,4));this.microMeshes=Object.fromEntries(Object.entries(microbeGeometry()).map(([key,data])=>[key,g.mesh(data)]));
  for(const key of Object.keys(this.microMeshes))this.speciesBuffers[key]=new Float32Array(8000*STRIDE);
  this.miscBuffer=new Float32Array(3000*STRIDE);this.particleBuffer=new Float32Array(4000*STRIDE);
  this.cellShell=g.mesh(capsule(28,24));this.dna=g.mesh(tube(Array.from({length:90},(_,i)=>[Math.sin(i/89*Math.PI*2)*.55,-.7+1.4*i/89,Math.cos(i/89*Math.PI*2)*.55]),.035,6));this.plasmid=g.mesh(torus(.45,.035));this.spring=g.mesh(tube(Array.from({length:85},(_,i)=>[Math.cos(i/84*Math.PI*14)*.27,-1+i/84*2,Math.sin(i/84*Math.PI*14)*.27]),.04,6));
