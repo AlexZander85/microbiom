@@ -69,7 +69,7 @@ export class ThreeAdapter {
     glslVersion:THREE.GLSL3,vertexShader:VS.replace('#version 300 es',''),fragmentShader:FS.replace('#version 300 es',''),
     uniforms:{uVP:{value:new THREE.Matrix4()},uEye:{value:new THREE.Vector3()},
      uFogColor:{value:new THREE.Vector3(.025,.049,.05)},uFog:{value:.014},
-     uOpacity:{value:1},uMaterial:{value:batch.material},uTime:{value:0},uMotion:{value:0},
+     uVivid:{value:0},uOpacity:{value:1},uMaterial:{value:batch.material},uTime:{value:0},uMotion:{value:0},
      uField:{value:this.texture},uFieldMode:{value:0}},
     side:THREE.DoubleSide,transparent:true,forceSinglePass:true,depthTest:true,depthWrite:batch.depthWrite,
     blending:THREE.CustomBlending,blendEquation:THREE.AddEquation,

@@ -1,40 +1,34 @@
 import {GPU,STRIDE,writeInstance,colorOf} from './gpu.js';
-import {sphere,capsule,revolve,combine,tube,catmull,torus,segment,surface,heightAt,microbeGeometry} from './geometry.js';
+import {sphere,capsule,revolve,combine,tube,catmull,torus,segment,surface,heightAt,microbeGeometry,lightMicrobeGeometry,mediumMicrobeGeometry,octahedron} from './geometry.js';
 import {perspective,lookAt,multiply,project,rayFromCamera,raySphere,quatFromY,mix,mix3,unit,vsub} from './math.js';
 import {settle,smooth,burst} from '../../gl.mjs';
 import {byId,SITES} from '../data.js';
 import {rng,clamp} from '../model.js';
-import {RepresentativeCloud} from './cloud.js';
-export const ORGAN_POINTS={colon:[0,-.65,.35],mouth:[0,2.2,.34],skin:[-1.04,.28,.21],nose:[0,2.36,.39],lung:[.37,.94,.05],stomach:[.38,.03,.2],small:[0,-.54,.33],vagina:[0,-1.04,.22],urinary:[0,-.93,.28]};
+import {LivingCloud,liveColor} from './living.js';
+import {humanGeometry} from './human.js';
+export const ORGAN_POINTS={colon:[0,-.65,.35],mouth:[0,2.025,.28],skin:[-1.04,.28,.21],nose:[0,2.15,.37],lung:[.37,.94,.05],stomach:[.38,.03,.2],small:[0,-.54,.33],vagina:[0,-1.04,.22],urinary:[0,-.93,.28]};
 const instance=(pos,scale,color,q=[0,0,0,1],alpha=1,glow=0)=>({pos,scale,color,q,alpha,glow});
 export class World{
- constructor(canvas,overlay,model){this.canvas=canvas;this.overlay=overlay;this.ctx=overlay.getContext('2d');this.model=model;this.gpu=new GPU(canvas);this.cloud=new RepresentativeCloud(model);this.travel={x:0,v:0};this.goal=0;this.yaw={x:.12,v:0};this.pitch={x:.06,v:0};this.targetYaw=.12;this.targetPitch=.06;this.pan=[0,0,0];this.follow=false;this.focusPoint=[{x:0,v:0},{x:4,v:0},{x:0,v:0}];this.selected=-1;this.selectedSpecies=null;this.inspect=false;this.exploded=false;this.lifts=Array.from({length:5},()=>({x:0,v:0}));this.explodeAt=0;this.clock=0;this.calm=false;this.field=0;this.ratio=1.4;this.showConnections=false;this.bodyGroups=[];this.tissueGroups=[];this.dynamic={};this.resources=[];this.one=new Float32Array(STRIDE);this.speciesBuffers={};this.bodyLabels=[];this.lost=false;this.contextGeneration=0;
+ constructor(canvas,overlay,model){this.canvas=canvas;this.overlay=overlay;this.ctx=overlay.getContext('2d');this.model=model;this.gpu=new GPU(canvas);this.cloud=new LivingCloud(model);this.travel={x:0,v:0};this.goal=0;this.yaw={x:.12,v:0};this.pitch={x:.06,v:0};this.targetYaw=.12;this.targetPitch=.06;this.pan=[0,0,0];this.follow=false;this.focusPoint=[{x:0,v:0},{x:4,v:0},{x:0,v:0}];this.selected=-1;this.selectedSpecies=null;this.inspect=false;this.exploded=false;this.lifts=Array.from({length:5},()=>({x:0,v:0}));this.explodeAt=0;this.clock=0;this.calm=false;this.field=0;this.ratio=1.4;this.showConnections=false;this.bodyGroups=[];this.tissueGroups=[];this.dynamic={};this.resources=[];this.one=new Float32Array(STRIDE);this.speciesBuffers={};this.bodyLabels=[];this.lost=false;this.contextGeneration=0;this.gpu.vivid=1;this.lifeRate=1;this.thoughts=true;this.quality='auto';this.autoLow=false;this.bubbleHits=[];this.bubbleSlots=[];this.visibleAgents=[];this.lodStats={};
  this.initMeshes();this.buildBody();this.setSite();
  canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();this.lost=true;});
- canvas.addEventListener('webglcontextrestored',()=>{try{this.gpu=new GPU(canvas);this.resources=[];this.bodyGroups=[];this.tissueGroups=[];this.dynamic={};this.initMeshes();this.buildBody();this.setSite();this.lost=false;this.contextGeneration++;}catch(e){this.restoreError=e.message;}});
+ canvas.addEventListener('webglcontextrestored',()=>{try{this.gpu=new GPU(canvas);this.gpu.vivid=1;this.resources=[];this.bodyGroups=[];this.tissueGroups=[];this.dynamic={};this.initMeshes();this.buildBody();this.setSite();this.lost=false;this.contextGeneration++;}catch(e){this.restoreError=e.message;}});
  }
- initMeshes(){const g=this.gpu;this.ball=g.mesh(sphere(8,6));this.rod=g.mesh(capsule(8,8));this.ring=g.mesh(torus(1,.02,32));this.particle=g.mesh(sphere(6,4));this.microMeshes=Object.fromEntries(Object.entries(microbeGeometry()).map(([key,data])=>[key,g.mesh(data)]));
+ initMeshes(){const g=this.gpu;this.ball=g.mesh(sphere(8,6));this.rod=g.mesh(capsule(8,8));this.ring=g.mesh(torus(1,.02,32));this.particle=g.mesh(sphere(6,4));this.microMeshes=Object.fromEntries(Object.entries(microbeGeometry()).map(([key,data])=>[key,g.mesh(data)]));this.lightMeshes=Object.fromEntries(Object.entries(lightMicrobeGeometry()).map(([key,data])=>[key,g.mesh(data)]));this.mediumMeshes=Object.fromEntries(Object.entries(mediumMicrobeGeometry()).map(([key,data])=>[key,g.mesh(data)]));this.mediumBuffers={};for(const key of Object.keys(this.mediumMeshes))this.mediumBuffers[key]=new Float32Array(8000*STRIDE);this.tissueCell=g.mesh(octahedron());this.smallRing=g.mesh(torus(1,.025,12));this.lightBuffers={};for(const key of Object.keys(this.lightMeshes))this.lightBuffers[key]=new Float32Array(8000*STRIDE);
  for(const key of Object.keys(this.microMeshes))this.speciesBuffers[key]=new Float32Array(8000*STRIDE);
  this.miscBuffer=new Float32Array(3000*STRIDE);this.particleBuffer=new Float32Array(4000*STRIDE);
  this.cellShell=g.mesh(capsule(28,24));this.dna=g.mesh(tube(Array.from({length:90},(_,i)=>[Math.sin(i/89*Math.PI*2)*.55,-.7+1.4*i/89,Math.cos(i/89*Math.PI*2)*.55]),.035,6));this.plasmid=g.mesh(torus(.45,.035));this.spring=g.mesh(tube(Array.from({length:85},(_,i)=>[Math.cos(i/84*Math.PI*14)*.27,-1+i/84*2,Math.sin(i/84*Math.PI*14)*.27]),.04,6));
  }
  group(mesh,instances,extra={}){const data=new Float32Array(instances.length*STRIDE);instances.forEach((o,i)=>writeInstance(data,i,o.pos,o.scale,o.color,o.q,o.alpha??1,o.glow??0));const obj={mesh,count:instances.length,data,...extra};return obj;}
  custom(data){return this.gpu.mesh(data);}
- buildBody(){const ball=sphere(24,18),cap=capsule(18,16),parts=[];
- const torso=revolve([[-1.1,.47],[-.8,.65],[-.25,.51],[.45,.64],[1.03,.83],[1.32,.7],[1.51,.24],[1.75,.2]],40,36);parts.push(instancePart(torso,[0,0,0],[1,1,.6]));parts.push(instancePart(ball,[0,2.18,0],[.34,.47,.32]));
- for(const sign of[-1,1]){
- const arm=tube(catmull([[sign*.67,1.18,0],[sign*.9,.87,0],[sign*1.04,.31,0],[sign*1.10,-.16,.02],[sign*1.13,-.53,.03]],10),t=>.22*(1-t)+.12*t+Math.sin(t*3.14)*.025,16);
- const leg=tube(catmull([[sign*.3,-.88,0],[sign*.34,-1.3,0],[sign*.39,-1.99,.015],[sign*.43,-2.4,.03],[sign*.44,-3.02,.03]],10),t=>.26*(1-t)+.12*t+Math.sin(t*6.28)*.028,18);
- parts.push(instancePart(arm,[0,0,0],[1,1,1]),instancePart(leg,[0,0,0],[1,1,1]),instancePart(ball,[sign*1.15,-.72,.03],[.13,.25,.10]),instancePart(ball,[sign*.44,-3.12,.15],[.16,.14,.3]));
- }
- this.bodyMesh=this.custom(combine(parts));this.skinGroup=this.group(this.bodyMesh,[instance([0,0,0],[1,1,1],'#83bfbb')]);
+ buildBody(){const anatomy=humanGeometry();this.bodyMesh=this.custom(anatomy.skin);this.skinGroup=this.group(this.bodyMesh,[instance([0,0,0],[1,1,1],'#ddaf92')]);this.windowGroup=this.group(this.custom(anatomy.window),[instance([0,0,0],[1,1,1],'#edc2a7')]);this.faceGroups=anatomy.features.map(f=>this.group(this.custom(f.mesh),[instance([0,0,0],[1,1,1],f.color)]));
  this.bodyGroups=[];const add=(mesh,inst,site=null)=>this.bodyGroups.push(this.group(mesh,inst,{site}));
  add(this.ball,[instance([-.37,.89,.005],[.3,.56,.24],'#6e9daa'),instance([.37,.89,.005],[.3,.56,.24],'#74abb3')],'lung');add(this.ball,[instance([.08,.66,.27],[.2,.26,.18],'#d08579')],'heart');
  add(this.ball,[instance([-.3,.12,.03],[.46,.23,.26],'#b08562')],'liver');add(this.ball,[instance([.35,.02,.19],[.25,.33,.22],'#d19b7d')],'stomach');
  const colonPath=catmull([[-.46,-1.05,.22],[-.62,-.72,.24],[-.65,-.23,.22],[-.54,-.12,.21],[0,-.14,.29],[.5,-.12,.2],[.65,-.29,.17],[.62,-.81,.19],[.35,-1.0,.2],[.02,-1.02,.25],[0,-1.25,.21]],8);add(this.custom(tube(colonPath,.105,14)),[instance([0,0,0],[1,1,1],'#c5b884')],'colon');
  const intestine=[];for(let i=0;i<90;i++){const t=i/89;intestine.push([Math.sin(t*Math.PI*10)*(.34+.06*Math.sin(t*25)),-.24-t*.65,.29+Math.cos(t*Math.PI*10)*.045]);}add(this.custom(tube(catmull(intestine,2),.045,9)),[instance([0,0,0],[1,1,1],'#a59081')],'small');
  const oesophagus=tube(catmull([[0,1.93,.02],[0,1.35,.03],[0,.6,.05],[.2,.25,.10],[.35,.12,.2]],8),.045,9);add(this.custom(oesophagus),[instance([0,0,0],[1,1,1],'#aec7b0')],'stomach');
- add(this.ball,[instance([0,2.20,.27],[.15,.04,.1],'#d8b1a3')],'mouth');add(this.ball,[instance([0,2.37,.3],[.07,.08,.1],'#c7b7a0')],'nose');add(this.ball,[instance([0,-1.1,.2],[.14,.15,.11],'#b8a4c2')],'urinary');add(this.rod,[instance([0,-1.3,.12],[.055,.09,.065],'#c298b7')],'vagina');
+ add(this.ball,[instance([0,2.02,.14],[.10,.025,.035],'#d8b1a3')],'mouth');add(this.ball,[instance([0,2.18,.15],[.045,.07,.035],'#c7b7a0')],'nose');add(this.ball,[instance([0,-1.1,.2],[.14,.15,.11],'#b8a4c2')],'urinary');add(this.rod,[instance([0,-1.03,.10],[.045,.07,.055],'#c298b7')],'vagina');
  // Reference nerves/vessels are schematic routes, not a circulation simulation.
  const path=catmull([[0,2,.02],[.12,1.5,-.11],[.19,.4,-.13],[.12,-.4,.05]],12);add(this.custom(tube(path,.015,6)),[instance([0,0,0],[1,1,1],'#bed4a0')],'nerve');
  add(this.ring,[instance([0,-3.34,0],[1.4,1,1.4],'#547a73',undefined,.75,.2),instance([0,-3.36,0],[2.1,1,2.1],'#365956',undefined,.6)],'floor');
@@ -42,10 +36,10 @@ export class World{
  }
  setSite(){for(const m of this.resources)this.gpu.release(m);this.resources=[];this.cloud.model=this.model;this.cloud.reset(this.cloud.requested);this.selected=-1;this.follow=false;this.inspect=false;this.pan=[0,0,0];this.buildTissue();}
  buildTissue(){const site=this.model.site.id,rand=rng(28),g=this.gpu;const own=mesh=>{const m=g.mesh(mesh);this.resources.push(m);return m;};this.tissueGroups=[];
- const color=site==='mouth'?'#b8b09a':site==='skin'?'#98745f':site==='lung'||site==='nose'?'#857f91':'#9e7476';
- this.tissueGroups.push(this.group(own(surface((x,z)=>heightAt(site,x,z),32,70)),[instance([0,0,0],[1,1,1],color)],{layer:0}));
- const cells=[];for(let x=-29;x<=29;x+=2.1)for(let z=-29;z<=29;z+=2.1){const y=heightAt(site,x,z)-.28,c=(Math.round(x+z)*3)%11===0?'#699c93':color;cells.push(instance([x,y,z],[.98,.63,.98],c,undefined,1));}this.tissueGroups.push(this.group(this.ball,cells,{layer:0}));
- if(site==='colon'){const rings=[];for(let x=-22.5;x<30;x+=9)for(let z=-22.5;z<30;z+=9)rings.push(instance([x,heightAt(site,x,z)+1.6,z],[1.05,.5,1.05],'#b18a86'));this.tissueGroups.push(this.group(this.ring,rings,{layer:0}));}
+ const color=site==='mouth'?'#cfbea4':site==='skin'?'#c69080':site==='lung'||site==='nose'?'#b888ae':'#c2859b';
+ this.tissueGroups.push(this.group(own(surface((x,z)=>heightAt(site,x,z),32,36)),[instance([0,0,0],[1,1,1],color)],{layer:0}));
+ const cells=[];for(let x=-29;x<=29;x+=3.1)for(let z=-29;z<=29;z+=3.1){const y=heightAt(site,x,z)-.28,c=(Math.round(x+z)*3)%11===0?'#699c93':color;cells.push(instance([x,y,z],[1.48,.45,1.48],c,undefined,1));}this.tissueGroups.push(this.group(this.tissueCell,cells,{layer:0}));
+ if(site==='colon'){const rings=[];for(let x=-22.5;x<30;x+=9)for(let z=-22.5;z<30;z+=9)rings.push(instance([x,heightAt(site,x,z)+1.6,z],[1.05,.5,1.05],'#b18a86'));this.tissueGroups.push(this.group(this.smallRing,rings,{layer:0}));}
  if(site==='small'){const villi=[];for(let x=-26;x<28;x+=4.3)for(let z=-26;z<28;z+=4.3)villi.push(instance([x,2.5+heightAt(site,x,z),z],[.8,1.9,.8],'#b28c84'));this.tissueGroups.push(this.group(this.rod,villi,{layer:0}));}
  if(site==='skin'){const hair=tube(catmull([[0,-5,0],[.1,-1,.2],[1,5,1],[3,11,2]],12),.5,12);this.tissueGroups.push(this.group(own(hair),[instance([0,0,0],[1,1,1],'#6b5140')],{layer:0}));}
  if(['lung','nose'].includes(site)){const cilia=[];for(let x=-28;x<30;x+=1.5)for(let z=-28;z<30;z+=1.5)cilia.push(instance([x,1.2+heightAt(site,x,z),z],[.055,.65,.055],'#9eabb6',quatFromY([.3,1,.1])));this.tissueGroups.push(this.group(this.rod,cilia,{layer:1}));}
@@ -54,15 +48,16 @@ export class World{
  this.capillary=own(tube(catmull([[-30,-3,8],[-12,-4,3],[0,-3,9],[15,-3,-1],[30,-4,-6]],10),.7,10));this.capillaryGroup=this.group(this.capillary,[instance([0,0,0],[1,1,1],'#a66468')],{layer:0});
  }
  setExploded(value){this.exploded=value;this.explodeAt=this.clock;}
- update(dt,paused=false){if(dt>.05){const n=Math.ceil(dt/.05);for(let i=0;i<n;i++)this.update(dt/n,paused);return;}if(!paused)this.clock+=dt;settle(this.travel,this.goal,dt,.55,this.calm);settle(this.yaw,this.targetYaw,dt,.13,this.calm);settle(this.pitch,this.targetPitch,dt,.13,this.calm);for(let i=0;i<5;i++){if(this.clock-this.explodeAt<(this.exploded?i:4-i)*.035)continue;const s=this.lifts[i],target=this.exploded?1:0;if(this.calm){s.x=target;s.v=0;continue;}for(let k=0;k<4;k++){const h=dt/4;s.v+=(64*(target-s.x)-14.2*s.v)*h;s.x+=s.v*h;}}if(this.follow&&this.selected>=0){const point=this.cloud.position(this.selected);for(let i=0;i<3;i++)settle(this.focusPoint[i],point[i],dt,.27,this.calm);}this.cloud.update(this.calm);}
+ update(dt,paused=false){if(this.travel.x>1.6||this.goal>1.6)this.cloud.advance(dt,{paused,calm:this.calm,rate:this.lifeRate});this.updateCamera(dt,paused);}
+ updateCamera(dt,paused=false){if(dt>.05){const n=Math.ceil(dt/.05);for(let i=0;i<n;i++)this.updateCamera(dt/n,paused);return;}if(!paused)this.clock+=dt;settle(this.travel,this.goal,dt,.55,this.calm);settle(this.yaw,this.targetYaw,dt,.13,this.calm);settle(this.pitch,this.targetPitch,dt,.13,this.calm);for(let i=0;i<5;i++){if(this.clock-this.explodeAt<(this.exploded?i:4-i)*.035)continue;const s=this.lifts[i],target=this.exploded?1:0;if(this.calm){s.x=target;s.v=0;continue;}for(let k=0;k<4;k++){const h=dt/4;s.v+=(64*(target-s.x)-14.2*s.v)*h;s.x+=s.v*h;}}if(this.follow&&this.selected>=0){const point=this.cloud.position(this.selected);for(let i=0;i<3;i++)settle(this.focusPoint[i],point[i],dt,.27,this.calm);}}
  camera(target,distance,yaw,pitch,fog){const eye=[target[0]+Math.sin(yaw)*Math.cos(pitch)*distance,target[1]+Math.sin(pitch)*distance,target[2]+Math.cos(yaw)*Math.cos(pitch)*distance],vp=multiply(perspective(.72,this.w/this.h,Math.max(.001,distance/2000),Math.max(100,distance*20)),lookAt(eye,target));this.gpu.camera(vp,eye,fog);this.cameraState={target,eye,vp};return this.cameraState;}
  drawGroup(group,alpha=1,material=0,dy=0){let data=group.data;if(dy){data=group.data.slice();for(let i=0;i<group.count;i++)data[i*STRIDE+1]+=dy;}this.gpu.upload(group.mesh,data,group.count);this.gpu.draw(group.mesh,group.count,alpha,material,!group.transparent&&alpha>.9);}
  render(){this.w=this.canvas.clientWidth;this.h=this.canvas.clientHeight;const ratio=Math.min(devicePixelRatio||1,1.5);if(this.overlay.width!==Math.round(this.w*ratio)||this.overlay.height!==Math.round(this.h*ratio)){this.overlay.width=Math.round(this.w*ratio);this.overlay.height=Math.round(this.h*ratio);}const c=this.ctx;c.setTransform(ratio,0,0,ratio,0,0);c.clearRect(0,0,this.w,this.h);if(this.lost){c.fillStyle='#d1dcc6';c.font='16px system-ui';c.fillText('Графический контекст потерян. Ожидаем восстановления…',30,80);return;}
- const q=this.travel.x,blend=smooth(1.32,1.88,q);this.gpu.begin(this.model.time,this.ratio);this.gpu.fields(this.model.fields,this.field);this.bodyLabels=[];
+ const q=this.travel.x,blend=smooth(1.32,1.88,q);this.gpu.begin(this.model.time,q<1.5?Math.max(1,this.ratio):this.ratio);this.gpu.fields(this.model.fields,this.field);this.bodyLabels=[];
  if(this.inspect){this.renderCell();return;}
  if(blend<.998){const target=mix3([0,-.32,0],ORGAN_POINTS[this.model.site.id],smooth(0,1,q)),distance=q<1?mix(9.7,2.6,smooth(0,1,q)):2.6*Math.exp(-(q-1)*3.8);const cam=this.camera(target,distance*(this.w<650?2.3:1),this.yaw.x,this.pitch.x,.022);
   for(const group of this.bodyGroups){const isSelected=group.site===this.model.site.id;const a=group.site==='stars'?(1-smooth(0,.8,q)):(group.site==='floor'?1-smooth(.3,.9,q):1-(isSelected?0:smooth(.6,1.5,q)*.76));this.drawGroup(group,(1-blend)*a);}
-  const shellOpacity=(1-smooth(.08,1.3,q))*.32;this.drawGroup(this.skinGroup,(1-blend)*shellOpacity,1);
+  const shellOpacity=1-smooth(.2,1.3,q);this.drawGroup(this.skinGroup,(1-blend)*shellOpacity,0);for(const face of this.faceGroups)this.drawGroup(face,(1-blend)*shellOpacity,0);this.drawGroup(this.windowGroup,(1-blend)*shellOpacity*.10,1);
   if(q<1.25)for(const s of SITES){const p=project(ORGAN_POINTS[s.id],cam.vp,this.w,this.h);if(p&&p.z<1){this.bodyLabels.push({...p,id:s.id,name:s.name});}}
   this.drawBodyLabels(q);
  }
@@ -70,25 +65,65 @@ export class World{
   const distance=q<2?mix(110,51,smooth(1.32,2,q)):mix(51,8,smooth(2,3,q));const pitch=clamp(this.pitch.x+.44,.06,1.35);this.camera(target,distance,this.yaw.x,pitch,.014);
   this.drawGroup(this.capillaryGroup,blend);
   for(const group of this.tissueGroups.filter(g=>!g.transparent))this.drawGroup(group,blend,0,this.lifts[group.layer||0].x*(group.layer||0)*3.8);
-  this.renderCloud(blend);this.renderParticles(blend);
+  this.renderCloud(blend);this.renderParticles(blend);this.renderLifeEvents(blend);
   if(this.showConnections)this.connections(blend);
   for(const group of this.tissueGroups.filter(g=>g.transparent))this.drawGroup(group,blend,0,this.lifts[group.layer||0].x*(group.layer||0)*3.8);
-  for(let i=1;i<Math.min(4,this.model.site.layers.length);i++){const z=i*1.4+this.lifts[i].x*i*3.8;writeInstance(this.gelData,0,[0,z,0],[1,1,1],'#659e95',undefined,.14);this.gpu.upload(this.gel,this.gelData,1);this.gpu.draw(this.gel,1,blend,2,false);}
+  for(let i=1;i<Math.min(this.autoLow?2:3,this.model.site.layers.length);i++){const z=i*1.4+this.lifts[i].x*i*3.8;writeInstance(this.gelData,0,[0,z,0],[1,1,1],'#659e95',undefined,.14);this.gpu.upload(this.gel,this.gelData,1);this.gpu.draw(this.gel,1,blend,2,false);}
   this.drawMicroLabels();
  }
  }
- renderCloud(alpha){const counts={};for(const k in this.speciesBuffers)counts[k]=0;const cloud=this.cloud,t=this.calm?0:this.model.time;
- for(let i=0;i<cloud.count;i++){const id=cloud.ids[cloud.species[i]],s=byId[id],type=s.shape,buf=this.speciesBuffers[type];if(!buf)continue;const vp=this.cameraState.vp,x=cloud.x[i],y=cloud.y[i]+this.lifts[3].x*11.4,z=cloud.z[i],cw=vp[3]*x+vp[7]*y+vp[11]*z+vp[15],cx=vp[0]*x+vp[4]*y+vp[8]*z+vp[12],cy=vp[1]*x+vp[5]*y+vp[9]*z+vp[13];if(cw<.01||Math.abs(cx)>cw+2||Math.abs(cy)>cw+2)continue;const mass=this.model.pop[id]/this.model.initial[id];const size=cloud.size[i]*clamp(Math.sqrt(mass),.24,1.5);const a=clamp(mass,.06,1)*(this.selectedSpecies&&this.selectedSpecies!==id?.22:1);const phase=cloud.phase[i],angle=cloud.angle[i]+(this.calm?0:Math.sin(t*.13+phase)*.1),q=quatFromY([Math.cos(angle),Math.sin(phase)*.3,Math.sin(angle)]),pos=[cloud.x[i],cloud.y[i]+this.lifts[3].x*11.4,cloud.z[i]];writeInstance(buf,counts[type]++,pos,[size,size,size],s.color,q,a,cloud.activity[i]*.6,phase);}
- for(const[type,count]of Object.entries(counts)){if(count){this.gpu.upload(this.microMeshes[type],this.speciesBuffers[type],count);this.gpu.draw(this.microMeshes[type],count,alpha);}}
- // Flagella are genuine 3D filaments on a bounded set of motile representatives.
- let n=0;for(let i=0;i<Math.min(cloud.count,600);i++){const s=byId[cloud.ids[cloud.species[i]]];if(!s.flagellum)continue;const pos=cloud.position(i),angle=cloud.angle[i],r=cloud.size[i];for(let j=0;j<8;j++){const u=j*.16;writeInstance(this.miscBuffer,n++,[pos[0]+Math.cos(angle)*(.5+u),pos[1]+Math.sin(j*.9+t*2)*.13+this.lifts[3].x*11.4,pos[2]+Math.sin(angle)*(.5+u)],[r*.10,r*.1,r*.1],s.color);}}
- this.gpu.upload(this.particle,this.miscBuffer,n);this.gpu.draw(this.particle,n,alpha);
- if(this.selected>=0){const p=cloud.position(this.selected);p[1]+=this.lifts[3].x*11.4;writeInstance(this.one,0,p,[.9,.9,.9],'#d8e4ac',undefined,1,1);this.gpu.upload(this.ring,this.one,1);this.gpu.draw(this.ring,1,alpha);}
+ renderCloud(alpha){
+ const cloud=this.cloud,high={},low={},mid={},t=cloud.visualTime;this.visibleAgents=[];let details=0,middle=0;
+ const budget=this.quality==='detail'?420:this.quality==='eco'||this.autoLow?36:120;
+ for(const key in this.speciesBuffers){high[key]=0;low[key]=0;mid[key]=0;}
+ for(let i=0;i<cloud.count;i++){
+  const id=cloud.ids[cloud.species[i]],s=byId[id],type=s.shape,vp=this.cameraState.vp,x=cloud.x[i],y=cloud.y[i]+this.lifts[3].x*11.4,z=cloud.z[i];
+  const cw=vp[3]*x+vp[7]*y+vp[11]*z+vp[15],cx=vp[0]*x+vp[4]*y+vp[8]*z+vp[12],cy=vp[1]*x+vp[5]*y+vp[9]*z+vp[13];
+  if(cw<.01||Math.abs(cx)>cw+2||Math.abs(cy)>cw+2)continue;
+  const mass=this.model.pop[id]/this.model.initial[id],size=cloud.size[i]*clamp(Math.sqrt(mass),.24,1.5),radius=size*this.h/(.75*cw);
+  this.visibleAgents.push({id:i,x:(cx/cw*.5+.5)*this.w,y:(.5-cy/cw*.5)*this.h,radius,depth:cw,size});
  }
- renderParticles(alpha){let count=0;const t=this.model.time;for(const d of this.cloud.deposits){const age=this.calm?0:t-d.at;for(let i=0;i<85;i++){const phase=i*2.399,spread=1+age*.21,r=Math.sqrt(i/85)*spread*3,pos=[d.pos[0]+Math.cos(phase)*r,d.pos[1]+Math.cos(i*3.1)*2-age*.1,d.pos[2]+Math.sin(phase)*r],size=d.kind==='fiber'?[.045,.3,.045]:[.09,.09,.09];writeInstance(this.particleBuffer,count++,pos,size,d.kind==='fiber'?'#e6c678':'#dfabc4',quatFromY([Math.cos(phase),1,Math.sin(phase)]),clamp(1-age/28),.7);}}
+ this.visibleAgents.sort((a,b)=>(b.id===this.selected?1:0)-(a.id===this.selected?1:0)||b.radius-a.radius);
+ for(const item of this.visibleAgents){
+  const i=item.id,id=cloud.ids[cloud.species[i]],s=byId[id],type=s.shape,size=item.size,phase=cloud.phase[i],angle=cloud.angle[i];
+  const detailed=i===this.selected||(item.radius>7&&details<budget),medium=!detailed&&item.radius>3&&middle<(this.quality==='detail'?400:180);
+  if(detailed)details++;if(medium)middle++;
+  const buf=detailed?this.speciesBuffers[type]:medium?this.mediumBuffers[type]:this.lightBuffers[type],counts=detailed?high:medium?mid:low;
+  const mass=this.model.pop[id]/this.model.initial[id],a=clamp(mass,.06,1)*(this.selectedSpecies&&this.selectedSpecies!==id?.25:1);
+  const q=quatFromY([Math.cos(angle),Math.sin(phase+t*.55)*.16,Math.sin(angle)]),pulse=this.calm?1:1+cloud.activity[i]*.07*Math.sin(t*5+phase);
+  writeInstance(buf,counts[type]++,[cloud.x[i],cloud.y[i]+this.lifts[3].x*11.4,cloud.z[i]],[size*pulse,size,size*pulse],liveColor(id),q,a,cloud.activity[i]*.45,phase);
+ }
+ for(const[type,count]of Object.entries(mid))if(count){this.gpu.upload(this.mediumMeshes[type],this.mediumBuffers[type],count);this.gpu.draw(this.mediumMeshes[type],count,alpha);}
+ for(const[type,count]of Object.entries(low))if(count){this.gpu.upload(this.lightMeshes[type],this.lightBuffers[type],count);this.gpu.draw(this.lightMeshes[type],count,alpha);}
+ for(const[type,count]of Object.entries(high))if(count){this.gpu.upload(this.microMeshes[type],this.speciesBuffers[type],count);this.gpu.draw(this.microMeshes[type],count,alpha);}
+ this.lodStats={visible:this.visibleAgents.length,detailed:details,medium:middle,light:this.visibleAgents.length-details-middle};
+ // Only nearby flagella merit filament geometry; at a distance the swimming trajectory carries the story.
+ let n=0,filaments=0;
+ for(const item of this.visibleAgents){if(filaments>=24)break;const i=item.id,s=byId[cloud.ids[cloud.species[i]]];if(!s.flagellum||item.radius<4)continue;filaments++;
+  const pos=cloud.position(i),angle=cloud.angle[i],r=cloud.size[i];
+  for(let j=0;j<7;j++){const u=j*.16;writeInstance(this.miscBuffer,n++,[pos[0]-Math.cos(angle)*(.5+u),pos[1]+Math.sin(j*.9+t*7)*.14+this.lifts[3].x*11.4,pos[2]-Math.sin(angle)*(.5+u)],[r*.12,r*.12,r*.12],liveColor(s.id));}
+ }
+ this.gpu.upload(this.tissueCell,this.miscBuffer,n);this.gpu.draw(this.tissueCell,n,alpha);
+ if(this.selected>=0){const p=cloud.position(this.selected);p[1]+=this.lifts[3].x*11.4;writeInstance(this.one,0,p,[.9,.9,.9],'#fff2a3',undefined,1,.5);this.gpu.upload(this.ring,this.one,1);this.gpu.draw(this.ring,1,alpha);}
+ }
+ renderLifeEvents(alpha){
+ let n=0;const cloud=this.cloud,t=cloud.visualTime;
+ for(const e of cloud.events){
+  const age=t-e.at,u=clamp(age/3),a=cloud.position(e.from),b=cloud.position(e.to);
+  for(let j=0;j<6;j++){
+   const f=clamp(u-j*.035),p=mix3(a,b,f);p[1]+=Math.sin(f*Math.PI)*1.2+this.lifts[3].x*11.4;
+   writeInstance(this.particleBuffer,n++,p,[.09,.09,.09],j%2?'#ffd65d':'#55e3ff',undefined,(1-j/7)*Math.sin(u*Math.PI),.7);
+  }
+  if(age>2.9){const v=clamp((age-2.9)/1.9),p=[b[0],b[1]*(1-v)+heightAt(this.model.site.id,b[0],b[2])*v,b[2]];
+   writeInstance(this.particleBuffer,n++,p,[.12,.12,.12],'#ffd65d',undefined,Math.sin(v*Math.PI),.8);
+  }
+ }
+ this.gpu.upload(this.tissueCell,this.particleBuffer,n);this.gpu.draw(this.tissueCell,n,alpha,0,false);
+ }
+ renderParticles(alpha){let count=0;const t=this.model.time,visual=this.cloud.visualTime;for(const d of this.cloud.deposits){const age=this.calm?0:t-d.at;for(let i=0;i<85;i++){const phase=i*2.399,spread=1+age*.21,r=Math.sqrt(i/85)*spread*3,pos=[d.pos[0]+Math.cos(phase)*r,d.pos[1]+Math.cos(i*3.1)*2-age*.1,d.pos[2]+Math.sin(phase)*r],size=d.kind==='fiber'?[.045,.3,.045]:[.09,.09,.09];writeInstance(this.particleBuffer,count++,pos,size,d.kind==='fiber'?'#e6c678':'#dfabc4',quatFromY([Math.cos(phase),1,Math.sin(phase)]),clamp(1-age/28),.7);}}
  const evt=this.model.events.at(-1);if(evt&&evt.kind==='antibiotic'){const age=t-evt.time,env=this.calm?0:burst(age,.08,5);for(let i=0;i<180;i++){const a=i*2.399,y=(i%13)/13*12,r=age*3;writeInstance(this.particleBuffer,count++,[Math.cos(a)*r,y,Math.sin(a)*r],[.06,.06,.06],'#d59ada',undefined,env,.8);}}
- if(this.model.site.id==='colon'){for(let i=0;i<75;i++){const x=Math.sin(i*13.2)*24,z=Math.cos(i*9.1)*24,y=1+((i*.71-(this.calm?0:t)*.5)%10+10)%10;writeInstance(this.particleBuffer,count++,[x,y,z],[.035,.12,.035],'#bbd885',undefined,this.model.butyrate,.8);}}
- this.gpu.upload(this.particle,this.particleBuffer,count);this.gpu.draw(this.particle,count,alpha,0,false);
+ if(this.model.site.id==='colon'){for(let i=0;i<75;i++){const x=Math.sin(i*13.2)*24,z=Math.cos(i*9.1)*24,y=1+((i*.71-(this.calm?0:visual)*1.6)%10+10)%10;writeInstance(this.particleBuffer,count++,[x,y,z],[.035,.12,.035],'#bbd885',undefined,this.model.butyrate,.8);}}
+ this.gpu.upload(this.tissueCell,this.particleBuffer,count);this.gpu.draw(this.tissueCell,count,alpha,0,false);
  }
  connections(alpha){let n=0;const ids=['bact','faec','akk','meth'],cloud=this.cloud;for(let i=0;i<ids.length-1;i++){const a=cloud.ids.indexOf(ids[i]),b=cloud.ids.indexOf(ids[i+1]);let from=-1,to=-1;for(let j=0;j<cloud.count;j++){if(from<0&&cloud.species[j]===a)from=j;if(to<0&&cloud.species[j]===b)to=j;}if(from<0||to<0)continue;for(let k=0;k<32;k++){const u=((k/32+(this.calm?0:this.model.time)*.08)%1),p=mix3(cloud.position(from),cloud.position(to),u);p[1]+=Math.sin(u*Math.PI)*3+this.lifts[3].x*11.4;writeInstance(this.miscBuffer,n++,p,[.035,.035,.035],'#d9d999',undefined,.7,.8);}}
  this.gpu.upload(this.particle,this.miscBuffer,n);this.gpu.draw(this.particle,n,alpha,0,false);
@@ -109,9 +144,35 @@ export class World{
  }
 
  label(text,pos,color='#c4dba0'){const p=project(pos,this.cameraState.vp,this.w,this.h);if(!p||p.z>1)return;const c=this.ctx;c.font='11px system-ui';const width=c.measureText(text).width+20,x=clamp(p.x+24,8,this.w-width-8),y=p.y;c.strokeStyle=color+'88';c.lineWidth=.8;c.beginPath();c.moveTo(p.x,p.y);c.lineTo(x,y-14);c.stroke();c.fillStyle='#102526ec';c.beginPath();c.roundRect(x,y-30,width,25,5);c.fill();c.fillStyle=color;c.fillText(text,x+10,y-13);}
- drawBodyLabels(q){if(q>.9)return;const c=this.ctx;for(const p of this.bodyLabels){const selected=p.id===this.model.site.id;c.fillStyle=selected?'#d7e7a1':'#abc8bb';c.beginPath();c.arc(p.x,p.y,selected?5:2.4,0,6.28);c.fill();if(selected){c.strokeStyle='#d7e7a16b';c.beginPath();c.arc(p.x,p.y,12,0,6.28);c.stroke();const side=p.x<this.w/2?-1:1;const tx=p.x+side*80;c.strokeStyle='#c1d4aa70';c.beginPath();c.moveTo(p.x+side*14,p.y);c.lineTo(tx,p.y-19);c.stroke();c.font='12px system-ui';c.textAlign=side<0?'right':'left';c.fillStyle='#d8e0c8';c.fillText(p.name,tx,p.y-28);c.textAlign='left';}}}
- drawMicroLabels(){if(this.exploded){this.model.site.layers.forEach((l,i)=>this.label(l,[-20,i*1.4+this.lifts[i].x*i*3.8,5]));}if(this.selected>=0){const pos=this.cloud.position(this.selected);pos[1]+=this.lifts[3].x*11.4;const s=byId[this.cloud.ids[this.cloud.species[this.selected]]];this.label(s.name+' · #'+this.selected,pos,s.color);}}
- pick(x,y){if(this.travel.x<1.1){const p=this.bodyLabels.reduce((best,p)=>{const d=Math.hypot(p.x-x,p.y-y);return d<26&&(!best||d<best.d)?{...p,d}:best;},null);return p?{site:p.id}:null;}if(this.travel.x<1.8||this.inspect)return null;const ray=rayFromCamera(x,y,this.w,this.h,this.cameraState.eye,this.cameraState.target,.72);let best=-1,nearest=Infinity;for(let i=0;i<this.cloud.count;i++){const pos=this.cloud.position(i);pos[1]+=this.lifts[3].x*11.4;const t=raySphere(ray,pos,Math.max(.23,this.cloud.size[i]*1.7));if(t<nearest){nearest=t;best=i;}}return best>=0?{agent:best}:null;}
+ drawBodyLabels(q){if(q>.9)return;const c=this.ctx;for(const p of this.bodyLabels){const selected=p.id===this.model.site.id;if(!selected&&['mouth','nose'].includes(p.id))continue;c.fillStyle=selected?'#d7e7a1':'#abc8bb';c.beginPath();c.arc(p.x,p.y,selected?5:2.4,0,6.28);c.fill();if(selected){c.strokeStyle='#d7e7a16b';c.beginPath();c.arc(p.x,p.y,12,0,6.28);c.stroke();const side=p.x<this.w/2?-1:1;const tx=p.x+side*80;c.strokeStyle='#c1d4aa70';c.beginPath();c.moveTo(p.x+side*14,p.y);c.lineTo(tx,p.y-19);c.stroke();c.font='12px system-ui';c.textAlign=side<0?'right':'left';c.fillStyle='#d8e0c8';c.fillText(p.name,tx,p.y-28);c.textAlign='left';}}}
+ drawMicroLabels(){if(this.exploded){this.model.site.layers.forEach((l,i)=>this.label(l,[-20,i*1.4+this.lifts[i].x*i*3.8,5]));}if(this.selected>=0){const pos=this.cloud.position(this.selected);pos[1]+=this.lifts[3].x*11.4;const s=byId[this.cloud.ids[this.cloud.species[this.selected]]];if(!this.thoughts)this.label(s.name+' · #'+this.selected,pos,liveColor(s.id));}this.drawThoughts();}
+ drawThoughts(){
+ this.bubbleHits=[];if(!this.thoughts||this.inspect||this.exploded||this.travel.x<1.9)return;
+ const cloud=this.cloud,c=this.ctx,t=cloud.visualTime,epoch=Math.floor(t/7),mobile=this.w<650;
+ const left=mobile?12:this.w*.26,right=mobile?this.w-12:this.w*.72,top=mobile?430:180,bottom=mobile?568:this.h-160;
+ if(this.bubbleEpoch!==epoch||!this.bubbleSlots.length){
+  this.bubbleEpoch=epoch;const candidates=this.visibleAgents.filter(p=>p.x>left+80&&p.x<right-80&&p.y>top+55&&p.y<bottom-25&&p.radius>2.4).sort((a,b)=>((a.id+epoch*137)%701)-((b.id+epoch*137)%701));
+  this.bubbleSlots=candidates.slice(0,35).map(p=>p.id);
+ }
+ const ids=[...(this.selected>=0?[this.selected]:[]),...cloud.events.flatMap(e=>[e.from,e.to]),...this.bubbleSlots],boxes=[];
+ for(const id of ids){
+  if(boxes.length>=(mobile?1:3))break;if(boxes.some(b=>b.id===id||this.cloud.species[b.id]===this.cloud.species[id]))continue;
+  const p=this.visibleAgents.find(p=>p.id===id);if(!p||p.x<left||p.x>right||p.y<top||p.y>bottom)continue;
+  const text=cloud.thought(id),s=byId[cloud.ids[cloud.species[id]]];c.font='600 12px system-ui';
+  const maxWidth=Math.min(285,right-left-8),words=text.split(' '),lines=[];let line='';
+  for(const word of words){if(c.measureText(line+' '+word).width>maxWidth-22&&line){lines.push(line);line=word;}else line+=(line?' ':'')+word;}if(line)lines.push(line);
+  const width=Math.min(maxWidth,Math.max(145,...lines.map(l=>c.measureText(l).width+24))),height=31+lines.length*16;
+  const x=clamp(p.x-width*.5,left,right-width),y=clamp(p.y-p.radius-26-height,top,bottom-height),box={id,x,y,w:width,h:height};
+  if(boxes.some(b=>x<b.x+b.w+12&&x+width+12>b.x&&y<b.y+b.h+15&&y+height+15>b.y))continue;
+  const alpha=this.calm||id===this.selected?1:Math.min(1,(t%7)/.25,(7-t%7)/.4);if(alpha<.02)continue;c.globalAlpha=alpha;
+  c.strokeStyle=liveColor(s.id);c.lineWidth=1.4;c.fillStyle='#122940f5';c.beginPath();c.roundRect(x,y,width,height,10);c.fill();c.stroke();
+  c.beginPath();c.moveTo(clamp(p.x,x+10,x+width-10),y+height);c.lineTo(p.x,p.y-p.radius-3);c.stroke();
+  c.fillStyle=liveColor(s.id);c.font='10px system-ui';c.fillText(s.name+' · #'+id,x+11,y+16);c.fillStyle='#fff9e8';c.font='600 12px system-ui';
+  lines.forEach((line,j)=>c.fillText(line,x+11,y+34+j*16));c.globalAlpha=1;boxes.push(box);
+ }
+ this.bubbleHits=boxes;
+ }
+ pick(x,y){const bubble=this.bubbleHits.find(b=>x>=b.x&&x<=b.x+b.w&&y>=b.y&&y<=b.y+b.h);if(bubble&&this.travel.x>1.8&&!this.inspect)return {agent:bubble.id};if(this.travel.x<1.1){const p=this.bodyLabels.reduce((best,p)=>{const d=Math.hypot(p.x-x,p.y-y);return d<26&&(!best||d<best.d)?{...p,d}:best;},null);return p?{site:p.id}:null;}if(this.travel.x<1.8||this.inspect)return null;const ray=rayFromCamera(x,y,this.w,this.h,this.cameraState.eye,this.cameraState.target,.72);let best=-1,nearest=Infinity;for(let i=0;i<this.cloud.count;i++){const pos=this.cloud.position(i);pos[1]+=this.lifts[3].x*11.4;const t=raySphere(ray,pos,Math.max(.23,this.cloud.size[i]*1.7));if(t<nearest){nearest=t;best=i;}}return best>=0?{agent:best}:null;}
  floorPoint(x,y){const r=rayFromCamera(x,y,this.w,this.h,this.cameraState.eye,this.cameraState.target,.72);if(Math.abs(r.dir[1])<.001)return[0,7,0];const t=(5-r.origin[1])/r.dir[1];return t>0?[clamp(r.origin[0]+r.dir[0]*t,-28,28),5,clamp(r.origin[2]+r.dir[2]*t,-28,28)]:[0,5,0];}
  focusAgent(i){this.selected=i;if(!this.follow){const target=this.cameraState?.target||[0,4,0];this.focusPoint.forEach((s,j)=>{s.x=target[j];s.v=0;});}this.follow=true;this.goal=2.88;this.targetPitch=.15;}
 }

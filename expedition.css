@@ -11,3 +11,16 @@ dialog{width:min(850px,calc(100vw - 30px));max-height:90vh;overflow:auto;border:
 .scale-caption{pointer-events:none}
 @media(min-width:961px){.navigator{width:260px}.scale-caption{left:auto;right:3%;width:232px;bottom:22px}.navigator .tour{margin-top:5px}}
 @media(min-width:651px) and (max-width:960px){.scale-caption{left:auto;right:17px;width:204px;bottom:23px;max-width:none}.navigator h1{font-size:31px}.navigator .intro{font-size:9px}.nav-section{margin-top:17px}.habitat{padding:6px 8px}.tour{padding-top:10px}}
+/* Living edition: legible controls, brighter accents, no additional DOM agents. */
+.micro-tools button,.micro-tools label{font-size:10px;color:#c3dfda;background:#12313bde;border-color:#3d666b;padding:6px 8px}
+.micro-tools select{font-size:10px;color:#e4f5d3;background:#12313b}
+.micro-tools .active,#thoughts[aria-pressed="true"]{color:#ffe394;border-color:#cfb77c;background:#274444}
+#motion-note{display:block;flex-basis:100%;font-size:10px;color:#bed2bf;text-shadow:0 1px 3px #000;background:#11282ac9;padding:4px 7px;border-radius:4px}
+.resident{border-color:#456367;color:#d9ead4}.agent-live{line-height:1.65}
+@media(max-width:960px){.micro-tools{left:24%;right:25%}.micro-tools button,.micro-tools label{font-size:9px;padding:4px 5px}.micro-tools select{font-size:9px}}
+@media(max-width:650px){.micro-tools{left:17px;right:53px;top:298px;gap:3px}.micro-tools button,.micro-tools label{font-size:8px;padding:4px}.micro-tools select{font-size:8px}#motion-note{font-size:8px}.micro-tools [data-field="1"],.micro-tools [data-field="2"],#connections{display:none}}
+.card-stats b{white-space:nowrap;font-size:19px}
+@media(max-width:650px){.micro-tools button,.micro-tools label,.micro-tools select{font-size:10px}.micro-tools{right:53px}#motion-note{font-size:9px}}
+#feed-nearby{color:#ffe69c;border-color:#bca55d;background:#384632}
+#feed-nearby:disabled{opacity:.45;cursor:default}
+@media(max-width:650px){body.micro .expedition:after{background:linear-gradient(180deg,#061920ed 0%,#061920db 24%,transparent 43%,transparent 65%,#0a171960 100%)}body.micro .navigator .intro{width:280px;max-width:100%;font-size:10px}}

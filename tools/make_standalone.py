@@ -7,7 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 FILES = ['iso-kit.mjs', 'lathe.mjs', 'gl.mjs', 'src/data.js', 'src/model.js',
          'src/webgl2/math.js', 'src/webgl2/geometry.js', 'src/webgl2/gpu.js',
-         'src/webgl2/cloud.js', 'src/webgl2/world.js', 'src/expedition.js']
+         'src/webgl2/cloud.js', 'src/webgl2/living.js', 'src/webgl2/human.js', 'src/webgl2/world.js', 'src/expedition.js']
 modules = ['"use strict";\nconst __modules = Object.create(null);']
 for name in FILES:
     path = ROOT / name

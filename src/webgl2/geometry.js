@@ -44,3 +44,36 @@ export function microbeGeometry() {
  meshes.phage=combine(parts);
  return meshes;
 }
+
+export function octahedron(){
+ const points=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
+ return {vertices:points.flatMap(p=>[...p,...p]),indices:[0,2,4,4,2,1,1,2,5,5,2,0,4,3,0,1,3,4,5,3,1,0,3,5]};
+}
+export function lightMicrobeGeometry(){
+ const ball=octahedron(),rod=combine([{mesh:ball,scale:[1,1.7,1]}]);
+ return {rod,oval:ball,protist:ball,yeast:combine([{mesh:ball,scale:[1,1.3,1]},{mesh:ball,pos:[.8,1.25,0],scale:[.5,.6,.5]}]),
+ cocci:combine([{mesh:ball},{mesh:ball,pos:[1.3,.6,0],scale:[.8,.8,.8]},{mesh:ball,pos:[-1.1,.3,0],scale:[.85,.85,.85]}]),
+ branch:combine([segment([0,-1.6,0],[0,.2,0],.5,rod),segment([0,0,0],[-1,1.5,0],.45,rod),segment([0,0,0],[1,1.5,0],.45,rod)]),
+ spiral:rod,phage:combine([{mesh:ball,pos:[0,1.5,0],scale:[1.1,1.2,1.1]},segment([0,1,0],[0,-2,0],.15,rod)])};
+}
+
+// Split triangles exactly at a plane, including interpolated normals. Used for
+// a clean teaching cutaway instead of removing triangles by their centroids.
+export function splitPlane(mesh,axis,value){
+ const results=[{vertices:[],indices:[]},{vertices:[],indices:[]}];
+ const emit=(poly,out)=>{if(poly.length<3)return;const offset=out.vertices.length/6;for(const v of poly){const n=unit3(v.slice(3));out.vertices.push(...v.slice(0,3),...n);}for(let i=1;i<poly.length-1;i++)out.indices.push(offset,offset+i,offset+i+1);};
+ for(let k=0;k<mesh.indices.length;k+=3){const tri=mesh.indices.slice(k,k+3).map(i=>mesh.vertices.slice(i*6,i*6+6));
+  for(let side=0;side<2;side++){const polygon=[];for(let i=0;i<3;i++){const a=tri[i],b=tri[(i+1)%3],da=(a[axis]-value)*(side?-1:1),db=(b[axis]-value)*(side?-1:1);
+    if(da>=0)polygon.push(a);if((da<0&&db>0)||(da>0&&db<0)){const t=da/(da-db);polygon.push(a.map((v,j)=>v+(b[j]-v)*t));}}
+   emit(polygon,results[side]);}
+ }
+ return results;
+}
+export function mediumMicrobeGeometry(){
+ const ball=sphere(6,3),rod=capsule(6,4);
+ return {rod,oval:ball,protist:ball,yeast:combine([{mesh:ball,scale:[1,1.3,1]},{mesh:ball,pos:[.8,1.25,0],scale:[.5,.6,.5]}]),
+ cocci:combine([{mesh:ball},{mesh:ball,pos:[1.3,.6,0],scale:[.8,.8,.8]},{mesh:ball,pos:[-1.1,.3,0],scale:[.85,.85,.85]}]),
+ branch:combine([segment([0,-1.6,0],[0,.2,0],.5,rod),segment([0,0,0],[-1,1.5,0],.45,rod),segment([0,0,0],[1,1.5,0],.45,rod)]),
+ spiral:tube(Array.from({length:13},(_,i)=>[Math.sin(i*1.4)*.6,-2+i/3,Math.cos(i*1.4)*.6]),.32,4),
+ phage:combine([{mesh:ball,pos:[0,1.5,0],scale:[1.1,1.2,1.1]},segment([0,1,0],[0,-2,0],.15,rod)])};
+}
