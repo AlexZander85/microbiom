@@ -1,0 +1,2887 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ВНУТРЕННЯЯ ВСЕЛЕННАЯ — 3D-Симулятор Микробиома Человека</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #050814;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      color: #f0f6fc;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+    }
+    canvas:active {
+      cursor: grabbing;
+    }
+    .font-mono-tech {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .glass-panel {
+      background: rgba(10, 17, 36, 0.82);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(99, 179, 237, 0.22);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+    .glass-panel-gold {
+      background: rgba(24, 20, 10, 0.86);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(251, 191, 36, 0.4);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(251, 191, 36, 0.12);
+    }
+    .btn-action {
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-action:hover {
+      transform: translateY(-3px) scale(1.03);
+    }
+    .btn-action:active {
+      transform: translateY(1px) scale(0.97);
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.5);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(56, 189, 248, 0.4);
+      border-radius: 9999px;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.5); }
+      50% { box-shadow: 0 0 16px 4px rgba(56, 189, 248, 0.35); }
+    }
+    .pulse-highlight {
+      animation: pulseGlow 2s infinite;
+    }
+    /* Range slider styling */
+    input[type=range] {
+      -webkit-appearance: none;
+      background: transparent;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #0284c7, #10b981, #f59e0b);
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 3px solid #38bdf8;
+      margin-top: -6px;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.9);
+    }
+  </style>
+</head>
+<body class="relative select-none">
+
+  <!-- ОСНОВНОЙ 3D ХОЛСТ -->
+  <canvas id="simCanvas"></canvas>
+
+  <!-- ВЕРХНЯЯ ПАНЕЛЬ: СТАТУС ОРГАНИЗМА И НАВИГАЦИЯ ПО МАСШТАБУ -->
+  <header class="fixed top-2 left-2 right-2 z-20 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+    
+    <!-- Логотип и текущий биом -->
+    <div class="glass-panel rounded-2xl px-3.5 py-2 flex items-center gap-3 pointer-events-auto">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 via-teal-500 to-emerald-600 flex items-center justify-center text-xl shadow-lg shadow-cyan-500/30">
+        🔬
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-sm sm:text-base font-extrabold tracking-tight bg-gradient-to-r from-cyan-300 via-teal-200 to-amber-200 bg-clip-text text-transparent">
+            ВНУТРЕННЯЯ ВСЕЛЕННАЯ 3D
+          </h1>
+          <span id="zoomBadge" class="font-mono-tech text-[11px] px-2 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/40 text-cyan-200">
+            1500x МИКРОМИР
+          </span>
+        </div>
+        <p id="currentBiomeSubtitle" class="text-[11px] text-slate-300 flex items-center gap-1.5">
+          <span>📍 Локация:</span>
+          <strong id="biomeTitleText" class="text-emerald-300">Толстый кишечник (Подземный Мегаполис)</strong>
+        </p>
+      </div>
+    </div>
+
+    <!-- Главные показатели здоровья человека (Понятные шкалы) -->
+    <div class="glass-panel rounded-2xl px-3.5 py-2 flex flex-wrap items-center gap-3 sm:gap-5 pointer-events-auto">
+      <!-- Щит слизистой -->
+      <div class="flex flex-col min-w-[115px]" title="Защитный гель (муцин) и сцепка клеток человека. Если упадет — микробы прорвутся в кровь!">
+        <div class="flex justify-between text-[11px] font-semibold mb-1">
+          <span class="text-cyan-200">🛡️ Щит слизи:</span>
+          <span id="statBarrierText" class="font-mono-tech text-emerald-300">92%</span>
+        </div>
+        <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden border border-slate-700">
+          <div id="statBarrierBar" class="h-full bg-gradient-to-r from-cyan-400 to-emerald-400 transition-all duration-300" style="width: 92%"></div>
+        </div>
+      </div>
+
+      <!-- Энергия клеток (Бутират) -->
+      <div class="flex flex-col min-w-[115px]" title="Бутират — солнечное топливо, которое добрые бактерии делают из овощей для клеток человека">
+        <div class="flex justify-between text-[11px] font-semibold mb-1">
+          <span class="text-amber-200">⚡ Энергия клеток:</span>
+          <span id="statButyrateText" class="font-mono-tech text-amber-300">85%</span>
+        </div>
+        <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden border border-slate-700">
+          <div id="statButyrateBar" class="h-full bg-gradient-to-r from-amber-400 to-yellow-300 transition-all duration-300" style="width: 85%"></div>
+        </div>
+      </div>
+
+      <!-- Индекс Дружбы и Разнообразия -->
+      <div class="flex flex-col min-w-[115px]" title="Индекс биоразнообразия Шеннона: чем больше разных добрых видов, тем сложнее чужакам захватить власть!">
+        <div class="flex justify-between text-[11px] font-semibold mb-1">
+          <span class="text-purple-200">🌈 Разнообразие:</span>
+          <span id="statDiversityText" class="font-mono-tech text-purple-300">Высокое</span>
+        </div>
+        <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden border border-slate-700">
+          <div id="statDiversityBar" class="h-full bg-gradient-to-r from-fuchsia-400 to-indigo-400 transition-all duration-300" style="width: 88%"></div>
+        </div>
+      </div>
+
+      <!-- Кислотность pH и Кислород -->
+      <div class="hidden xl:flex items-center gap-3 pl-2 border-l border-slate-700/80 text-xs">
+        <div title="Кислотность среды. В кишечнике норма ~6.2, во рту ниже 5.5 разрушает эмаль, а в защитном барьере норма 4.0!">
+          <span class="text-slate-400">Кислотность pH:</span>
+          <strong id="statPhText" class="font-mono-tech text-cyan-300 ml-1">6.4</strong>
+        </div>
+        <div title="Уровень кислорода. Большинство добрых жителей кишечника не любят кислород!">
+          <span class="text-slate-400">O₂:</span>
+          <strong id="statO2Text" class="font-mono-tech text-sky-300 ml-1">1.2%</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Кнопки управления видом, звуком и подсказками -->
+    <div class="glass-panel rounded-2xl px-2.5 py-1.5 flex items-center gap-1.5 pointer-events-auto">
+      <button id="btnToggleBodyView" onclick="window.simApp.toggleMacroView()" class="btn-action px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-500/30 to-indigo-500/30 hover:from-sky-500/50 hover:to-indigo-500/50 border border-sky-400/50 text-xs font-bold text-sky-100 flex items-center gap-1.5 shadow-sm">
+        <span>🧍‍♂️</span> <span id="macroBtnLabel">Весь человек (3D)</span>
+      </button>
+      <button id="btnToggleBubbles" onclick="window.simApp.toggleSpeechBubbles()" class="btn-action px-2.5 py-1.5 rounded-xl bg-emerald-500/25 border border-emerald-400/50 text-xs font-semibold text-emerald-200 flex items-center gap-1" title="Включить или выключить смешные облачка мыслей над микробами">
+        <span>💬</span> <span class="hidden sm:inline">Мысли: ВКЛ</span>
+      </button>
+      <button id="btnToggleSound" onclick="window.simApp.toggleAudio()" class="btn-action px-2.5 py-1.5 rounded-xl bg-slate-800/90 border border-slate-600 text-xs font-semibold text-slate-300 flex items-center gap-1" title="Звуковые эффекты микромира">
+        <span id="soundIcon">🔇</span>
+      </button>
+      <button onclick="window.simApp.openEncyclopediaModal()" class="btn-action px-2.5 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/50 text-xs font-bold text-amber-200 flex items-center gap-1" title="Открыть иллюстрированный Атлас всех 5 царств микромира">
+        <span>📖</span> <span class="hidden md:inline">Атлас 5 Царств</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ЛЕВАЯ КОЛОНКА: ВЫБОР ОРГАНА (5 БИОМОВ) И 3D-ЗУМ + ШКОЛА МИКРОНАВТА -->
+  <aside class="fixed left-2 top-20 bottom-24 z-10 w-72 sm:w-80 flex flex-col gap-2.5 pointer-events-none">
+    
+    <!-- Переключатель 5 Биомов Человека и Зум -->
+    <div class="glass-panel rounded-2xl p-3 pointer-events-auto flex flex-col gap-2">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-bold uppercase tracking-wider text-cyan-300 flex items-center gap-1.5">
+          <span>🚀</span> Навигатор по Органам
+        </span>
+        <span class="text-[10px] text-slate-400">Крути 3D мышкой!</span>
+      </div>
+
+      <!-- 5 Кнопок Биомов -->
+      <div class="grid grid-cols-1 gap-1.5" id="biomeButtonsContainer">
+        <!-- Заполняется из JS -->
+      </div>
+
+      <!-- Ползунок 3D Погружения (Semantic Zoom) -->
+      <div class="mt-1 pt-2 border-t border-slate-700/70">
+        <div class="flex justify-between items-center text-[11px] mb-1">
+          <span class="text-slate-300 font-medium">🔍 Глубина уменьшения:</span>
+          <div class="flex gap-1">
+            <button onclick="window.simApp.setTargetZoom(2.5)" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-sky-300 border border-slate-600">1x Тело</button>
+            <button onclick="window.simApp.setTargetZoom(220)" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-emerald-300 border border-slate-600">200x Слизь</button>
+            <button onclick="window.simApp.setTargetZoom(1600)" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-amber-300 border border-slate-600">1500x Клетки</button>
+          </div>
+        </div>
+        <input id="zoomSlider" type="range" min="1" max="3000" value="1500" class="w-full" oninput="window.simApp.onZoomSliderChange(this.value)" />
+      </div>
+    </div>
+
+    <!-- ШКОЛА МИКРОНАВТА (Интерактивные квесты для ребенка и взрослого) -->
+    <div class="glass-panel-gold rounded-2xl p-3 pointer-events-auto flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-1.5">
+          <span class="text-base">🎓</span>
+          <h2 class="text-xs font-extrabold uppercase tracking-wider text-amber-300">Школа Микронавта</h2>
+        </div>
+        <span id="questProgressBadge" class="text-[11px] font-mono-tech px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-200 border border-amber-400/40">
+          Миссия 1 / 5
+        </span>
+      </div>
+
+      <!-- Текущее задание -->
+      <div id="questCardContent" class="bg-slate-900/75 rounded-xl p-2.5 border border-amber-500/30 flex flex-col gap-1.5">
+        <div id="questTitle" class="text-xs font-bold text-amber-200">
+          Урок 1: «Супер-Обед и Дружная Передача Паса»
+        </div>
+        <p id="questDescription" class="text-[11px] text-slate-200 leading-relaxed">
+          Клетки нашего кишечника обожают солнечное топливо — <b>Бутират</b>. Но сами они сделать его не могут! Нажми кнопку <b>«🥦 Овощи и Клетчатка»</b> внизу и посмотри, как бирюзовый Повар (<i>Bacteroides</i>) нарубит салат и передаст пас золотому Хранителю (<i>Faecalibacterium</i>)!
+        </p>
+        <div id="questActionHint" class="text-[11px] font-semibold text-emerald-300 bg-emerald-950/60 border border-emerald-500/30 rounded-lg px-2 py-1 mt-0.5">
+          👉 Задача: Нажми «🥦 Овощи и Клетчатка» внизу экрана
+        </div>
+      </div>
+
+      <!-- Переключатель уроков -->
+      <div class="flex items-center justify-between gap-1 mt-auto pt-1">
+        <button onclick="window.simApp.prevQuest()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] text-slate-300 border border-slate-600">
+          ◀ Пред. урок
+        </button>
+        <div id="questDots" class="flex gap-1"></div>
+        <button onclick="window.simApp.nextQuest()" class="px-2.5 py-1 rounded-lg bg-amber-500/25 hover:bg-amber-500/40 text-[11px] text-amber-200 font-semibold border border-amber-400/40">
+          След. урок ▶
+        </button>
+      </div>
+    </div>
+
+    <!-- Живая лента событий («Микро-Новости») -->
+    <div class="glass-panel rounded-2xl p-2.5 pointer-events-auto hidden sm:flex flex-col gap-1 max-h-32 overflow-hidden">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-sky-300 flex items-center justify-between">
+        <span>📡 Прямой эфир с микроскопа:</span>
+        <span id="populationCounter" class="font-mono-tech text-emerald-300">Жителей: 68</span>
+      </div>
+      <div id="liveFeedList" class="flex flex-col gap-1 overflow-y-auto text-[11px] pr-1">
+        <!-- События добавляются динамически -->
+      </div>
+    </div>
+  </aside>
+
+  <!-- ПРАВАЯ КОЛОНКА: ИНСПЕКТОР ВЫБРАННОГО МИКРОБА (ДВУХУРОВНЕВОЕ ДОСЬЕ) -->
+  <aside id="inspectorPanel" class="fixed right-2 top-20 bottom-24 z-10 w-72 sm:w-84 flex flex-col gap-2.5 pointer-events-none">
+    
+    <!-- Быстрый выбор жителя для наблюдения -->
+    <div class="glass-panel rounded-2xl p-2.5 pointer-events-auto">
+      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-300 mb-1.5 flex items-center justify-between">
+        <span>🎯 Нажми на микроба в 3D или выбери тут:</span>
+      </div>
+      <div id="quickSpeciesBar" class="flex flex-wrap gap-1">
+        <!-- Иконки видов для быстрого фокуса -->
+      </div>
+    </div>
+
+    <!-- Карточка-Досье Выбранного Микроба -->
+    <div class="glass-panel rounded-2xl p-3.5 pointer-events-auto flex-1 min-h-0 overflow-y-auto flex flex-col gap-2.5 border-l-4 border-l-cyan-400" id="dossierCard">
+      <div class="flex items-start justify-between gap-2">
+        <div>
+          <span id="dossierKingdomBadge" class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-200 border border-cyan-400/40">
+            ЦАРСТВО: БАКТЕРИИ
+          </span>
+          <h3 id="dossierCommonName" class="text-base font-extrabold text-white mt-1 leading-tight">
+            Мастер-Повар Клетчатки
+          </h3>
+          <p id="dossierLatinName" class="text-xs italic text-cyan-300 font-medium">
+            Bacteroides thetaiotaomicron
+          </p>
+        </div>
+        <button onclick="window.simApp.clearSelection()" class="text-slate-400 hover:text-white text-xs px-2 py-1 rounded-lg bg-slate-800/80 border border-slate-700" title="Открепить камеру">
+          Свободная камера ✕
+        </button>
+      </div>
+
+      <!-- Роль: Добрый / Оборотень / Злой -->
+      <div id="dossierRoleBox" class="rounded-xl px-2.5 py-1.5 text-xs font-bold flex items-center gap-2 bg-emerald-500/20 border border-emerald-400/40 text-emerald-200">
+        <span id="dossierRoleIcon">🟢</span>
+        <span id="dossierRoleTitle">Добрый друг-симбионт (но в голод шалит!)</span>
+      </div>
+
+      <!-- Живая телеметрия конкретной клетки -->
+      <div class="bg-slate-900/85 rounded-xl p-2.5 border border-slate-700/80 grid grid-cols-2 gap-2 text-[11px]">
+        <div>
+          <span class="text-slate-400 block">Что делает сейчас:</span>
+          <strong id="dossierCurrentAction" class="text-amber-300">Рубит клетчатку 🥦</strong>
+        </div>
+        <div>
+          <span class="text-slate-400 block">Супер-оружие / Защита:</span>
+          <strong id="dossierWeapon" class="text-cyan-300">Гарпун T6SS 🏹</strong>
+        </div>
+        <div class="col-span-2">
+          <div class="flex justify-between text-[10px] mb-0.5">
+            <span class="text-slate-400">Сытость и энергия клетки (АТФ):</span>
+            <span id="dossierEnergyText" class="font-mono-tech text-emerald-300">88%</span>
+          </div>
+          <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+            <div id="dossierEnergyBar" class="h-full bg-emerald-400 transition-all duration-200" style="width:88%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Объяснение для 10-летнего ребенка -->
+      <div class="bg-gradient-to-br from-sky-950/80 to-indigo-950/80 rounded-xl p-2.5 border border-sky-400/30">
+        <div class="text-[11px] font-extrabold text-sky-300 uppercase tracking-wide mb-1 flex items-center gap-1">
+          <span>🧒</span> Понятно каждому (Простыми словами):
+        </div>
+        <p id="dossierKidText" class="text-xs text-slate-100 leading-relaxed">
+          Представь шеф-повара с 88 наборами ножей! Наше тело не умеет переваривать твердую кожицу яблок, брокколи или овсянку. А этот повар разрубает их на вкусные кусочки и кормит ими других добрых бактерий. Но берегись: если ты долго не ешь овощи, голодный повар начнет откусывать защитную слизь со стенок твоего живота!
+        </p>
+      </div>
+
+      <!-- Рацион: Что ест и что выделяет -->
+      <div class="grid grid-cols-2 gap-1.5 text-[11px]">
+        <div class="bg-slate-900/70 p-2 rounded-xl border border-slate-700/60">
+          <span class="text-emerald-300 font-bold block mb-0.5">🍽️ Чем питается:</span>
+          <span id="dossierDietIn" class="text-slate-200">Клетчатка овощей и фруктов (или слизь в голод)</span>
+        </div>
+        <div class="bg-slate-900/70 p-2 rounded-xl border border-slate-700/60">
+          <span class="text-amber-300 font-bold block mb-0.5">🎁 Что производит:</span>
+          <span id="dossierDietOut" class="text-slate-200">Ацетат и пропионат (еда для соседей)</span>
+        </div>
+      </div>
+
+      <!-- Научная справка (как у взрослых ученых) -->
+      <div class="bg-slate-900/60 rounded-xl p-2.5 border border-slate-700/60 mt-auto">
+        <div class="text-[10px] font-bold text-purple-300 uppercase tracking-wider mb-1 flex items-center gap-1">
+          <span>🔬</span> Научный факт (Современная биология):
+        </div>
+        <p id="dossierScienceText" class="text-[11px] text-slate-300 leading-relaxed">
+          Тип Bacteroidota. Грамотрицательный строгий анаэроб. Геном содержит 88 локусов утилизации полисахаридов (PUL). Участвует в синтрофии (кросс-фидинге) с бутират-продуцентами и защищает нишу с помощью контактного гарпуна T6SS.
+        </p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- НИЖНЯЯ ПАНЕЛЬ: ПУЛЬТ ЭКСПЕРИМЕНТОВ («ЧТО БУДЕТ, ЕСЛИ...») -->
+  <footer class="fixed bottom-2 left-2 right-2 z-20 flex justify-center pointer-events-none">
+    <div class="glass-panel rounded-2xl px-3 py-2 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2.5 pointer-events-auto max-w-5xl">
+      
+      <div class="hidden lg:flex flex-col pr-2 border-r border-slate-700">
+        <span class="text-[10px] font-extrabold uppercase tracking-wider text-cyan-300">🧪 Пульт экспериментов</span>
+        <span class="text-[10px] text-slate-400">Проверь реакцию микромира!</span>
+      </div>
+
+      <!-- 1. Овощи и Клетчатка -->
+      <button onclick="window.simApp.triggerAction('fiber')" class="btn-action px-3 py-2 rounded-xl bg-gradient-to-b from-emerald-500/30 to-teal-700/40 hover:from-emerald-500/50 hover:to-teal-600/60 border border-emerald-400/60 text-xs font-bold text-emerald-100 flex items-center gap-2 shadow-lg shadow-emerald-950/50" title="Бросить сложные пищевые волокна (брокколи, инулин, овсянку) для добрых бактерий">
+        <span class="text-lg">🥦</span>
+        <div class="text-left leading-tight">
+          <div>Овощи и Клетчатка</div>
+          <div class="text-[9px] font-normal text-emerald-300">Супер-обед для друзей</div>
+        </div>
+      </button>
+
+      <!-- 2. Сладости и Газировка -->
+      <button onclick="window.simApp.triggerAction('sugar')" class="btn-action px-3 py-2 rounded-xl bg-gradient-to-b from-pink-500/30 to-rose-700/40 hover:from-pink-500/50 hover:to-rose-600/60 border border-pink-400/60 text-xs font-bold text-pink-100 flex items-center gap-2 shadow-lg shadow-rose-950/50" title="Бросить быстрый сахар и эмульгаторы: разбудит грибок-оборотень Кандиду и кислотных бурильщиков эмали!">
+        <span class="text-lg">🍩</span>
+        <div class="text-left leading-tight">
+          <div>Сладости и Газировка</div>
+          <div class="text-[9px] font-normal text-pink-300">Кормит грибок и кариес</div>
+        </div>
+      </button>
+
+      <!-- 3. Режим Голода -->
+      <button id="btnFasting" onclick="window.simApp.triggerAction('fasting')" class="btn-action px-3 py-2 rounded-xl bg-gradient-to-b from-amber-500/25 to-orange-700/35 hover:from-amber-500/45 hover:to-orange-600/50 border border-amber-400/60 text-xs font-bold text-amber-100 flex items-center gap-2 shadow-lg shadow-amber-950/50" title="Отключить еду: посмотри, как голодные бактерии переключаются на поедание защитной слизи человека!">
+        <span class="text-lg">⏳</span>
+        <div class="text-left leading-tight">
+          <div id="fastingBtnTitle">Режим Голода: ВЫКЛ</div>
+          <div class="text-[9px] font-normal text-amber-300">Проверка щита слизи</div>
+        </div>
+      </button>
+
+      <!-- 4. Антибиотик -->
+      <button onclick="window.simApp.triggerAction('antibiotic')" class="btn-action px-3 py-2 rounded-xl bg-gradient-to-b from-purple-600/35 to-fuchsia-800/45 hover:from-purple-500/55 hover:to-fuchsia-700/65 border border-purple-400/60 text-xs font-bold text-purple-100 flex items-center gap-2 shadow-lg shadow-purple-950/50" title="Токсическая волна: убивает и плохих, и добрых бактерий, но оставляет споры монстра C. difficile и грибы!">
+        <span class="text-lg">💊</span>
+        <div class="text-left leading-tight">
+          <div>Удар Антибиотика</div>
+          <div class="text-[9px] font-normal text-purple-300">Шторм и кольца защиты</div>
+        </div>
+      </button>
+
+      <!-- 5. Вторжение Чужаков (Сальмонелла) -->
+      <button onclick="window.simApp.triggerAction('pathogen')" class="btn-action px-3 py-2 rounded-xl bg-gradient-to-b from-red-600/35 to-rose-900/50 hover:from-red-500/55 hover:to-rose-800/70 border border-red-400/60 text-xs font-bold text-red-100 flex items-center gap-2 shadow-lg shadow-red-950/50" title="Запустить опасных пиратов-захватчиков (Сальмонеллу и золотистого стафилококка)">
+        <span class="text-lg">🦠</span>
+        <div class="text-left leading-tight">
+          <div>Атака Чужаков</div>
+          <div class="text-[9px] font-normal text-red-300">Вторжение пиратов</div>
+        </div>
+      </button>
+
+      <!-- 6. Десант Бактериофагов (Вирусы-спасатели) -->
+      <button onclick="window.simApp.triggerAction('phages')" class="btn-action px-3 py-2 rounded-xl bg-gradient-to-b from-cyan-500/30 to-blue-700/45 hover:from-cyan-400/50 hover:to-blue-600/60 border border-cyan-400/60 text-xs font-bold text-cyan-100 flex items-center gap-2 shadow-lg shadow-cyan-950/50" title="Выпустить прицельных вирусов-телохранителей (Бактериофагов), которые охотятся только на хулиганов!">
+        <span class="text-lg">🚀</span>
+        <div class="text-left leading-tight">
+          <div>Десант Фагов</div>
+          <div class="text-[9px] font-normal text-cyan-300">Вирусы-телохранители</div>
+        </div>
+      </button>
+
+      <!-- 7. Пробиотики и Симбионты -->
+      <button onclick="window.simApp.triggerAction('probiotics')" class="btn-action px-3 py-2 rounded-xl bg-gradient-to-b from-teal-500/30 to-emerald-800/45 hover:from-teal-400/50 hover:to-emerald-700/65 border border-teal-300/60 text-xs font-bold text-teal-100 flex items-center gap-2 shadow-lg shadow-teal-950/50" title="Подселить полную команду дружелюбных бактерий и восстановить экосистему">
+        <span class="text-lg">🛡️</span>
+        <div class="text-left leading-tight">
+          <div>Десант Друзей</div>
+          <div class="text-[9px] font-normal text-teal-300">Пробиотики и восстановление</div>
+        </div>
+      </button>
+
+    </div>
+  </footer>
+
+  <!-- ВСПЛЫВАЮЩЕЕ УВЕДОМЛЕНИЕ О ВЫПОЛНЕНИИ МИССИИ / НАУЧНОМ СОБЫТИИ -->
+  <div id="toastBanner" class="fixed top-20 left-1/2 -translate-x-1/2 z-30 pointer-events-none opacity-0 transition-all duration-500 transform -translate-y-4">
+    <div class="glass-panel-gold rounded-2xl px-5 py-3 flex items-center gap-3 shadow-2xl border-2 border-amber-400">
+      <span id="toastIcon" class="text-2xl">🏆</span>
+      <div>
+        <div id="toastTitle" class="text-sm font-extrabold text-amber-200">Отличное открытие!</div>
+        <div id="toastText" class="text-xs text-slate-100">Повар передал ацетат Хранителю стены, и клетки получили Бутират!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛЬНОЕ ОКНО: ИЛЛЮСТРИРОВАННЫЙ АТЛАС 5 ЦАРСТВ МИКРОМИРА -->
+  <div id="encyclopediaModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="glass-panel rounded-3xl max-w-4xl w-full max-h-[88vh] flex flex-col overflow-hidden border border-cyan-400/40">
+      <div class="p-4 sm:p-5 border-b border-slate-700/80 flex items-center justify-between bg-slate-900/60">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">📖</span>
+          <div>
+            <h2 class="text-lg font-extrabold text-white">Большой Атлас Микромира Человека (Все 5 Царств)</h2>
+            <p class="text-xs text-cyan-300">Кто живет внутри нас, чем они питаются и почему не бывает только «злых» или «добрых»</p>
+          </div>
+        </div>
+        <button onclick="window.simApp.closeEncyclopediaModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sm font-bold text-slate-200 border border-slate-600">
+          Закрыть ✕
+        </button>
+      </div>
+      <div id="encyclopediaGrid" class="p-4 sm:p-5 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-3">
+        <!-- Карточки всех видов генерируются автоматически из БД -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ГЛАВНЫЙ СКРИПТ 3D-СИМУЛЯТОРА -->
+  <script>
+    /**
+     * ============================================================================
+     * ВНУТРЕННЯЯ ВСЕЛЕННАЯ: 3D-СИМУЛЯТОР МИКРОБИОМА ЧЕЛОВЕКА (Holobiont 3D Engine)
+     * Полностью автономный 3D-движок на чистом HTML5 Canvas + Vanilla JS.
+     * Включает:
+     * 1. 3D-голограмму тела человека с 5 биомами и бесшовным полетом камеры внутрь.
+     * 2. Все 5 царств микромира: Бактерии, Археи, Грибы, Вирусы (Фаги), Простейшие + Иммунитет.
+     * 3. Реальные биохимические циклы: Синтрофия (Клетчатка -> Ацетат -> Бутират),
+     *    Поедание муцина в голод, Диморфизм грибка Кандида, Споры C. difficile,
+     *    Горизонтальный перенос плазмид устойчивости к антибиотикам и гарпуны T6SS.
+     * ============================================================================
+     */
+
+    // --- 1. БАЗА ДАННЫХ 5 БИОМОВ (ОРГАНОВ ЧЕЛОВЕКА) ---
+    const BIOMES_DB = {
+      gut: {
+        id: 'gut',
+        name: 'Толстый кишечник',
+        subtitle: 'Подземный Мегаполис и Биореактор',
+        icon: '🌀',
+        beaconPos3D: { x: 0, y: 55, z: 18 },
+        beaconColor: '#10b981',
+        defaultPh: 6.4,
+        defaultO2: 0.8,
+        bgGradient: ['#040b18', '#071b26', '#0e292d'],
+        tissueName: 'Колоноциты (клетки кишечника) и двухслойный гель-муцин',
+        kidSummary: 'Самый густонаселенный город во Вселенной! Здесь в темноте без кислорода триллионы поваров превращают овощи в солнечную энергию (бутират) для нашего тела.',
+        initialSpecies: {
+          bacteroides: 16,
+          faecalibacterium: 14,
+          akkermansia: 8,
+          bifidobacterium: 10,
+          methanobrevibacter: 5,
+          candida: 3,
+          cdiff: 3,
+          phage: 7,
+          blastocystis: 2,
+          macrophage: 2
+        }
+      },
+      mouth: {
+        id: 'mouth',
+        name: 'Ротовая полость',
+        subtitle: 'Зубной Каньон и Башни-Биопленки',
+        icon: '🦷',
+        beaconPos3D: { x: 0, y: -155, z: 24 },
+        beaconColor: '#38bdf8',
+        defaultPh: 6.8,
+        defaultO2: 12.0,
+        bgGradient: ['#080d21', '#111c38', '#1e293b'],
+        tissueName: 'Кристаллическая зубная эмаль, омываемая рекой слюны',
+        kidSummary: 'Здесь постоянно дует течение слюны! Чтобы их не смыло, бактерии строят многоэтажные небоскребы (зубной налет). Если есть много конфет, бактерии выделяют кислоту и бурят эмаль!',
+        initialSpecies: {
+          streptococcus: 18,
+          bifidobacterium: 8,
+          bacteroides: 7,
+          candida: 4,
+          phage: 6,
+          macrophage: 2
+        }
+      },
+      skin: {
+        id: 'skin',
+        name: 'Кожа и Фолликул',
+        subtitle: 'Кислотно-Липидная Пустыня',
+        icon: '🛡️',
+        beaconPos3D: { x: -75, y: -35, z: 15 },
+        beaconColor: '#f59e0b',
+        defaultPh: 4.9,
+        defaultO2: 18.0,
+        bgGradient: ['#140d08', '#24170c', '#2e1c10'],
+        tissueName: 'Кратер волосяного фолликула и золотые капли кожного сала',
+        kidSummary: 'На поверхности кожи сухо и кисло, как в пустыне, но в глубоких колодцах у корней волос бьют фонтаны жирного масла (себума). Добрые кожные жители едят это масло и делают защитный кислый плащ!',
+        initialSpecies: {
+          cutibacterium: 18,
+          staph_epi: 14,
+          candida: 3,
+          phage: 6,
+          macrophage: 2
+        }
+      },
+      lungs: {
+        id: 'lungs',
+        name: 'Легкие и Бронхи',
+        subtitle: 'Ветреный Эскалатор из Ресничек',
+        icon: '🌬️',
+        beaconPos3D: { x: 25, y: -65, z: 20 },
+        beaconColor: '#a855f7',
+        bgGradient: ['#060d24', '#0c1e3e', '#112e51'],
+        defaultPh: 7.3,
+        defaultO2: 21.0,
+        tissueName: 'Ковер из живых ресничек (мукоцилиарный эскалатор)',
+        kidSummary: 'В легких много воздуха, а пол покрыт миллионами живых ресничек. Они машут синхронно, как эскалатор в метро, выметая пыль и случайных микробов наружу, пока танки-Макрофаги ловят нарушителей!',
+        initialSpecies: {
+          streptococcus: 9,
+          bacteroides: 6,
+          phage: 6,
+          macrophage: 6
+        }
+      },
+      barrier: {
+        id: 'barrier',
+        name: 'Кислый Био-Щит',
+        subtitle: 'Царство Лактобактерий (pH 4.0)',
+        icon: '⚡',
+        beaconPos3D: { x: 0, y: 110, z: 16 },
+        beaconColor: '#ec4899',
+        defaultPh: 4.1,
+        defaultO2: 2.5,
+        bgGradient: ['#14071e', '#240d33', '#311042'],
+        tissueName: 'Богатый гликогеном эпителий под охраной молочной кислоты',
+        kidSummary: 'Уникальное место! Если в кишечнике нужно много разных видов, то здесь порядок держит один супер-род — Лактобактерии. Они делают среду такой кислой (как лимонный сок!), что ни один чужак не может пройти!',
+        initialSpecies: {
+          lactobacillus: 28,
+          bifidobacterium: 6,
+          candida: 4,
+          phage: 5,
+          macrophage: 2
+        }
+      }
+    };
+
+    // --- 2. ЭНЦИКЛОПЕДИЯ ВСЕХ ЖИТЕЛЕЙ (ВСЕ 5 ЦАРСТВ + ИММУНИТЕТ) ---
+    const SPECIES_DB = {
+      bacteroides: {
+        id: 'bacteroides',
+        kingdom: 'ЦАРСТВО: БАКТЕРИИ',
+        commonName: 'Мастер-Повар Клетчатки',
+        latinName: 'Bacteroides thetaiotaomicron',
+        roleType: 'friend',
+        roleBadge: '🟢 Добрый Повар (но в голод ест слизь!)',
+        color: '#2dd4bf',
+        coreColor: '#0d9488',
+        shape: 'capsule',
+        size: 13,
+        weaponName: 'Гарпун T6SS 🏹 + 88 ферментов',
+        dietIn: 'Сложная клетчатка овощей (или хозяйский муцин при голоде)',
+        dietOut: 'Ацетат и Пропионат (кормит соседей)',
+        kidText: 'Представь шеф-повара с 88 наборами ножей! Наше тело само не умеет переваривать твердую кожицу яблок, брокколи и овсянку. А этот повар разрубает их на вкусные кусочки (ацетат) и кормит ими других бактерий. Но если ты долго не ешь овощи, голодный повар начинает откусывать защитную слизь со стенок твоего живота!',
+        scienceText: 'Тип Bacteroidota. Грамотрицательный строгий анаэроб. Содержит 88 локусов утилизации полисахаридов (PUL). При дефиците пищевых волокон переключает транскрипцию генов на расщепление гликанов муцина хозяина.',
+        thoughtsPeace: ['Рублю брокколи! 🥦', 'Передаю пас ацетатом! 🍏', 'Стреляю гарпуном в чужаков! 🏹'],
+        thoughtsHungry: ['Ой, нет овощей... 😭', 'Придется кушать хозяйскую слизь! 😱', 'Дайте клетчатки! 🥦']
+      },
+      faecalibacterium: {
+        id: 'faecalibacterium',
+        kingdom: 'ЦАРСТВО: БАКТЕРИИ',
+        commonName: 'Солнечный Хранитель Стены',
+        latinName: 'Faecalibacterium prausnitzii',
+        roleType: 'friend',
+        roleBadge: '🟢 Лучший Друг Человека (Симбионт)',
+        color: '#facc15',
+        coreColor: '#10b981',
+        shape: 'rod_gold',
+        size: 13,
+        weaponName: 'Генератор Бутирата ⚡ (гасит воспаление)',
+        dietIn: 'Ацетат (от Повара Bacteroides) и пребиотики',
+        dietOut: 'Золотой Бутират (70% энергии клеткам кишечника!)',
+        kidText: 'Самый главный защитник нашего кишечника! Он ловит кусочки еды (ацетат), которые приготовил бирюзовый Повар, и превращает их в светящиеся золотые шарики — Бутират. Клетки человека съедают этот бутират, чинят защитную стену и сжигают лишний кислород!',
+        scienceText: 'Тип Bacillota (Firmicutes). Строгий анаэроб, составляет до 5–15% здоровой микробиоты. Главный продуцент масляной кислоты (бутирата), которая питает колоноциты через бета-окисление и индуцирует регуляторные Т-лимфоциты (Treg).',
+        thoughtsPeace: ['Ловлю пас от Повара! 🤝', 'Дарю Бутират клеткам человека! ⚡', 'Укрепляю стену кишечника! 🛡️'],
+        thoughtsHungry: ['Мало ацетата... 😟', 'Ой, кислород течет! Мне трудно дышать! 💨']
+      },
+      akkermansia: {
+        id: 'akkermansia',
+        kingdom: 'ЦАРСТВО: БАКТЕРИИ',
+        commonName: 'Садовник Слизистой',
+        latinName: 'Akkermansia muciniphila',
+        roleType: 'friend',
+        roleBadge: '🟢 Заботливый Садовник Щита',
+        color: '#c084fc',
+        coreColor: '#7e22ce',
+        shape: 'oval_glow',
+        size: 11,
+        weaponName: 'Белок Amuc_1100 (укрепляет контакты клеток)',
+        dietIn: 'Старый верхний слой слизи (муцин)',
+        dietOut: 'Ацетат + сигнал клеткам человека делать свежую слизь!',
+        kidText: 'Как хороший садовник подстригает газон, чтобы трава росла гуще, так и фиолетовая Аккермансия аккуратно подстригает старую слизь на стенках кишечника. От этого клетки человека радуются и выпускают в два раза больше свежей, густой защитной слизи!',
+        scienceText: 'Тип Verrucomicrobiota. Муцин-деградирующий симбионт. Стимулирует бокаловидные клетки к гиперсекреции муцина MUC2 и укрепляет плотные контакты (Tight Junctions) через мембранный белок Amuc_1100.',
+        thoughtsPeace: ['Подстригаю старую слизь ✂️✨', 'Клетки, делайте свежий гель! 🛡️', 'Держу строй на границе! 💜'],
+        thoughtsHungry: ['Слизь совсем тонкая, бережем щит! 🛡️']
+      },
+      bifidobacterium: {
+        id: 'bifidobacterium',
+        kingdom: 'ЦАРСТВО: БАКТЕРИИ',
+        commonName: 'Дружелюбная Рогатка',
+        latinName: 'Bifidobacterium longum',
+        roleType: 'friend',
+        roleBadge: '🟢 Защитник с первых дней жизни',
+        color: '#38bdf8',
+        coreColor: '#0284c7',
+        shape: 'y_rod',
+        size: 13,
+        weaponName: 'Кислотный щит (лактат и ацетат)',
+        dietIn: 'Олигосахариды, пищевые волокна, пребиотики',
+        dietOut: 'Ацетат и молочная кислота (кормит Хранителей)',
+        kidText: 'Узнать её проще простого — она похожа на светящуюся рогатку или букву «Y»! Это первые друзья, которые поселяются в нас еще в младенчестве. Они обожают растительную пищу, подкармливают производителей бутирата и отпугивают злых микробов.',
+        scienceText: 'Тип Actinomycetota. Грамположительная ветвящаяся анаэробная палочка. Использует уникальный «бифидо-шунт» (фруктозо-6-фосфатфосфокетолазу) для ферментации олигосахаридов до лактата и ацетата.',
+        thoughtsPeace: ['Я похожа на рогатку! ✌️', 'Делаю полезный ацетат! 🍼', 'Держу оборону от чужаков! 🛡️'],
+        thoughtsHungry: ['Жду вкусных пребиотиков! 🌾']
+      },
+      streptococcus: {
+        id: 'streptococcus',
+        kingdom: 'ЦАРСТВО: БАКТЕРИИ',
+        commonName: 'Кислотный Бурильщик Бусин',
+        latinName: 'Streptococcus mutans / mitis',
+        roleType: 'pathobiont',
+        roleBadge: '🟡 Сосед-Строитель (от сахара бурит эмаль!)',
+        color: '#fb923c',
+        coreColor: '#ea580c',
+        shape: 'chain_cocci',
+        size: 11,
+        weaponName: 'Клейкий купол биопленки + Молочная кислота',
+        dietIn: 'Сахар из конфет, печенья и сладкой газировки',
+        dietOut: 'Едкая кислота (растворяет эмаль зубов при pH < 5.5)',
+        kidText: 'Эти круглые бактерии держатся друг за друга как бусинки в ожерелье. Когда ты не ешь сладости, они ведут себя тихо. Но стоит выпить сладкой газировки — они строят липкий купол на зубе и поливают эмаль кислотой, пробивая в зубе дырку (кариес)!',
+        scienceText: 'Грамположительные факультативно-анаэробные кокки в цепочках. С помощью глюкозилтрансфераз синтезируют из сахарозы нерастворимый внеклеточный полисахарид глюкан (каркас зубной бляшки) и закисляют среду ниже критического pH 5.5.',
+        thoughtsPeace: ['Висим цепочкой на эмали 📿', 'Строим башню-биопленку 🏙️'],
+        thoughtsHungry: ['Ого, конфетка! Бурим эмаль кислотой! 🍬⛏️']
+      },
+      cutibacterium: {
+        id: 'cutibacterium',
+        kingdom: 'ЦАРСТВО: БАКТЕРИИ',
+        commonName: 'Хранитель Кожного Масла',
+        latinName: 'Cutibacterium acnes',
+        roleType: 'pathobiont',
+        roleBadge: '🟡 Хранитель Кожи (но в пробке бунтует)',
+        color: '#fbbf24',
+        coreColor: '#b45309',
+        shape: 'capsule',
+        size: 11,
+        weaponName: 'Липазы + Пропионовая кислота (кислая мантия)',
+        dietIn: 'Золотые капли кожного сала (себум в волосяном фолликуле)',
+        dietOut: 'Жирные кислоты (создают защитную кислую мантию кожи)',
+        kidText: 'Живет глубоко в норке, откуда растет волос, и кушает кожное масло! Благодаря ей поверхность нашей кожи остается слегка кислой, и вредные микробы с грязных рук не могут там выжить. Но если пора забивается пробкой, ей становится тесно и появляется прыщик!',
+        scienceText: 'Тип Actinomycetota. Липофильный аэротолерантный анаэроб сальных фолликулов. Гидролизует триглицериды кожного сала до свободных жирных кислот, поддерживая pH кожи ~4.7–5.5.',
+        thoughtsPeace: ['Кушаю кожное масло! 🍯', 'Держу кислый щит кожи pH 4.8! 🛡️'],
+        thoughtsHungry: ['Создаю защитные кислоты! ✨']
+      },
+      staph_epi: {
+        id: 'staph_epi',
+        kingdom: 'ЦАРСТВО: БАКТЕРИИ',
+        commonName: 'Кожный Рыцарь-Гроздь',
+        latinName: 'Staphylococcus epidermidis',
+        roleType: 'friend',
+        roleBadge: '🟢 Верный Рыцарь Кожи',
+        color: '#60a5fa',
+        coreColor: '#2563eb',
+        shape: 'cluster_cocci',
+        size: 11,
+        weaponName: 'Антибиотик Лугдунин (бьет золотистого стафилококка)',
+        dietIn: 'Аминокислоты и компоненты пота на коже',
+        dietOut: 'Природные пептиды-снайперы против злых бактерий',
+        kidText: 'Похож на гроздь синего винограда! Живет на поверхности кожи и тренирует наш иммунитет, а еще выделяет секретное вещество, которое прогоняет его злого родственника — опасного золотистого стафилококка.',
+        scienceText: 'Грамположительные кокки в гроздьях. Продуцируют лантибиотики (эпидермин) и циклический пептид лугдунин, подавляющий колонизацию патогенного S. aureus.',
+        thoughtsPeace: ['Охраняю кожу! 🛡️', 'Не пущу золотистого стафилококка! ⚔️'],
+        thoughtsHungry: ['Патрулирую поверхность эпидермиса! 👀']
+      },
+      lactobacillus: {
+        id: 'lactobacillus',
+        kingdom: 'ЦАРСТВО: БАКТЕРИИ',
+        commonName: 'Рыцарь Молочной Кислоты',
+        latinName: 'Lactobacillus crispatus',
+        roleType: 'friend',
+        roleBadge: '🟢 Главный Хранитель Кислого Щита',
+        color: '#f472b6',
+        coreColor: '#db2777',
+        shape: 'capsule',
+        size: 13,
+        weaponName: 'Молочная кислота (pH 4.0) + Перекись водорода H₂O₂',
+        dietIn: 'Гликоген клеток эпителия и полезные сахара',
+        dietOut: 'Мощный кислый барьер и природный антисептик',
+        kidText: 'Настоящий мастер кислотной защиты! В своем биоме эти розовые палочки создают такую кислую среду (почти как лимонный сок) и выпускают пузырьки перекиси водорода, что ни один вирус, грибок или злая бактерия не выдерживают!',
+        scienceText: 'Тип Bacillota. Доминирующий симбионт урогенитального тракта. Ферментирует гликоген эпителия до D- и L-молочной кислоты, удерживая экстремально низкий pH (3.8–4.5) и синтезируя бактериоцины и H₂O₂.',
+        thoughtsPeace: ['Держу кислый щит pH 4.0! ⚡', 'Выпускаю перекись против чужаков! 🫧'],
+        thoughtsHungry: ['Ни один враг не пройдет через кислый барьер! 🛡️']
+      },
+      methanobrevibacter: {
+        id: 'methanobrevibacter',
+        kingdom: 'ЦАРСТВО: АРХЕИ',
+        commonName: 'Архея — Газовый Пылесос',
+        latinName: 'Methanobrevibacter smithii',
+        roleType: 'friend',
+        roleBadge: '🔵 Древняя Архея-Помощник (Не бактерия!)',
+        color: '#3b82f6',
+        coreColor: '#1d4ed8',
+        shape: 'archaea_gem',
+        size: 12,
+        weaponName: 'Сверхпрочная мембрана (не боится обычных антибиотиков!)',
+        dietIn: 'Пузырьки водорода (H₂) и углекислый газ от бактерий',
+        dietOut: 'Метан (CH₄) и ускорение работы всего микробиома',
+        kidText: 'Внимание: это НЕ бактерия! Археи — древнейшие существа планеты, которые умеют жить даже в кипящих гейзерах. В нашем животе она работает как «газовый пылесос»: когда бактерии переваривают еду, вокруг них скапливается газ водород и мешает им работать. Архея всасывает этот водород, чтобы повара трудились быстрее!',
+        scienceText: 'Домен Archaea, тип Euryarchaeota. Метаногенный гидрогенотроф. Снижает парциальное давление H₂ в просвете кишки (восстанавливая CO₂ до CH₄), что снимает термодинамический блок с бактериального гликолиза и повышает выход КЦЖК.',
+        thoughtsPeace: ['Я древняя Архея, а не бактерия! 💎', 'Пылесошу лишний водород H₂! 🌪️', 'Антибиотики меня не берут! 🛡️'],
+        thoughtsHungry: ['Ищу пузырьки водорода от соседей! 🫧']
+      },
+      candida: {
+        id: 'candida',
+        kingdom: 'ЦАРСТВО: ГРИБЫ (МИКОБИОМ)',
+        commonName: 'Гриб-Оборотень Кандида',
+        latinName: 'Candida albicans',
+        roleType: 'pathobiont',
+        roleBadge: '🟡 Мирный Дрожжевой Гриб / 🔴 Оборотень со щупальцами',
+        color: '#f8fafc',
+        coreColor: '#e2e8f0',
+        shape: 'fungus_candida',
+        size: 24,
+        weaponName: 'Морфогенез в острые нити-гифы + токсин Кандидализин',
+        dietIn: 'Простые сахара (глюкоза из сладостей)',
+        dietOut: 'В мире — витамины и тренировка иммунитета; в бунте — прокол слизистой!',
+        kidText: 'Посмотри, какой он огромный — в 4 раза больше любой бактерии! Пока вокруг много добрых бактерий и мало сладкого, Кандида выглядит как пушистое мирное облачко (дрожжи). Но если выпить антибиотик или засыпать её конфетами, в ней просыпается Оборотень: она выпускает длинные колючие щупальца (гифы) и пытается проткнуть защитную слизь!',
+        scienceText: 'Диплоидный эукариотический гриб. Обладает фенотипической пластичностью (дрожжевая <-> гифальная форма). Короткоцепочечные жирные кислоты (особенно бутират) и бактериальные пептиды блокируют филаментацию. При дисбиозе гифы выделяют цитолитический пептидный токсин кандидализин.',
+        thoughtsPeace: ['Я большой мирный грибок ☁️', 'Бактерии держат меня в узде 🤝'],
+        thoughtsHungry: ['УРА, САХАР И СВОБОДА! Выпускаю щупальца-гифы! 🐙⚡']
+      },
+      cdiff: {
+        id: 'cdiff',
+        kingdom: 'ЦАРСТВО: БАКТЕРИИ',
+        commonName: 'Бронированный Монстр-Спора',
+        latinName: 'Clostridioides difficile',
+        roleType: 'pathobiont',
+        roleBadge: '🔴 Спящий Террорист (Просыпается после антибиотиков)',
+        color: '#be123c',
+        coreColor: '#881337',
+        shape: 'spore_rod',
+        size: 15,
+        weaponName: 'Неуязвимая броня-эндоспора + Токсины А и В',
+        dietIn: 'Свободные ресурсы после гибели других бактерий',
+        dietOut: 'Красные шары токсинов TcdA/TcdB, бьющие по клеткам человека',
+        kidText: 'Самый хитрый злодей микромира! Когда вокруг много добрых бактерий, ему не достается еды, и он прячется внутрь сверхпрочной бронированной капсулы — Споры. Даже антибиотик не может пробить эту броню! Но как только антибиотик уничтожит всех добрых соседей, Спора раскрывается, и монстр начинает обстреливать стенку кишечника токсинами!',
+        scienceText: 'Грамположительная спорообразующая анаэробная палочка. В норме подавляется вторичными желчными кислотами (синтезируемыми симбионтами вроде C. scindens) и конкуренцией за пролин. После антибиотикотерапии эндоспоры прорастают и секретируют гликозилтрансферазные токсины TcdA и TcdB, разрушающие актиновый цитоскелет колоноцитов.',
+        thoughtsPeace: ['Сплю в броне-споре... антибиотик мне нипочем! 🛡️💤', 'Жду, когда добрые бактерии исчезнут... 👁️'],
+        thoughtsHungry: ['ВСЕ ПОГИБЛИ! Выхожу из споры! Огонь токсинами! ☄️🔥']
+      },
+      salmonella: {
+        id: 'salmonella',
+        kingdom: 'ЦАРСТВО: БАКТЕРИИ',
+        commonName: 'Алый Пират-Захватчик',
+        latinName: 'Salmonella enterica',
+        roleType: 'pathogen',
+        roleBadge: '🔴 Опасный Чужак-Интервент (Облигатный патоген)',
+        color: '#ef4444',
+        coreColor: '#991b1b',
+        shape: 'flagella_pirate',
+        size: 14,
+        weaponName: 'Молекулярный шприц T3SS + Быстрые жгутики-пропеллеры',
+        dietIn: 'Крадет ресурсы и питается веществами воспаления!',
+        dietOut: 'Токсины и намеренное воспаление стенки',
+        kidText: 'Настоящий пират, который пробрался с немытыми руками или испорченной едой! У него много хвостов-пропеллеров, и он специально колет клетки человека, чтобы вызвать пожар (воспаление). Зачем? Потому что при воспалении выделяется кислород, от которого добрые бактерии слабеют, а пират-Сальмонелла захватывает территорию!',
+        scienceText: 'Тип Pseudomonadota (Proteobacteria). Подвижный факультативный анаэроб. С помощью системы секреции III типа (T3SS) вводит эффекторные белки в эпителий, вызывая выброс АФК (окисляющих тиосульфат до тетратионата), что позволяет сальмонелле дышать тетратионатом и вытеснять облигатных анаэробов.',
+        thoughtsPeace: ['На абордаж! Пробиваем слизь! 🏴‍☠️', 'Колю эпителий шприцем T3SS! 💉🔥'],
+        thoughtsHungry: ['Зовите подкрепление! Захватываем орган! ⚔️']
+      },
+      phage: {
+        id: 'phage',
+        kingdom: 'ЦАРСТВО: ВИРУСЫ (ФАГОМ)',
+        commonName: 'Бактериофаг — Вирус-Телохранитель',
+        latinName: 'crAssphage / Caudoviricetes',
+        roleType: 'friend',
+        roleBadge: '🟢 Прицельный Вирус-Снайпер (Безопасен для человека!)',
+        color: '#22d3ee',
+        coreColor: '#0891b2',
+        shape: 'phage_lander',
+        size: 10,
+        weaponName: 'Алмазный капсид + Игла впрыска ДНК (Охота на победителя)',
+        dietIn: 'Охотится только на бактерий-нарушителей и тех, кто слишком расплодился',
+        dietOut: 'Новые фаги-защитники и баланс микромира',
+        kidText: 'Слово «вирус» звучит страшно, но Бактериофаги — наши лучшие друзья! Они выглядят как лунные космические роботы на паучьих ножках. Клетки человека они вообще не трогают! Фаги сидят в засаде прямо в слое слизи и работают как снайперы: если приплывет пират-Сальмонелла или какой-то вид бактерий решит захватить весь город, фаг садится на него и превращает в 4 новых защитников!',
+        scienceText: 'Бактериальные вирусы порядка Caudoviricetes (включая crAss-подобные фаги). Обеспечивают не-хозяйский иммунитет по модели BAM (Bacteriophage Adherence to Mucus — связывание Ig-подобных доменов капсида с муцином) и поддерживают альфа-разнообразие по экологическому закону «Kill-the-Winner».',
+        thoughtsPeace: ['Сижу в засаде в слизи (BAM-щит) 🛰️', 'Ищу пиратов и нарушителей баланса! 🎯', 'Клетки человека не трогаю — я друг! 💙'],
+        thoughtsHungry: ['Цель захвачена! Посадка и лизис! 🚀💥']
+      },
+      blastocystis: {
+        id: 'blastocystis',
+        kingdom: 'ЦАРСТВО: ПРОСТЕЙШИЕ',
+        commonName: 'Добрый Пастух Микромира',
+        latinName: 'Blastocystis hominis (ST3/ST4)',
+        roleType: 'friend',
+        roleBadge: '🟢 Крупное Простейшее — Экологический Пастух',
+        color: '#34d399',
+        coreColor: '#059669',
+        shape: 'protozoa_sphere',
+        size: 23,
+        weaponName: 'Контроль численности бактериальных стад',
+        dietIn: 'Избыточные бактерии и органические частицы',
+        dietOut: 'Высокое разнообразие и спокойствие иммунитета',
+        kidText: 'Крупный прозрачный шар с сияющим изумрудным ядром внутри! Это представитель царства Простейших. Как добрый пастух следит за стадом овечек, так и Бластоцистис не дает одному виду бактерий вытеснить всех остальных, сохраняя в микромире мир и разнообразие.',
+        scienceText: 'Одноклеточный анаэробный эукариот группы Stramenopiles. Современные метагеномные исследования (Nature Microbiology) связывают колонизацию подтипами ST1–ST4 с высоким индексом разнообразия Шеннона, обилием бутират-продуцентов и здоровым кардиометаболическим профилем.',
+        thoughtsPeace: ['Пасу бактериальные стада 🐑✨', 'Берегу разнообразие в городе! 🌈'],
+        thoughtsHungry: ['Поддерживаю экологический баланс! ⚖️']
+      },
+      macrophage: {
+        id: 'macrophage',
+        kingdom: 'ИММУНИТЕТ ЧЕЛОВЕКА',
+        commonName: 'Макрофаг — Иммунный Танк-Амеба',
+        latinName: 'Macrophagocytus (Клетка хозяина)',
+        roleType: 'friend',
+        roleBadge: '🛡️ Полицейский Спецназ Человека',
+        color: '#818cf8',
+        coreColor: '#4f46e5',
+        shape: 'amoeba_tank',
+        size: 28,
+        weaponName: 'Ложноножки (Фагоцитоз) + Антитела sIgA',
+        dietIn: 'Проглатывает злых пиратов-Сальмонелл, токсины и клеточный мусор',
+        dietOut: 'Чистота тканей и сигналы для защиты организма',
+        kidText: 'Гигантский живой танк нашего собственного иммунитета! У него нет твердой формы — он перетекает как желе, вытягивает длинные руки-ложноножки, догоняет злых пиратов-бактерий и целиком проглатывает их (это называется фагоцитоз)! А добрых друзей он знает в лицо и не обижает.',
+        scienceText: 'Резидентный тканевый фагоцит врожденного иммунитета человека. Распознает патоген-ассоциированные молекулярные паттерны (PAMP) через Toll-подобные рецепторы (TLR), осуществляет фагоцитоз инвазивных патогенов и в норме поддерживает иммунологическую толерантность к комменсалам под действием бутирата.',
+        thoughtsPeace: ['Патрулирую границу слизистой! 🚓', 'Знаю друзей в лицо, ищу только пиратов! 🛡️'],
+        thoughtsHungry: ['Вижу нарушителя! Выпускаю ложноножки — ФАГОЦИТОЗ! 👾💥']
+      }
+    };
+
+    // --- 3. ОБУЧАЮЩИЕ МИССИИ «ШКОЛА МИКРОНАВТА» ---
+    const QUESTS_DB = [
+      {
+        id: 1,
+        title: 'Урок 1: «Супер-Обед и Дружная Передача Паса»',
+        desc: 'Клетки нашего кишечника обожают солнечное топливо — <b>Бутират</b>. Но сами сделать его они не умеют! Нажми кнопку <b>«🥦 Овощи и Клетчатка»</b> внизу и посмотри, как бирюзовый Повар (<i>Bacteroides</i>) нарубит салат на голубой <b>Ацетат</b> и передаст пас золотому Хранителю (<i>Faecalibacterium</i>)!',
+        hint: '👉 Задача: Нажми кнопку «🥦 Овощи и Клетчатка» внизу экрана',
+        toastTitle: 'Урок 1 пройден! Секрет командной работы раскрыт!',
+        toastText: 'Повар нарубил клетчатку в Ацетат, а Хранитель сделал из него золотой Бутират для клеток человека!'
+      },
+      {
+        id: 2,
+        title: 'Урок 2: «Тайна Голодного Живота»',
+        desc: 'Что будет, если человек перестанет есть овощи и клетчатку? Включи <b>«⏳ Режим Голода»</b> внизу! Ты увидишь удивительное открытие ученых: оставшись без обеда, даже добрые бирюзовые Повара спускаются вниз и начинают откусывать наш защитный <b>Щит слизи (муцин)</b>!',
+        hint: '👉 Задача: Нажми кнопку «⏳ Режим Голода», чтобы включить голодание',
+        toastTitle: 'Урок 2 пройден! Вот зачем микробам нужна клетчатка!',
+        toastText: 'Без пищевых волокон бактерии вынуждены питаться защитной слизью человека, и щит истончается!'
+      },
+      {
+        id: 3,
+        title: 'Урок 3: «Тайна Гриба-Оборотня и Сахарная Буря»',
+        desc: 'Найди взглядом крупный белый шар — это грибок <b>Кандида</b> (представитель царства Грибов). Пока сахара мало, он мирный. Нажми <b>«🍩 Сладости и Газировка»</b> и посмотри, как от избытка сахара он превращается в Оборотня с ветвистыми щупальцами-гифами!',
+        hint: '👉 Задача: Нажми «🍩 Сладости и Газировка» и проследи за белым грибом Кандида',
+        toastTitle: 'Урок 3 пройден! Ты увидел превращение Гриба-Оборотня!',
+        toastText: 'От избытка сахара Кандида перешла из дрожжевой формы в гифальную и выпустила щупальца!'
+      },
+      {
+        id: 4,
+        title: 'Урок 4: «Удар Антибиотика и Пробуждение Споры»',
+        desc: 'Антибиотики спасают жизни, но для мирного микромира это ураган! Нажми <b>«💊 Удар Антибиотика»</b>. Ты увидишь 3 чуда науки: 1) выжившие бактерии передадут соседям золотые <b>колечки защиты (плазмиды)</b>; 2) Археям и Грибам антибиотик нипочем; 3) спящая <b>бронированная спора C. difficile</b> проснется!',
+        hint: '👉 Задача: Нажми «💊 Удар Антибиотика» и посмотри на передачу колец ДНК и споры',
+        toastTitle: 'Урок 4 пройден! Ты увидел плазмиды и пробуждение спор!',
+        toastText: 'Спора C. difficile пережила антибиотик и проснулась! Скорее подсели друзей кнопкой «🛡️ Десант Друзей»!'
+      },
+      {
+        id: 5,
+        title: 'Урок 5: «Битва на Гарпунах и Десант Вирусов-Фагов»',
+        desc: 'Испытай настоящую микро-войну! Нажми <b>«🦠 Атака Чужаков»</b> (приплывут алые пираты-Сальмонеллы), а затем вызови <b>«🚀 Десант Фагов»</b>! Ты увидишь, как добрые бактерии отстреливаются <b>гарпунами T6SS</b>, а космические вирусы-телохранители садятся на пиратов и взрывают их!',
+        hint: '👉 Задача: Нажми «🦠 Атака Чужаков», а затем «🚀 Десант Фагов»',
+        toastTitle: 'Поздравляем! Ты окончил Школу Микронавта с отличием! 🏆',
+        toastText: 'Вирусы-бактериофаги и гарпуны T6SS разгромили захватчиков, не задев ни одной клетки человека!'
+      }
+    ];
+
+    // --- 4. ПРОЦЕДУРНЫЙ ЗВУКОВОЙ ДВИЖОК (Web Audio API без внешних файлов) ---
+    class BioSoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.enabled = false;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.ctx = new AudioCtx();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      playBubble(freq = 420) {
+        if (!this.enabled || !this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          const now = this.ctx.currentTime;
+          osc.frequency.setValueAtTime(freq, now);
+          osc.frequency.exponentialRampToValueAtTime(freq * 1.8, now + 0.11);
+          gain.gain.setValueAtTime(0.06, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.12);
+        } catch (e) {}
+      }
+      playHarpoon() {
+        if (!this.enabled || !this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          const now = this.ctx.currentTime;
+          osc.frequency.setValueAtTime(880, now);
+          osc.frequency.exponentialRampToValueAtTime(190, now + 0.09);
+          gain.gain.setValueAtTime(0.05, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.09);
+        } catch (e) {}
+      }
+      playChord(notes = [440, 554, 659]) {
+        if (!this.enabled || !this.ctx) return;
+        notes.forEach((n, idx) => {
+          setTimeout(() => this.playBubble(n), idx * 70);
+        });
+      }
+    }
+
+    // --- 5. ГЛАВНЫЙ КЛАСС 3D-СИМУЛЯТОРА ---
+    class MicrobiomeSimulator3D {
+      constructor() {
+        this.canvas = document.getElementById('simCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.sound = new BioSoundEngine();
+
+        // Размеры экрана
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+
+        // Параметры 3D-камеры и Семантического Зума
+        this.zoom = 1500;           // 1..10 = 3D Человек, 10..3000 = Внутри органа
+        this.targetZoom = 1500;
+        this.fov = 520;
+        this.camYaw = 0;            // Вращение 3D-сцены по горизонтали
+        this.camPitch = 0.08;       // Наклон 3D-сцены
+        this.bodyYaw = 0.35;        // Вращение 3D-голограммы человека
+        this.isDragging = false;
+        this.dragStartX = 0;
+        this.dragStartY = 0;
+        this.pointerMoved = false;
+
+        // Состояние симуляции
+        this.currentBiomeId = 'gut';
+        this.showSpeechBubbles = true;
+        this.isFasting = false;
+        this.antibioticWave = 0;    // 0..1 интенсивность волны антибиотика
+        this.time = 0;
+
+        // Показатели среды и здоровья органа
+        this.mucinHealth = 92;      // 0..100% толщина и целостность защитной слизи
+        this.butyrateLevel = 84;    // 0..100% энергия клеток эпителия
+        this.shannonIndex = 88;     // 0..100% биоразнообразие
+        this.ph = 6.4;
+        this.o2 = 0.8;
+
+        // Списки 3D-объектов
+        this.agents = [];           // Микроорганизмы (Бактерии, Археи, Грибы, Фаги, Простейшие, Макрофаги)
+        this.molecules = [];        // 3D-молекулы: Клетчатка, Сахар, Ацетат, Бутират, Водород H2, Токсины, Сало
+        this.effects = [];          // 3D-лучи гарпунов T6SS, мостики передачи плазмид, вспышки лизиса
+        this.bodyPoints = [];       // 3D-точки голограммы человека для Макро-режима
+        this.selectedAgent = null;
+
+        // Прогресс Школы Микронавта
+        this.currentQuestIndex = 0;
+        this.completedQuests = new Set();
+        this.attackTriggeredInQuest5 = false;
+
+        this.initBodyHologramPoints();
+        this.initUI();
+        this.loadBiome('gut', false);
+        this.bindEvents();
+        this.resize();
+
+        // Запуск главного 60 FPS цикла
+        this.lastFrameTime = performance.now();
+        requestAnimationFrame((t) => this.loop(t));
+      }
+
+      // --- ГЕНЕРАЦИЯ 3D-ГОЛОГРАММЫ ЧЕЛОВЕКА (ДЛЯ МАКРО-УРОВНЯ 1x-10x) ---
+      initBodyHologramPoints() {
+        this.bodyPoints = [];
+        const addCylinder = (yStart, yEnd, rx, rz, rings, ptsPerRing, xOffset = 0, color = '#38bdf8') => {
+          for (let i = 0; i <= rings; i++) {
+            const t = i / rings;
+            const y = yStart + (yEnd - yStart) * t;
+            // Анатомическое сужение талии и шеи
+            let radiusScale = 1.0;
+            if (y > -120 && y < 120) {
+              // Торс
+              radiusScale = 0.85 + 0.2 * Math.sin(t * Math.PI);
+            }
+            for (let j = 0; j < ptsPerRing; j++) {
+              const ang = (j / ptsPerRing) * Math.PI * 2;
+              this.bodyPoints.push({
+                x: xOffset + Math.cos(ang) * rx * radiusScale,
+                y: y,
+                z: Math.sin(ang) * rz * radiusScale,
+                color
+              });
+            }
+          }
+        };
+
+        // Голова (сфера)
+        for (let i = 0; i < 9; i++) {
+          const lat = (i / 8 - 0.5) * Math.PI;
+          const r = Math.cos(lat) * 34;
+          const y = -168 + Math.sin(lat) * 38;
+          for (let j = 0; j < 14; j++) {
+            const lon = (j / 14) * Math.PI * 2;
+            this.bodyPoints.push({
+              x: Math.cos(lon) * r,
+              y,
+              z: Math.sin(lon) * r,
+              color: '#38bdf8'
+            });
+          }
+        }
+        // Шея
+        addCylinder(-130, -110, 16, 15, 3, 10, 0, '#38bdf8');
+        // Торс
+        addCylinder(-110, 115, 62, 36, 16, 22, 0, '#0284c7');
+        // Руки
+        addCylinder(-100, 85, 16, 16, 10, 8, -82, '#0ea5e9');
+        addCylinder(-100, 85, 16, 16, 10, 8, 82, '#0ea5e9');
+        // Ноги
+        addCylinder(115, 250, 23, 22, 10, 10, -30, '#0369a1');
+        addCylinder(115, 250, 23, 22, 10, 10, 30, '#0369a1');
+
+        // Внутренняя 3D-спираль пищеварительного тракта
+        for (let t = 0; t < 65; t++) {
+          const p = t / 64;
+          const y = -150 + p * 245;
+          const wave = p > 0.45 ? Math.sin(p * 32) * 32 : Math.sin(p * 6) * 6;
+          const zWave = p > 0.45 ? Math.cos(p * 32) * 16 : 8;
+          this.bodyPoints.push({
+            x: wave,
+            y,
+            z: zWave,
+            color: p > 0.5 ? '#10b981' : '#38bdf8',
+            isOrganTrack: true
+          });
+        }
+      }
+
+      // --- ИНИЦИАЛИЗАЦИЯ ИНТЕРФЕЙСА ---
+      initUI() {
+        // Кнопки 5 биомов
+        const container = document.getElementById('biomeButtonsContainer');
+        container.innerHTML = '';
+        Object.values(BIOMES_DB).forEach((b) => {
+          const btn = document.createElement('button');
+          btn.id = `biomeBtn_${b.id}`;
+          btn.onclick = () => this.loadBiome(b.id, true);
+          btn.className = 'btn-action w-full text-left px-2.5 py-1.5 rounded-xl border flex items-center justify-between text-xs transition-all';
+          btn.innerHTML = `
+            <div class="flex items-center gap-2 truncate">
+              <span class="text-base">${b.icon}</span>
+              <div class="truncate">
+                <div class="font-bold leading-tight truncate">${b.name}</div>
+                <div class="text-[10px] opacity-75 truncate">${b.subtitle}</div>
+              </div>
+            </div>
+            <span class="text-[10px] font-mono-tech px-1.5 py-0.5 rounded bg-slate-900/70">pH ${b.defaultPh}</span>
+          `;
+          container.appendChild(btn);
+        });
+
+        // Панель быстрого выбора видов
+        const quickBar = document.getElementById('quickSpeciesBar');
+        quickBar.innerHTML = '';
+        const featured = ['bacteroides', 'faecalibacterium', 'akkermansia', 'methanobrevibacter', 'candida', 'cdiff', 'salmonella', 'phage', 'macrophage'];
+        featured.forEach((spId) => {
+          const sp = SPECIES_DB[spId];
+          const btn = document.createElement('button');
+          btn.onclick = () => this.focusOnSpecies(spId);
+          btn.className = 'px-2 py-1 rounded-lg bg-slate-800/90 hover:bg-slate-700 border border-slate-600/80 text-[10px] font-semibold flex items-center gap-1 transition-all';
+          btn.style.borderLeft = `3px solid ${sp.color}`;
+          btn.innerHTML = `<span>${sp.commonName.split(' ')[0]}</span>`;
+          btn.title = `${sp.commonName} (${sp.latinName})`;
+          quickBar.appendChild(btn);
+        });
+
+        // Модальное окно энциклопедии
+        const encGrid = document.getElementById('encyclopediaGrid');
+        encGrid.innerHTML = '';
+        Object.values(SPECIES_DB).forEach((sp) => {
+          const card = document.createElement('div');
+          card.className = 'bg-slate-900/85 rounded-2xl p-3.5 border border-slate-700/80 flex flex-col gap-1.5';
+          card.style.borderLeft = `4px solid ${sp.color}`;
+          card.innerHTML = `
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-slate-800 text-cyan-300 border border-cyan-500/30">${sp.kingdom}</span>
+              <span class="text-[11px] font-bold text-slate-300">${sp.roleBadge.split(' ')[0]}</span>
+            </div>
+            <div class="text-sm font-extrabold text-white">${sp.commonName} <span class="text-xs italic font-normal text-cyan-300">(${sp.latinName})</span></div>
+            <p class="text-xs text-slate-200 leading-relaxed">${sp.kidText}</p>
+            <div class="text-[11px] text-amber-200 bg-slate-950/70 rounded-lg p-2 border border-slate-800 mt-auto">
+              <div><b>🍽️ Ест:</b> ${sp.dietIn}</div>
+              <div><b>🎁 Дает:</b> ${sp.dietOut}</div>
+              <div><b>⚔️ Суперсила:</b> ${sp.weaponName}</div>
+            </div>
+          `;
+          encGrid.appendChild(card);
+        });
+
+        this.renderQuestUI();
+      }
+
+      // --- ЗАГРУЗКА ВЫБРАННОГО БИОМА (ОРГАНА) ---
+      loadBiome(biomeId, flyFromMacro = false) {
+        this.currentBiomeId = biomeId;
+        const b = BIOMES_DB[biomeId];
+
+        this.ph = b.defaultPh;
+        this.o2 = b.defaultO2;
+        this.mucinHealth = 92;
+        this.butyrateLevel = 84;
+        this.antibioticWave = 0;
+
+        // Обновляем подсветку кнопок биомов
+        Object.keys(BIOMES_DB).forEach((id) => {
+          const btn = document.getElementById(`biomeBtn_${id}`);
+          if (!btn) return;
+          if (id === biomeId) {
+            btn.className = 'btn-action w-full text-left px-2.5 py-1.5 rounded-xl border border-cyan-400 bg-gradient-to-r from-cyan-500/30 to-emerald-500/25 text-white flex items-center justify-between text-xs shadow-md shadow-cyan-950/50';
+          } else {
+            btn.className = 'btn-action w-full text-left px-2.5 py-1.5 rounded-xl border border-slate-700/80 bg-slate-900/60 hover:bg-slate-800/80 text-slate-300 flex items-center justify-between text-xs';
+          }
+        });
+
+        document.getElementById('biomeTitleText').textContent = `${b.name} (${b.subtitle})`;
+
+        // Заселяем 3D-пространство микробами этого биома
+        this.agents = [];
+        this.molecules = [];
+        this.effects = [];
+
+        Object.entries(b.initialSpecies).forEach(([spId, count]) => {
+          for (let i = 0; i < count; i++) {
+            this.spawnAgent(spId);
+          }
+        });
+
+        // Стартовые питательные молекулы в 3D-среде
+        for (let i = 0; i < 22; i++) {
+          if (biomeId === 'skin') {
+            this.spawnMolecule('sebum', (Math.random() - 0.5) * 600, 160 - Math.random() * 120, (Math.random() - 0.5) * 400);
+          } else {
+            this.spawnMolecule('fiber', (Math.random() - 0.5) * 750, -180 + Math.random() * 260, (Math.random() - 0.5) * 450);
+          }
+        }
+
+        // Выбираем первого интересного агента для Досье
+        if (this.agents.length > 0) {
+          this.selectAgent(this.agents[0]);
+        }
+
+        if (flyFromMacro) {
+          this.targetZoom = 1500;
+          document.getElementById('zoomSlider').value = 1500;
+          this.sound.playChord([330, 440, 659]);
+        }
+
+        this.addNews(`🚀 Погружение в биом «${b.name}»: ${b.kidSummary}`);
+      }
+
+      // --- СОЗДАНИЕ ОДНОГО 3D-АГЕНТА (МИКРОБА) ---
+      spawnAgent(speciesId, customPos = null) {
+        const sp = SPECIES_DB[speciesId];
+        if (!sp) return null;
+
+        // Распределение по высоте в зависимости от экологической ниши
+        let yMin = -220, yMax = 140;
+        if (speciesId === 'akkermansia') {
+          // Садовник живет прямо в слое муцина у нижней стенки!
+          yMin = 115;
+          yMax = 195;
+        } else if (speciesId === 'macrophage') {
+          yMin = 80;
+          yMax = 215;
+        } else if (speciesId === 'phage') {
+          // Часть фагов охраняет слизь (BAM), часть парит в просвете
+          yMin = -150;
+          yMax = 185;
+        }
+
+        const x = customPos ? customPos.x : (Math.random() - 0.5) * 860;
+        const y = customPos ? customPos.y : yMin + Math.random() * (yMax - yMin);
+        const z = customPos ? customPos.z : (Math.random() - 0.5) * 520;
+
+        const agent = {
+          uid: Math.random().toString(36).slice(2),
+          speciesId,
+          sp,
+          x,
+          y,
+          z,
+          vx: (Math.random() - 0.5) * 1.1,
+          vy: (Math.random() - 0.5) * 0.7,
+          vz: (Math.random() - 0.5) * 0.9,
+          angle: Math.random() * Math.PI * 2,
+          phase: Math.random() * Math.PI * 2,
+          energy: 70 + Math.random() * 28,
+          health: 100,
+          hasPlasmid: Math.random() < 0.16 || speciesId === 'methanobrevibacter', // Колечко защиты от антибиотика
+          isSpore: speciesId === 'cdiff',      // C. difficile по умолчанию спит в броне-споре!
+          isHyphae: false,                     // Кандида в норме — мирные дрожжи
+          currentAction: 'Плавает в 3D-среде',
+          speechText: '',
+          speechTimer: Math.random() * 180,
+          cooldown: 0
+        };
+
+        this.agents.push(agent);
+        return agent;
+      }
+
+      // --- СОЗДАНИЕ 3D-МОЛЕКУЛЫ ---
+      spawnMolecule(type, x, y, z) {
+        if (this.molecules.length > 180) this.molecules.shift();
+        const colors = {
+          fiber: '#4ade80',      // Зеленая цепочка клетчатки (овощи)
+          sugar: '#f43f5e',      // Розовый кристалл быстрого сахара
+          acetate: '#38bdf8',    // Голубой шарик ацетата (пас от Повара)
+          butyrate: '#facc15',   // Солнечный золотой Бутират (энергия клеткам!)
+          h2: '#93c5fd',         // Пузырек водорода H2 (для Археи)
+          sebum: '#fbbf24',      // Капля кожного сала
+          toxin: '#ef4444'       // Красный токсин C. difficile / Сальмонеллы
+        };
+        const labels = {
+          fiber: 'Клетчатка 🥦',
+          sugar: 'Сахар 🍬',
+          acetate: 'Ацетат',
+          butyrate: 'Бутират ⚡',
+          h2: 'H₂',
+          sebum: 'Липид',
+          toxin: 'Токсин ☠️'
+        };
+        this.molecules.push({
+          type,
+          x,
+          y,
+          z,
+          vx: (Math.random() - 0.5) * 0.6,
+          vy: type === 'butyrate' ? 0.9 : (type === 'h2' ? -0.8 : 0.25),
+          vz: (Math.random() - 0.5) * 0.6,
+          color: colors[type] || '#ffffff',
+          label: labels[type] || '',
+          life: 650 + Math.random() * 300
+        });
+      }
+
+      // --- ПУЛЬТ ЭКСПЕРИМЕНТОВ ИГРОКА (7 КНОПОК ВНИЗУ) ---
+      triggerAction(actionType) {
+        this.sound.init();
+
+        // Если игрок был в режиме 3D-человека, плавно влетаем внутрь органа, чтобы увидеть реакцию!
+        if (this.targetZoom < 100) {
+          this.targetZoom = 1500;
+          document.getElementById('zoomSlider').value = 1500;
+        }
+
+        if (actionType === 'fiber') {
+          this.isFasting = false;
+          this.updateFastingButton();
+          for (let i = 0; i < 28; i++) {
+            this.spawnMolecule('fiber', (Math.random() - 0.5) * 820, -240 - Math.random() * 80, (Math.random() - 0.5) * 480);
+          }
+          // Повара и Хранители радуются
+          this.agents.forEach((a) => {
+            if (a.speciesId === 'bacteroides') {
+              a.speechText = 'Ура! Рублю брокколи! 🥦';
+              a.speechTimer = 190;
+            } else if (a.speciesId === 'candida') {
+              a.isHyphae = false; // Клетчатка и бутират успокаивают Кандиду!
+            }
+          });
+          this.sound.playChord([392, 493, 587]);
+          this.addNews('🥦 Поступил обед из овощей и клетчатки! Повара Bacteroides начали готовить ацетат для Хранителей.');
+          this.checkQuestCompletion(1);
+        }
+
+        else if (actionType === 'sugar') {
+          this.isFasting = false;
+          this.updateFastingButton();
+          for (let i = 0; i < 32; i++) {
+            this.spawnMolecule('sugar', (Math.random() - 0.5) * 820, -240 - Math.random() * 80, (Math.random() - 0.5) * 480);
+          }
+          this.ph = Math.max(4.6, this.ph - 0.65);
+          // Кандида превращается в гифальную форму (Оборотень со щупальцами!)
+          let candidaFound = false;
+          this.agents.forEach((a) => {
+            if (a.speciesId === 'candida') {
+              a.isHyphae = true;
+              a.speechText = 'САХАР! Выпускаю щупальца-гифы! 🐙⚡';
+              a.speechTimer = 240;
+              candidaFound = true;
+              this.selectAgent(a);
+            } else if (a.speciesId === 'streptococcus') {
+              a.speechText = 'Конфеты! Плавим эмаль кислотой! 🍬⛏️';
+              a.speechTimer = 210;
+            }
+          });
+          if (!candidaFound) {
+            const c = this.spawnAgent('candida', { x: 0, y: 20, z: 0 });
+            c.isHyphae = true;
+            c.speechText = 'САХАР! Выпускаю щупальца-гифы! 🐙⚡';
+            c.speechTimer = 240;
+            this.selectAgent(c);
+          }
+          this.sound.playChord([311, 277, 233]);
+          this.addNews('🍩 Сахарная буря! Грибок-оборотень Кандида выпустил острые щупальца-гифы, а кислотность резко выросла!');
+          this.checkQuestCompletion(3);
+        }
+
+        else if (actionType === 'fasting') {
+          this.isFasting = !this.isFasting;
+          this.updateFastingButton();
+          if (this.isFasting) {
+            // Убираем всю клетчатку
+            this.molecules = this.molecules.filter((m) => m.type !== 'fiber' && m.type !== 'sugar');
+            this.agents.forEach((a) => {
+              if (a.speciesId === 'bacteroides') {
+                a.speechText = 'Ой, голодно... ем хозяйскую слизь! 😱';
+                a.speechTimer = 240;
+              }
+            });
+            this.sound.playBubble(220);
+            this.addNews('⏳ Включен режим длительного голода! Оставшись без клетчатки, Повара Bacteroides спустились к стенке и начали поедать защитную слизь!');
+            this.checkQuestCompletion(2);
+          } else {
+            this.addNews('🍏 Режим голода отключен. Подача питательных веществ восстановлена.');
+          }
+        }
+
+        else if (actionType === 'antibiotic') {
+          this.antibioticWave = 1.0;
+          this.sound.playChord([180, 140, 110]);
+
+          // Выжившие с плазмидами делятся колечками защиты с соседями!
+          const survivors = [];
+          this.agents.forEach((a) => {
+            if (a.speciesId === 'candida') {
+              a.isHyphae = true;
+              a.speechText = 'Я гриб! Антибиотик мне не страшен! 🍄';
+              a.speechTimer = 240;
+              survivors.push(a);
+            } else if (a.speciesId === 'methanobrevibacter') {
+              a.speechText = 'Я древняя Архея! У меня броня! 💎';
+              a.speechTimer = 220;
+              survivors.push(a);
+            } else if (a.speciesId === 'cdiff') {
+              a.isSpore = false; // ПРОБУЖДЕНИЕ МОНСТРА ПОСЛЕ АНТИБИОТИКА!
+              a.speechText = 'Конкуренты погибли! Выхожу из споры! 🔥';
+              a.speechTimer = 260;
+              survivors.push(a);
+              this.selectAgent(a);
+            } else if (a.speciesId === 'phage' || a.speciesId === 'macrophage' || a.speciesId === 'blastocystis') {
+              survivors.push(a);
+            } else if (a.hasPlasmid) {
+              a.speechText = 'Спасло колечко-плазмида! Делюсь с соседом! 💍';
+              a.speechTimer = 240;
+              survivors.push(a);
+            } else if (Math.random() < 0.25) {
+              // 25% получают плазмиду от соседа или выживают с низким здоровьем
+              a.hasPlasmid = true;
+              a.health = 45;
+              survivors.push(a);
+            } else {
+              // Вспышка гибели бактерии
+              this.effects.push({
+                type: 'burst',
+                x: a.x,
+                y: a.y,
+                z: a.z,
+                color: '#c084fc',
+                life: 28,
+                maxLife: 28
+              });
+            }
+          });
+
+          this.agents = survivors;
+          // Добавляем пару проснувшихся C. difficile для наглядности
+          for (let i = 0; i < 3; i++) {
+            const monster = this.spawnAgent('cdiff', {
+              x: (Math.random() - 0.5) * 450,
+              y: 60 + Math.random() * 80,
+              z: (Math.random() - 0.5) * 200
+            });
+            monster.isSpore = false;
+            monster.speechText = 'Спора раскрылась! Атакую токсинами! ☄️';
+            monster.speechTimer = 240;
+          }
+
+          // Визуальные мостики передачи колец плазмид (Конъюгация)
+          const plasmidHolders = this.agents.filter((a) => a.hasPlasmid);
+          for (let i = 0; i < plasmidHolders.length - 1; i++) {
+            this.effects.push({
+              type: 'plasmid_bridge',
+              a1: plasmidHolders[i],
+              a2: plasmidHolders[i + 1],
+              life: 95,
+              maxLife: 95
+            });
+          }
+
+          this.addNews('💊 Удар антибиотика! Погибли десятки мирных бактерий, но выжили грибы Кандида, бактерии с кольцами-плазмидами и проснулись споры C. difficile!');
+          this.checkQuestCompletion(4);
+        }
+
+        else if (actionType === 'pathogen') {
+          this.attackTriggeredInQuest5 = true;
+          for (let i = 0; i < 9; i++) {
+            const pirate = this.spawnAgent('salmonella', {
+              x: (Math.random() - 0.5) * 650,
+              y: -180 + Math.random() * 140,
+              z: (Math.random() - 0.5) * 350
+            });
+            pirate.speechText = 'На абордаж! Колем стенку! 🏴‍☠️🔥';
+            pirate.speechTimer = 220;
+            if (i === 0) this.selectAgent(pirate);
+          }
+          this.sound.playChord([220, 207, 196]);
+          this.addNews('🦠 Тревога! В биом вторглись алые пираты — Сальмонеллы! Добрые бактерии готовят гарпуны T6SS, но им нужна помощь Фагов!');
+        }
+
+        else if (actionType === 'phages') {
+          for (let i = 0; i < 12; i++) {
+            const ph = this.spawnAgent('phage', {
+              x: (Math.random() - 0.5) * 700,
+              y: -220 + Math.random() * 120,
+              z: (Math.random() - 0.5) * 350
+            });
+            ph.speechText = 'Ищу Сальмонеллу и хулиганов! 🚀🎯';
+            ph.speechTimer = 220;
+            if (i === 0) this.selectAgent(ph);
+          }
+          this.sound.playChord([523, 659, 784]);
+          this.addNews('🚀 Высажен десант Бактериофагов! Вирусы-телохранители начали прицельную охоту на захватчиков.');
+          if (this.attackTriggeredInQuest5 || this.currentQuestIndex === 4) {
+            this.checkQuestCompletion(5);
+          }
+        }
+
+        else if (actionType === 'probiotics') {
+          const friends = ['bacteroides', 'faecalibacterium', 'akkermansia', 'bifidobacterium'];
+          friends.forEach((spId) => {
+            for (let i = 0; i < 4; i++) {
+              const f = this.spawnAgent(spId);
+              f.speechText = 'Десант друзей прибыл! Восстанавливаем щит! 🛡️✨';
+              f.speechTimer = 200;
+            }
+          });
+          // Загоняем C. difficile обратно в спящие споры и успокаиваем Кандиду!
+          this.agents.forEach((a) => {
+            if (a.speciesId === 'cdiff') {
+              a.isSpore = true;
+              a.speechText = 'Друзей слишком много... прячусь обратно в спору! 🛡️💤';
+              a.speechTimer = 220;
+            } else if (a.speciesId === 'candida') {
+              a.isHyphae = false;
+              a.speechText = 'Спрятала щупальца, снова мирная ☁️';
+              a.speechTimer = 180;
+            }
+          });
+          this.mucinHealth = Math.min(100, this.mucinHealth + 18);
+          this.butyrateLevel = Math.min(100, this.butyrateLevel + 20);
+          this.sound.playChord([440, 554, 659, 880]);
+          this.addNews('🛡️ Мега-десант пробиотиков и симбионтов! Дружелюбные бактерии вытеснили захватчиков и загнали C. difficile обратно в спящие споры.');
+        }
+      }
+
+      updateFastingButton() {
+        const btn = document.getElementById('btnFasting');
+        const title = document.getElementById('fastingBtnTitle');
+        if (this.isFasting) {
+          title.textContent = 'Режим Голода: ВКЛ 🔴';
+          btn.classList.add('ring-2', 'ring-amber-400');
+        } else {
+          title.textContent = 'Режим Голода: ВЫКЛ';
+          btn.classList.remove('ring-2', 'ring-amber-400');
+        }
+      }
+
+      // --- ШКОЛА МИКРОНАВТА (КВЕСТЫ) ---
+      renderQuestUI() {
+        const q = QUESTS_DB[this.currentQuestIndex];
+        document.getElementById('questProgressBadge').textContent = `Урок ${q.id} / ${QUESTS_DB.length}`;
+        document.getElementById('questTitle').innerHTML = q.title + (this.completedQuests.has(q.id) ? ' ✅' : '');
+        document.getElementById('questDescription').innerHTML = q.desc;
+        document.getElementById('questActionHint').innerHTML = this.completedQuests.has(q.id)
+          ? '🎉 Урок выполнен! Нажми «След. урок ▶» для нового эксперимента'
+          : q.hint;
+
+        const dots = document.getElementById('questDots');
+        dots.innerHTML = '';
+        QUESTS_DB.forEach((item, idx) => {
+          const d = document.createElement('span');
+          const done = this.completedQuests.has(item.id);
+          d.className = `w-2.5 h-2.5 rounded-full transition-all ${
+            idx === this.currentQuestIndex
+              ? 'bg-amber-400 scale-125'
+              : done
+              ? 'bg-emerald-400'
+              : 'bg-slate-700'
+          }`;
+          dots.appendChild(d);
+        });
+      }
+
+      checkQuestCompletion(questId) {
+        const q = QUESTS_DB.find((item) => item.id === questId);
+        if (!q) return;
+        this.completedQuests.add(questId);
+        this.showToast(q.toastTitle, q.toastText);
+        this.renderQuestUI();
+      }
+
+      nextQuest() {
+        this.currentQuestIndex = (this.currentQuestIndex + 1) % QUESTS_DB.length;
+        this.renderQuestUI();
+      }
+
+      prevQuest() {
+        this.currentQuestIndex = (this.currentQuestIndex - 1 + QUESTS_DB.length) % QUESTS_DB.length;
+        this.renderQuestUI();
+      }
+
+      showToast(title, text) {
+        const banner = document.getElementById('toastBanner');
+        document.getElementById('toastTitle').textContent = title;
+        document.getElementById('toastText').textContent = text;
+        banner.classList.remove('opacity-0', '-translate-y-4');
+        banner.classList.add('opacity-100', 'translate-y-0');
+        clearTimeout(this.toastTimeout);
+        this.toastTimeout = setTimeout(() => {
+          banner.classList.remove('opacity-100', 'translate-y-0');
+          banner.classList.add('opacity-0', '-translate-y-4');
+        }, 4800);
+      }
+
+      addNews(text) {
+        const list = document.getElementById('liveFeedList');
+        if (!list) return;
+        const item = document.createElement('div');
+        item.className = 'text-slate-200 bg-slate-900/75 px-2 py-1 rounded-lg border-l-2 border-cyan-400 leading-snug';
+        item.textContent = text;
+        list.prepend(item);
+        while (list.children.length > 8) {
+          list.removeChild(list.lastChild);
+        }
+      }
+
+      // --- ВЫБОР МИКРОБА И ОБНОВЛЕНИЕ ДОСЬЕ ---
+      selectAgent(agent) {
+        this.selectedAgent = agent;
+        if (!agent) return;
+        const sp = agent.sp;
+
+        document.getElementById('dossierCard').style.borderLeftColor = sp.color;
+        document.getElementById('dossierKingdomBadge').textContent = sp.kingdom;
+        document.getElementById('dossierCommonName').textContent = sp.commonName;
+        document.getElementById('dossierLatinName').textContent = sp.latinName;
+        document.getElementById('dossierWeapon').textContent = sp.weaponName;
+        document.getElementById('dossierKidText').textContent = sp.kidText;
+        document.getElementById('dossierDietIn').textContent = sp.dietIn;
+        document.getElementById('dossierDietOut').textContent = sp.dietOut;
+        document.getElementById('dossierScienceText').textContent = sp.scienceText;
+
+        const roleBox = document.getElementById('dossierRoleBox');
+        const roleTitle = document.getElementById('dossierRoleTitle');
+        roleTitle.textContent = sp.roleBadge;
+        if (sp.roleType === 'friend') {
+          roleBox.className = 'rounded-xl px-2.5 py-1.5 text-xs font-bold flex items-center gap-2 bg-emerald-500/20 border border-emerald-400/40 text-emerald-200';
+        } else if (sp.roleType === 'pathobiont') {
+          roleBox.className = 'rounded-xl px-2.5 py-1.5 text-xs font-bold flex items-center gap-2 bg-amber-500/20 border border-amber-400/40 text-amber-200';
+        } else {
+          roleBox.className = 'rounded-xl px-2.5 py-1.5 text-xs font-bold flex items-center gap-2 bg-rose-500/25 border border-rose-400/50 text-rose-200';
+        }
+
+        this.updateSelectedTelemetry();
+      }
+
+      updateSelectedTelemetry() {
+        if (!this.selectedAgent) return;
+        const a = this.selectedAgent;
+        document.getElementById('dossierCurrentAction').textContent = a.currentAction;
+        const ePct = Math.round(Math.max(5, Math.min(100, a.energy)));
+        document.getElementById('dossierEnergyText').textContent = `${ePct}%` + (a.hasPlasmid ? ' + 💍 Плазмида защиты' : '');
+        document.getElementById('dossierEnergyBar').style.width = `${ePct}%`;
+      }
+
+      focusOnSpecies(speciesId) {
+        let found = this.agents.find((a) => a.speciesId === speciesId);
+        if (!found) {
+          found = this.spawnAgent(speciesId, { x: 0, y: 0, z: 0 });
+        }
+        this.selectAgent(found);
+        if (this.targetZoom < 400) {
+          this.targetZoom = 1500;
+          document.getElementById('zoomSlider').value = 1500;
+        }
+        this.sound.playBubble(520);
+      }
+
+      clearSelection() {
+        this.selectedAgent = null;
+      }
+
+      // --- УПРАВЛЕНИЕ МАСШТАБОМ И ПЕРЕКЛЮЧАТЕЛЯМИ ---
+      toggleMacroView() {
+        if (this.targetZoom > 25) {
+          this.setTargetZoom(2.5);
+        } else {
+          this.setTargetZoom(1500);
+        }
+      }
+
+      setTargetZoom(val) {
+        this.targetZoom = Math.max(1, Math.min(3000, Number(val)));
+        document.getElementById('zoomSlider').value = this.targetZoom;
+      }
+
+      onZoomSliderChange(val) {
+        this.targetZoom = Number(val);
+      }
+
+      toggleSpeechBubbles() {
+        this.showSpeechBubbles = !this.showSpeechBubbles;
+        const btn = document.getElementById('btnToggleBubbles');
+        btn.innerHTML = this.showSpeechBubbles
+          ? '<span>💬</span> <span class="hidden sm:inline">Мысли: ВКЛ</span>'
+          : '<span>💬</span> <span class="hidden sm:inline">Мысли: ВЫКЛ</span>';
+      }
+
+      toggleAudio() {
+        this.sound.init();
+        this.sound.enabled = !this.sound.enabled;
+        document.getElementById('soundIcon').textContent = this.sound.enabled ? '🔊' : '🔇';
+        if (this.sound.enabled) this.sound.playChord([440, 554, 659]);
+      }
+
+      openEncyclopediaModal() {
+        const modal = document.getElementById('encyclopediaModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+
+      closeEncyclopediaModal() {
+        const modal = document.getElementById('encyclopediaModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+
+      // --- 6. БИОХИМИЯ, ФИЗИКА И МИКРО-БОИ (60 FPS UPDATE) ---
+      updateSimulation(dt) {
+        this.time += dt;
+
+        // Плавный полет 3D-зума
+        this.zoom += (this.targetZoom - this.zoom) * 0.1;
+
+        // Обновление бейджа масштаба
+        const badge = document.getElementById('zoomBadge');
+        const macroLabel = document.getElementById('macroBtnLabel');
+        if (this.zoom < 14) {
+          badge.textContent = `${this.zoom.toFixed(1)}x ЧЕЛОВЕК (3D)`;
+          macroLabel.textContent = 'Внутрь органа 🔬';
+          if (!this.isDragging) this.bodyYaw += 0.008;
+        } else if (this.zoom < 400) {
+          badge.textContent = `${Math.round(this.zoom)}x ТКАНЬ И СЛИЗЬ`;
+          macroLabel.textContent = 'Весь человек (3D)';
+        } else {
+          badge.textContent = `${Math.round(this.zoom)}x МИКРОМИР (3D)`;
+          macroLabel.textContent = 'Весь человек (3D)';
+        }
+
+        // Затухание волны антибиотика
+        if (this.antibioticWave > 0) {
+          this.antibioticWave = Math.max(0, this.antibioticWave - 0.008);
+        }
+
+        // Периодическая авто-генерация еды, если не включен режим голода
+        if (!this.isFasting && Math.random() < 0.09) {
+          if (this.currentBiomeId === 'skin') {
+            this.spawnMolecule('sebum', (Math.random() - 0.5) * 650, 185, (Math.random() - 0.5) * 400);
+          } else {
+            this.spawnMolecule('fiber', (Math.random() - 0.5) * 800, -240, (Math.random() - 0.5) * 450);
+          }
+        }
+
+        // Движение молекул в 3D
+        for (let i = this.molecules.length - 1; i >= 0; i--) {
+          const m = this.molecules[i];
+          m.x += m.vx;
+          m.y += m.vy;
+          m.z += m.vz;
+          m.life -= 1;
+
+          // Если золотой шарик Бутирата доплыл до клеток эпителия внизу (y > 205), он исцеляет барьер!
+          if (m.type === 'butyrate' && m.y > 195) {
+            this.mucinHealth = Math.min(100, this.mucinHealth + 0.45);
+            this.butyrateLevel = Math.min(100, this.butyrateLevel + 0.6);
+            this.o2 = Math.max(0.4, this.o2 - 0.03); // Колоноциты сжигают O2 благодаря бутирату!
+            this.effects.push({
+              type: 'heal_spark',
+              x: m.x,
+              y: 205,
+              z: m.z,
+              color: '#facc15',
+              life: 20,
+              maxLife: 20
+            });
+            this.molecules.splice(i, 1);
+            continue;
+          }
+
+          // Если красный токсин ударил по клеткам человека
+          if (m.type === 'toxin' && m.y > 195) {
+            this.mucinHealth = Math.max(8, this.mucinHealth - 1.1);
+            this.o2 = Math.min(15.0, this.o2 + 0.12); // Утечка кислорода при воспалении!
+            this.effects.push({
+              type: 'burst',
+              x: m.x,
+              y: 205,
+              z: m.z,
+              color: '#ef4444',
+              life: 22,
+              maxLife: 22
+            });
+            this.molecules.splice(i, 1);
+            continue;
+          }
+
+          if (m.y > 225) m.vy = -Math.abs(m.vy) * 0.5;
+          if (m.y < -260) m.vy = Math.abs(m.vy) * 0.5;
+          if (m.life <= 0) this.molecules.splice(i, 1);
+        }
+
+        // Поведение всех 3D-агентов (Хемотаксис, Синтрофия, Гарпуны, Фагоцитоз)
+        for (let i = this.agents.length - 1; i >= 0; i--) {
+          const a = this.agents[i];
+          a.phase += 0.16;
+          a.energy = Math.max(10, a.energy - 0.015);
+          if (a.cooldown > 0) a.cooldown--;
+
+          // Смена мыслей в облачках
+          a.speechTimer--;
+          if (a.speechTimer <= 0) {
+            const list = (this.isFasting || a.isHyphae || (!a.isSpore && a.speciesId === 'cdiff'))
+              ? a.sp.thoughtsHungry
+              : a.sp.thoughtsPeace;
+            a.speechText = list[Math.floor(Math.random() * list.length)];
+            a.speechTimer = 190 + Math.random() * 180;
+          }
+
+          // В легких работает мукоцилиарный эскалатор (реснички сдвигают всех вправо)
+          if (this.currentBiomeId === 'lungs' && a.speciesId !== 'macrophage') {
+            a.vx += 0.018;
+          }
+
+          // --- СПЕЦИАЛЬНАЯ ЛОГИКА ДЛЯ КАЖДОГО ВИДА ---
+
+          // 1. Повар Bacteroides: ищет клетчатку, а в голод спускается есть муцин!
+          if (a.speciesId === 'bacteroides') {
+            const fiberMol = this.findNearestMolecule(a, 'fiber', 240);
+            if (fiberMol) {
+              this.steerTowards(a, fiberMol, 0.09);
+              a.currentAction = 'Плывет к клетчатке 🥦';
+              if (this.dist3D(a, fiberMol) < 28) {
+                fiberMol.life = 0;
+                a.energy = Math.min(100, a.energy + 18);
+                a.currentAction = 'Рубит клетчатку -> Ацетат! 🍏';
+                // Выпускает голубой Ацетат (для Faecalibacterium) и пузырек H2 (для Археи)!
+                this.spawnMolecule('acetate', a.x, a.y + 8, a.z);
+                if (Math.random() < 0.6) this.spawnMolecule('h2', a.x, a.y - 8, a.z);
+                this.sound.playBubble(440);
+              }
+            } else if (this.isFasting) {
+              // ГОЛОД: плывет вниз к слою слизи (y ~ 175) и ест хозяйский муцин!
+              a.vy += (170 - a.y) * 0.0025;
+              a.currentAction = 'Голод! Ест защитную слизь 😱';
+              if (a.y > 145 && Math.random() < 0.05) {
+                this.mucinHealth = Math.max(10, this.mucinHealth - 0.35);
+                this.spawnMolecule('acetate', a.x, a.y - 10, a.z);
+              }
+            }
+
+            // Контактная дуэль на гарпунах T6SS против Сальмонеллы!
+            if (a.cooldown === 0) {
+              const invader = this.findNearestAgent(a, ['salmonella'], 115);
+              if (invader) {
+                a.cooldown = 75;
+                invader.health -= 38;
+                invader.vx += (invader.x - a.x) * 0.08;
+                invader.vy -= 1.5;
+                a.currentAction = 'Выстрел гарпуном T6SS! 🏹';
+                a.speechText = 'Лови гарпун T6SS, пират! 🏹';
+                a.speechTimer = 140;
+                this.effects.push({
+                  type: 'harpoon',
+                  x1: a.x, y1: a.y, z1: a.z,
+                  x2: invader.x, y2: invader.y, z2: invader.z,
+                  color: '#2dd4bf',
+                  life: 16,
+                  maxLife: 16
+                });
+                this.sound.playHarpoon();
+              }
+            }
+          }
+
+          // 2. Солнечный Хранитель Faecalibacterium: ловит пас Ацетатом и рождает золотой Бутират!
+          else if (a.speciesId === 'faecalibacterium') {
+            const acMol = this.findNearestMolecule(a, 'acetate', 260);
+            if (acMol) {
+              this.steerTowards(a, acMol, 0.1);
+              a.currentAction = 'Ловит пас Ацетатом 🤝';
+              if (this.dist3D(a, acMol) < 28) {
+                acMol.life = 0;
+                a.energy = Math.min(100, a.energy + 20);
+                a.currentAction = 'Синтезирует Бутират! ⚡';
+                this.spawnMolecule('butyrate', a.x, a.y + 12, a.z);
+                this.sound.playBubble(587);
+              }
+            }
+          }
+
+          // 3. Садовник Akkermansia: живет в слизи (y ~ 155) и стимулирует свежий муцин
+          else if (a.speciesId === 'akkermansia') {
+            a.vy += (155 - a.y) * 0.004;
+            a.currentAction = 'Обновляет защитную слизь ✨';
+            if (Math.random() < 0.03 && !this.isFasting) {
+              this.mucinHealth = Math.min(100, this.mucinHealth + 0.18);
+            }
+          }
+
+          // 4. Древняя Архея Methanobrevibacter: пылесосит водород H2
+          else if (a.speciesId === 'methanobrevibacter') {
+            const h2Mol = this.findNearestMolecule(a, 'h2', 300);
+            if (h2Mol) {
+              this.steerTowards(a, h2Mol, 0.12);
+              a.currentAction = 'Пылесосит газ водород H₂ 🌪️';
+              if (this.dist3D(a, h2Mol) < 28) {
+                h2Mol.life = 0;
+                a.energy = Math.min(100, a.energy + 16);
+              }
+            }
+          }
+
+          // 5. Гриб-Оборотень Candida: ищет сахар, в режиме гифов атакует барьер
+          else if (a.speciesId === 'candida') {
+            const sugMol = this.findNearestMolecule(a, 'sugar', 280);
+            if (sugMol) {
+              this.steerTowards(a, sugMol, 0.08);
+              if (this.dist3D(a, sugMol) < 34) {
+                sugMol.life = 0;
+                a.isHyphae = true;
+                a.currentAction = 'Оборотень! Выпустил гифы 🐙';
+              }
+            }
+            if (a.isHyphae) {
+              a.vy += (150 - a.y) * 0.002;
+              if (a.y > 130 && Math.random() < 0.03) {
+                this.mucinHealth = Math.max(8, this.mucinHealth - 0.35);
+              }
+            } else {
+              a.currentAction = 'Мирная дрожжевая форма ☁️';
+            }
+          }
+
+          // 6. Монстр-Спора C. difficile: если не в споре — стреляет красными токсинами!
+          else if (a.speciesId === 'cdiff') {
+            if (a.isSpore) {
+              a.vx *= 0.92;
+              a.vy *= 0.92;
+              a.vz *= 0.92;
+              a.currentAction = 'Спит в броне-эндоспоре 🛡️💤';
+            } else {
+              a.currentAction = 'Атакует стенку токсинами TcdA/B! ☄️';
+              if (Math.random() < 0.035) {
+                this.spawnMolecule('toxin', a.x, a.y + 15, a.z);
+              }
+            }
+          }
+
+          // 7. Алый Пират Salmonella: быстрый захватчик, атакует слизистую
+          else if (a.speciesId === 'salmonella') {
+            a.vy += (145 - a.y) * 0.003;
+            a.currentAction = 'Штурмует барьер шприцем T3SS! 🏴‍☠️';
+            if (Math.random() < 0.03) {
+              this.spawnMolecule('toxin', a.x, a.y + 12, a.z);
+            }
+          }
+
+          // 8. Вирус-Телохранитель Бактериофаг: охотится на Сальмонелл и пробудившихся C. difficile
+          else if (a.speciesId === 'phage') {
+            const target = this.findNearestAgent(a, ['salmonella', 'cdiff', 'streptococcus'], 320, (t) => !t.isSpore);
+            if (target) {
+              this.steerTowards(a, target, 0.17);
+              a.currentAction = `Охота на ${target.sp.commonName.split(' ')[0]}! 🎯`;
+              if (this.dist3D(a, target) < 24) {
+                target.health -= 60;
+                this.effects.push({
+                  type: 'burst',
+                  x: target.x, y: target.y, z: target.z,
+                  color: '#22d3ee',
+                  life: 24,
+                  maxLife: 24
+                });
+                this.sound.playHarpoon();
+                a.speechText = 'Цель обезврежена! Лизис! 💥';
+                a.speechTimer = 150;
+              }
+            } else {
+              // Держится в слое муцина (BAM-иммунитет)
+              a.vy += (135 - a.y) * 0.0015;
+              a.currentAction = 'Охраняет слизь (BAM-щит) 🛰️';
+            }
+          }
+
+          // 9. Иммунный танк Макрофаг: ловит Сальмонелл и токсины ложноножками
+          else if (a.speciesId === 'macrophage') {
+            const badGuy = this.findNearestAgent(a, ['salmonella'], 280);
+            if (badGuy) {
+              this.steerTowards(a, badGuy, 0.09);
+              a.currentAction = 'Догоняет пирата (Фагоцитоз!) 👾';
+              if (this.dist3D(a, badGuy) < 34) {
+                badGuy.health = 0;
+                a.speechText = 'Проглотил захватчика! Ням! 🛡️';
+                a.speechTimer = 160;
+                this.effects.push({
+                  type: 'burst',
+                  x: badGuy.x, y: badGuy.y, z: badGuy.z,
+                  color: '#818cf8',
+                  life: 22,
+                  maxLife: 22
+                });
+                this.sound.playBubble(290);
+              }
+            } else {
+              a.currentAction = 'Патрулирует границу ткани 🚓';
+            }
+          }
+
+          // Плавное затухание скорости и случайное броуновское/жгутиковое движение
+          a.vx = a.vx * 0.96 + (Math.random() - 0.5) * 0.14;
+          a.vy = a.vy * 0.96 + (Math.random() - 0.5) * 0.11;
+          a.vz = a.vz * 0.96 + (Math.random() - 0.5) * 0.12;
+
+          a.x += a.vx;
+          a.y += a.vy;
+          a.z += a.vz;
+          a.angle = Math.atan2(a.vy, a.vx);
+
+          // Границы 3D-биореактора
+          if (a.x < -460) { a.x = -460; a.vx *= -1; }
+          if (a.x > 460)  { a.x = 460;  a.vx *= -1; }
+          if (a.y < -230) { a.y = -230; a.vy *= -1; }
+          if (a.y > 195)  { a.y = 195;  a.vy *= -0.8; }
+          if (a.z < -300) { a.z = -300; a.vz *= -1; }
+          if (a.z > 320)  { a.z = 320;  a.vz *= -1; }
+
+          // Проверка гибели
+          if (a.health <= 0) {
+            if (this.selectedAgent === a) this.selectedAgent = null;
+            this.agents.splice(i, 1);
+          }
+        }
+
+        // Обновление спецэффектов (лучи гарпунов, мостики плазмид, вспышки)
+        for (let i = this.effects.length - 1; i >= 0; i--) {
+          this.effects[i].life -= 1;
+          if (this.effects[i].life <= 0) this.effects.splice(i, 1);
+        }
+
+        // Обновление верхних индикаторов здоровья
+        this.updateDashboardBars();
+        if (this.selectedAgent) this.updateSelectedTelemetry();
+      }
+
+      findNearestMolecule(agent, type, maxDist) {
+        let best = null;
+        let bestD = maxDist;
+        for (let i = 0; i < this.molecules.length; i++) {
+          const m = this.molecules[i];
+          if (m.type !== type) continue;
+          const d = this.dist3D(agent, m);
+          if (d < bestD) {
+            bestD = d;
+            best = m;
+          }
+        }
+        return best;
+      }
+
+      findNearestAgent(agent, speciesList, maxDist, filterFn = null) {
+        let best = null;
+        let bestD = maxDist;
+        for (let i = 0; i < this.agents.length; i++) {
+          const other = this.agents[i];
+          if (other === agent || !speciesList.includes(other.speciesId)) continue;
+          if (filterFn && !filterFn(other)) continue;
+          const d = this.dist3D(agent, other);
+          if (d < bestD) {
+            bestD = d;
+            best = other;
+          }
+        }
+        return best;
+      }
+
+      dist3D(p1, p2) {
+        const dx = p1.x - p2.x;
+        const dy = p1.y - p2.y;
+        const dz = p1.z - p2.z;
+        return Math.sqrt(dx * dx + dy * dy + dz * dz);
+      }
+
+      steerTowards(agent, target, force) {
+        const dx = target.x - agent.x;
+        const dy = target.y - agent.y;
+        const dz = target.z - agent.z;
+        const d = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1;
+        agent.vx += (dx / d) * force;
+        agent.vy += (dy / d) * force;
+        agent.vz += (dz / d) * force;
+      }
+
+      updateDashboardBars() {
+        // Расчет индекса разнообразия Шеннона по числу уникальных дружественных видов
+        const counts = {};
+        this.agents.forEach((a) => {
+          counts[a.speciesId] = (counts[a.speciesId] || 0) + 1;
+        });
+        const uniqueSpecies = Object.keys(counts).length;
+        this.shannonIndex = Math.min(100, Math.round((uniqueSpecies / 9) * 100));
+
+        const bPct = Math.round(this.mucinHealth);
+        const ePct = Math.round(this.butyrateLevel);
+        document.getElementById('statBarrierText').textContent = `${bPct}%`;
+        document.getElementById('statBarrierBar').style.width = `${bPct}%`;
+        document.getElementById('statButyrateText').textContent = `${ePct}%`;
+        document.getElementById('statButyrateBar').style.width = `${ePct}%`;
+
+        const divText = this.shannonIndex > 70 ? 'Высокое' : (this.shannonIndex > 40 ? 'Среднее' : 'Дисбиоз!');
+        document.getElementById('statDiversityText').textContent = divText;
+        document.getElementById('statDiversityBar').style.width = `${this.shannonIndex}%`;
+
+        document.getElementById('statPhText').textContent = this.ph.toFixed(1);
+        document.getElementById('statO2Text').textContent = `${this.o2.toFixed(1)}%`;
+        const popEl = document.getElementById('populationCounter');
+        if (popEl) popEl.textContent = `Жителей: ${this.agents.length}`;
+      }
+
+      // --- 7. 3D-ПРОЕКЦИЯ И ОБЪЕМНЫЙ РЕНДЕРИНГ (PURE CANVAS 3D) ---
+      project3D(x, y, z, yaw = this.camYaw, pitch = this.camPitch) {
+        // Вращение вокруг оси Y (yaw)
+        const cosY = Math.cos(yaw);
+        const sinY = Math.sin(yaw);
+        const rx = x * cosY - z * sinY;
+        let rz = z * cosY + x * sinY;
+
+        // Вращение вокруг оси X (pitch)
+        const cosP = Math.cos(pitch);
+        const sinP = Math.sin(pitch);
+        const ry = y * cosP - rz * sinP;
+        rz = rz * cosP + y * sinP;
+
+        const depth = this.fov + rz + 180;
+        if (depth < 40) return null;
+        const scale = this.fov / depth;
+
+        return {
+          sx: this.width * 0.5 + rx * scale,
+          sy: this.height * 0.5 + ry * scale,
+          scale,
+          depth
+        };
+      }
+
+      render() {
+        const ctx = this.ctx;
+        const b = BIOMES_DB[this.currentBiomeId];
+
+        // 1. Фон биома
+        const bgGrad = ctx.createLinearGradient(0, 0, 0, this.height);
+        bgGrad.addColorStop(0, b.bgGradient[0]);
+        bgGrad.addColorStop(0.55, b.bgGradient[1]);
+        bgGrad.addColorStop(1, b.bgGradient[2]);
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, this.width, this.height);
+
+        // Фиолетовая волна при ударе антибиотика
+        if (this.antibioticWave > 0) {
+          ctx.fillStyle = `rgba(168, 85, 247, ${this.antibioticWave * 0.28})`;
+          ctx.fillRect(0, 0, this.width, this.height);
+        }
+
+        // Если мы на МАКРО-уровне (zoom < 18) — рисуем 3D-Голограмму Человека с 5 маячками органов!
+        if (this.zoom < 18) {
+          this.renderMacroHuman3D(ctx);
+          return;
+        }
+
+        // 2. Рендер 3D-Анатомического Ландшафта Органа (Клетки эпителия, Зубная эмаль, Волосяной кратер, Реснички и Муцин)
+        this.renderBiomeLandscape3D(ctx);
+
+        // 3. Собираем все 3D-объекты (Молекулы + Микробы) и сортируем по глубине Z (Painter's Algorithm)
+        const renderList = [];
+
+        this.molecules.forEach((m) => {
+          const proj = this.project3D(m.x, m.y, m.z);
+          if (proj) renderList.push({ kind: 'molecule', obj: m, proj });
+        });
+
+        this.agents.forEach((a) => {
+          const proj = this.project3D(a.x, a.y, a.z);
+          if (proj) renderList.push({ kind: 'agent', obj: a, proj });
+        });
+
+        renderList.sort((itemA, itemB) => itemB.proj.depth - itemA.proj.depth);
+
+        // 4. Отрисовка молекул и 3D-микроорганизмов от дальних к ближним
+        renderList.forEach((item) => {
+          if (item.kind === 'molecule') {
+            this.drawMolecule3D(ctx, item.obj, item.proj);
+          } else {
+            this.drawAgent3D(ctx, item.obj, item.proj);
+          }
+        });
+
+        // 5. Отрисовка 3D-спецэффектов (гарпуны T6SS, мостики передачи плазмид, вспышки)
+        this.renderEffects3D(ctx);
+      }
+
+      // --- РЕНДЕР 3D-ГОЛОГРАММЫ ЧЕЛОВЕКА (МАКРО-РЕЖИМ) ---
+      renderMacroHuman3D(ctx) {
+        ctx.save();
+
+        // Космическая голографическая сетка под ногами
+        for (let r = 80; r <= 280; r += 65) {
+          ctx.beginPath();
+          for (let a = 0; a <= Math.PI * 2 + 0.1; a += 0.2) {
+            const p = this.project3D(Math.cos(a) * r, 255, Math.sin(a) * r, this.bodyYaw, 0.15);
+            if (p) {
+              if (a === 0) ctx.moveTo(p.sx, p.sy);
+              else ctx.lineTo(p.sx, p.sy);
+            }
+          }
+          ctx.strokeStyle = 'rgba(56, 189, 248, 0.18)';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+
+        // Отрисовка точек 3D-силуэта человека
+        const projectedPts = [];
+        this.bodyPoints.forEach((pt) => {
+          const p = this.project3D(pt.x, pt.y, pt.z, this.bodyYaw, 0.12);
+          if (p) projectedPts.push({ ...pt, p });
+        });
+        projectedPts.sort((a, b) => b.p.depth - a.p.depth);
+
+        projectedPts.forEach((pt) => {
+          const r = (pt.isOrganTrack ? 4.2 : 2.3) * pt.p.scale * 1.35;
+          ctx.beginPath();
+          ctx.arc(pt.p.sx, pt.p.sy, Math.max(1, r), 0, Math.PI * 2);
+          ctx.fillStyle = pt.color;
+          ctx.globalAlpha = pt.isOrganTrack ? 0.85 : 0.42;
+          ctx.fill();
+        });
+        ctx.globalAlpha = 1;
+
+        // Отрисовка 5 кликабельных 3D-Маячков Биомов на теле человека
+        this.beaconHitboxes = [];
+        Object.values(BIOMES_DB).forEach((b) => {
+          const p = this.project3D(b.beaconPos3D.x, b.beaconPos3D.y, b.beaconPos3D.z, this.bodyYaw, 0.12);
+          if (!p) return;
+
+          const pulse = 1 + 0.18 * Math.sin(this.time * 4);
+          const rad = 16 * p.scale * pulse;
+
+          // Светящееся кольцо маячка
+          ctx.beginPath();
+          ctx.arc(p.sx, p.sy, rad * 1.45, 0, Math.PI * 2);
+          ctx.fillStyle = b.beaconColor + '33';
+          ctx.fill();
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = b.beaconColor;
+          ctx.stroke();
+
+          // Ядро маячка
+          ctx.beginPath();
+          ctx.arc(p.sx, p.sy, rad * 0.85, 0, Math.PI * 2);
+          ctx.fillStyle = '#0f172a';
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.font = `${Math.round(14 * p.scale)}px Inter`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(b.icon, p.sx, p.sy);
+
+          // Подпись биома рядом с маячком
+          ctx.font = 'bold 12px Inter';
+          ctx.fillStyle = '#ffffff';
+          ctx.fillText(`${b.name}`, p.sx, p.sy - rad * 1.7);
+
+          this.beaconHitboxes.push({ id: b.id, x: p.sx, y: p.sy, r: 28 });
+        });
+
+        // Подсказка внизу экрана
+        ctx.font = 'bold 15px Inter';
+        ctx.fillStyle = '#38bdf8';
+        ctx.textAlign = 'center';
+        ctx.fillText('👆 Нажми на любой светящийся орган или покрути колесико мыши, чтобы уменьшиться в 1500 раз и влететь внутрь!', this.width * 0.5, this.height - 92);
+
+        ctx.restore();
+      }
+
+      // --- РЕНДЕР 3D-ЛАНДШАФТА И ЗАЩИТНОЙ СЛИЗИ ВНУТРИ ОРГАНА ---
+      renderBiomeLandscape3D(ctx) {
+        ctx.save();
+
+        // Фоновые 3D-слои глубины (боке микроскопа)
+        for (let i = 0; i < 12; i++) {
+          const bx = ((i * 197) % 900) - 450;
+          const by = ((i * 131) % 380) - 180;
+          const bz = 260;
+          const p = this.project3D(bx + Math.sin(this.time * 0.4 + i) * 20, by, bz);
+          if (p) {
+            ctx.beginPath();
+            ctx.arc(p.sx, p.sy, 28 * p.scale, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.035)';
+            ctx.fill();
+          }
+        }
+
+        // Рисуем 3D-стенку клеток человека внизу (y = 205..250)
+        const mucinThickness = (this.mucinHealth / 100) * 68;
+
+        // 1. Двухслойный полупрозрачный 3D-гель МУЦИН (Защитный щит слизи)
+        const leftMucin = this.project3D(-520, 205 - mucinThickness, 0);
+        const rightMucin = this.project3D(520, 205, 0);
+        if (leftMucin && rightMucin) {
+          const topY = leftMucin.sy;
+          const botY = rightMucin.sy + 40;
+          const mucGrad = ctx.createLinearGradient(0, topY, 0, botY);
+
+          if (this.currentBiomeId === 'mouth') {
+            mucGrad.addColorStop(0, 'rgba(56, 189, 248, 0.05)');
+            mucGrad.addColorStop(1, 'rgba(226, 232, 240, 0.35)');
+          } else if (this.currentBiomeId === 'skin') {
+            mucGrad.addColorStop(0, 'rgba(245, 158, 11, 0.06)');
+            mucGrad.addColorStop(1, 'rgba(217, 119, 6, 0.32)');
+          } else {
+            mucGrad.addColorStop(0, 'rgba(16, 185, 129, 0.04)');
+            mucGrad.addColorStop(0.5, 'rgba(20, 184, 166, 0.18)');
+            mucGrad.addColorStop(1, 'rgba(6, 182, 212, 0.34)');
+          }
+
+          ctx.beginPath();
+          ctx.moveTo(0, botY + 80);
+          for (let x = -540; x <= 540; x += 45) {
+            const waveY = 205 - mucinThickness + Math.sin(x * 0.02 + this.time * 2) * 6;
+            const p = this.project3D(x, waveY, 0);
+            if (p) ctx.lineTo(p.sx, p.sy);
+          }
+          ctx.lineTo(this.width, botY + 80);
+          ctx.closePath();
+          ctx.fillStyle = mucGrad;
+          ctx.fill();
+
+          // Подпись слоя слизи для ребенка
+          const labelPos = this.project3D(0, 200 - mucinThickness * 0.55, 0);
+          if (labelPos && this.mucinHealth > 20) {
+            ctx.font = 'bold 11px Inter';
+            ctx.fillStyle = 'rgba(167, 243, 208, 0.78)';
+            ctx.textAlign = 'center';
+            const shieldName = this.currentBiomeId === 'mouth'
+              ? '🦷 Кристаллическая эмаль зуба и пелликула'
+              : (this.currentBiomeId === 'skin'
+                ? '🛡️ Кислая липидная мантия кожи (Себум)'
+                : (this.currentBiomeId === 'lungs'
+                  ? '🌬️ Мукоцилиарный эскалатор (Реснички + Слизь)'
+                  : `🛡️ Защитный гель-Муцин (Целостность щита: ${Math.round(this.mucinHealth)}%)`));
+            ctx.fillText(shieldName, labelPos.sx, labelPos.sy);
+          }
+        }
+
+        // 2. 3D-ряд клеток эпителия человека (Колоноциты / Эмаль / Реснички)
+        for (let zLayer = 120; zLayer >= -120; zLayer -= 120) {
+          for (let x = -460; x <= 460; x += 58) {
+            const sway = Math.sin(this.time * 2.4 + x * 0.03) * 4;
+            const p = this.project3D(x + sway, 222, zLayer);
+            if (!p) continue;
+            const w = 48 * p.scale;
+            const h = 44 * p.scale;
+
+            if (this.currentBiomeId === 'mouth') {
+              // Кристаллические призмы зубной эмали (темнеют при падении pH!)
+              ctx.fillStyle = this.ph < 5.6 ? '#475569' : '#cbd5e1';
+              ctx.strokeStyle = '#94a3b8';
+              ctx.lineWidth = 1.5;
+              ctx.beginPath();
+              ctx.roundRect(p.sx - w * 0.5, p.sy, w, h * 1.2, 6 * p.scale);
+              ctx.fill();
+              ctx.stroke();
+            } else {
+              // Живые клетки эпителия человека с ядром и ресничками/микроворсинками
+              const cellGrad = ctx.createRadialGradient(p.sx, p.sy + h * 0.3, 2, p.sx, p.sy + h * 0.5, w * 0.8);
+              cellGrad.addColorStop(0, '#f472b6');
+              cellGrad.addColorStop(1, '#9d174d');
+              ctx.fillStyle = cellGrad;
+              ctx.beginPath();
+              ctx.roundRect(p.sx - w * 0.46, p.sy, w * 0.92, h, 10 * p.scale);
+              ctx.fill();
+
+              // В легких рисуем длинные бьющиеся реснички эскалатора!
+              if (this.currentBiomeId === 'lungs' && zLayer === 0) {
+                ctx.strokeStyle = '#fda4af';
+                ctx.lineWidth = 2 * p.scale;
+                for (let c = -3; c <= 3; c++) {
+                  const cx = p.sx + c * 6 * p.scale;
+                  const bend = Math.sin(this.time * 7 + c) * 10 * p.scale;
+                  ctx.beginPath();
+                  ctx.moveTo(cx, p.sy);
+                  ctx.quadraticCurveTo(cx + bend, p.sy - 14 * p.scale, cx + bend * 1.4, p.sy - 24 * p.scale);
+                  ctx.stroke();
+                }
+              }
+
+              // Замочки «Плотных контактов» (Tight Junctions) между клетками
+              if (zLayer === 0 && this.mucinHealth > 45) {
+                ctx.fillStyle = '#38bdf8';
+                ctx.beginPath();
+                ctx.arc(p.sx + w * 0.48, p.sy + h * 0.3, 3.2 * p.scale, 0, Math.PI * 2);
+                ctx.fill();
+              }
+            }
+          }
+        }
+
+        ctx.restore();
+      }
+
+      // --- РЕНДЕР 3D-МОЛЕКУЛЫ ---
+      drawMolecule3D(ctx, m, proj) {
+        const r = (m.type === 'fiber' ? 7 : 5.2) * proj.scale;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(proj.sx, proj.sy, Math.max(2, r), 0, Math.PI * 2);
+        ctx.fillStyle = m.color;
+        ctx.shadowColor = m.color;
+        ctx.shadowBlur = 8;
+        ctx.fill();
+
+        if (m.type === 'fiber') {
+          // Рисуем зеленую цепочку полисахарида из 3 шариков
+          ctx.beginPath();
+          ctx.arc(proj.sx + r * 1.1, proj.sy - r * 0.5, Math.max(1.5, r * 0.8), 0, Math.PI * 2);
+          ctx.arc(proj.sx - r * 1.1, proj.sy + r * 0.5, Math.max(1.5, r * 0.8), 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      // --- ОБЪЕМНЫЙ 3D-РЕНДЕР МИКРООРГАНИЗМОВ ВСЕХ 5 ЦАРСТВ ---
+      drawAgent3D(ctx, a, proj) {
+        const s = proj.scale * (this.zoom / 1100);
+        const radius = Math.max(4, a.sp.size * Math.min(2.3, Math.max(0.45, s)));
+
+        ctx.save();
+        ctx.translate(proj.sx, proj.sy);
+
+        // Если этот микроб выбран в Досье — рисуем прицельный 3D-ореол вокруг него
+        if (this.selectedAgent === a) {
+          ctx.beginPath();
+          ctx.arc(0, 0, radius * 1.75 + Math.sin(this.time * 6) * 3, 0, Math.PI * 2);
+          ctx.strokeStyle = '#facc15';
+          ctx.lineWidth = 2.2;
+          ctx.setLineDash([5, 4]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+
+        // Объемный 3D-градиент с бликом света (как под конфокальным 3D-микроскопом)
+        const grad = ctx.createRadialGradient(-radius * 0.3, -radius * 0.3, radius * 0.1, 0, 0, radius * 1.25);
+        grad.addColorStop(0, '#ffffff');
+        grad.addColorStop(0.28, a.sp.color);
+        grad.addColorStop(1, a.sp.coreColor);
+
+        ctx.rotate(a.angle * 0.35);
+
+        // --- ФОРМЫ РАЗНЫХ ЦАРСТВ И ВИДОВ ---
+
+        // 1. Капсула / Палочка (Bacteroides, Faecalibacterium, Lactobacillus, Cutibacterium)
+        if (a.sp.shape === 'capsule' || a.sp.shape === 'rod_gold') {
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.roundRect(-radius * 1.35, -radius * 0.68, radius * 2.7, radius * 1.36, radius * 0.68);
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+
+        // 2. Рогатка Y-формы (Bifidobacterium)
+        else if (a.sp.shape === 'y_rod') {
+          ctx.strokeStyle = a.sp.color;
+          ctx.lineWidth = radius * 0.85;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(-radius * 1.1, 0);
+          ctx.lineTo(0, 0);
+          ctx.lineTo(radius * 0.95, -radius * 0.8);
+          ctx.moveTo(0, 0);
+          ctx.lineTo(radius * 0.95, radius * 0.8);
+          ctx.stroke();
+        }
+
+        // 3. Цепочка бусин (Streptococcus)
+        else if (a.sp.shape === 'chain_cocci') {
+          for (let c = -1.5; c <= 1.5; c++) {
+            const bx = c * radius * 0.85;
+            const by = Math.sin(this.time * 4 + c) * radius * 0.22;
+            ctx.beginPath();
+            ctx.arc(bx, by, radius * 0.52, 0, Math.PI * 2);
+            ctx.fillStyle = grad;
+            ctx.fill();
+          }
+        }
+
+        // 4. Гроздь винограда (Staphylococcus epidermidis)
+        else if (a.sp.shape === 'cluster_cocci') {
+          const offsets = [[0, 0], [-0.5, -0.4], [0.5, -0.4], [-0.4, 0.5], [0.4, 0.5]];
+          offsets.forEach(([ox, oy]) => {
+            ctx.beginPath();
+            ctx.arc(ox * radius, oy * radius, radius * 0.52, 0, Math.PI * 2);
+            ctx.fillStyle = grad;
+            ctx.fill();
+          });
+        }
+
+        // 5. Древняя Архея (Сапфировый кристалл с двойным ореолом)
+        else if (a.sp.shape === 'archaea_gem') {
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.roundRect(-radius * 1.1, -radius * 0.85, radius * 2.2, radius * 1.7, radius * 0.75);
+          ctx.fill();
+          ctx.strokeStyle = '#93c5fd';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+
+        // 6. Гриб-Оборотень Кандида (Крупная почкующаяся сфера ИЛИ гифальные щупальца!)
+        else if (a.sp.shape === 'fungus_candida') {
+          if (a.isHyphae) {
+            // Агрессивные ветвящиеся 3D-щупальца (гифы)
+            ctx.strokeStyle = '#fda4af';
+            ctx.lineWidth = radius * 0.34;
+            ctx.lineCap = 'round';
+            for (let b = 0; b < 5; b++) {
+              const ang = (b / 5) * Math.PI * 2 + Math.sin(this.time * 2 + b) * 0.2;
+              ctx.beginPath();
+              ctx.moveTo(0, 0);
+              ctx.quadraticCurveTo(
+                Math.cos(ang + 0.3) * radius * 1.4,
+                Math.sin(ang + 0.3) * radius * 1.4,
+                Math.cos(ang) * radius * 2.6,
+                Math.sin(ang) * radius * 2.6
+              );
+              ctx.stroke();
+            }
+          }
+          // Основное тело дрожжевой клетки + почка
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(0, 0, radius, 0, Math.PI * 2);
+          ctx.arc(radius * 0.75, -radius * 0.55, radius * 0.52, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // 7. Бронированный Монстр-Спора C. difficile
+        else if (a.sp.shape === 'spore_rod') {
+          if (a.isSpore) {
+            // Спящая бронированная эндоспора со светящимся щитом
+            ctx.beginPath();
+            ctx.arc(0, 0, radius * 0.95, 0, Math.PI * 2);
+            ctx.fillStyle = '#0f172a';
+            ctx.fill();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#38bdf8';
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(0, 0, radius * 0.48, 0, Math.PI * 2);
+            ctx.fillStyle = '#e11d48';
+            ctx.fill();
+          } else {
+            // Проснувшаяся багровая палочка-монстр с шипами
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.roundRect(-radius * 1.45, -radius * 0.7, radius * 2.9, radius * 1.4, radius * 0.65);
+            ctx.fill();
+            ctx.strokeStyle = '#fda4af';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+          }
+        }
+
+        // 8. Алый Пират Сальмонелла со множеством бегущих 3D-жгутиков
+        else if (a.sp.shape === 'flagella_pirate') {
+          // Развевающиеся жгутики позади тела
+          ctx.strokeStyle = '#fca5a5';
+          ctx.lineWidth = 1.6;
+          for (let f = -1; f <= 1; f++) {
+            ctx.beginPath();
+            ctx.moveTo(-radius * 1.2, f * radius * 0.35);
+            for (let step = 1; step <= 4; step++) {
+              const fx = -radius * 1.2 - step * radius * 0.55;
+              const fy = f * radius * 0.35 + Math.sin(this.time * 12 - step * 1.3 + f) * radius * 0.35;
+              ctx.lineTo(fx, fy);
+            }
+            ctx.stroke();
+          }
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.roundRect(-radius * 1.3, -radius * 0.68, radius * 2.6, radius * 1.36, radius * 0.68);
+          ctx.fill();
+        }
+
+        // 9. Вирус-Бактериофаг (Икосаэдрический кристалл + хвост + 6 паучьих ножек)
+        else if (a.sp.shape === 'phage_lander') {
+          ctx.rotate(-a.angle * 0.35); // Фаг всегда ориентирован вертикально как лунный модуль!
+          // Паучьи ножки
+          ctx.strokeStyle = '#67e8f9';
+          ctx.lineWidth = 1.5;
+          for (let leg = -1; leg <= 1; leg += 2) {
+            ctx.beginPath();
+            ctx.moveTo(0, radius * 0.5);
+            ctx.lineTo(leg * radius * 1.1, radius * 0.9);
+            ctx.lineTo(leg * radius * 1.4, radius * 1.5);
+            ctx.stroke();
+          }
+          // Хвостовой стержень
+          ctx.beginPath();
+          ctx.moveTo(0, -radius * 0.2);
+          ctx.lineTo(0, radius * 0.9);
+          ctx.stroke();
+          // Шестигранная алмазная голова (капсид)
+          ctx.beginPath();
+          for (let k = 0; k < 6; k++) {
+            const ang = (k / 6) * Math.PI * 2 - Math.PI * 0.5;
+            const hx = Math.cos(ang) * radius * 0.9;
+            const hy = -radius * 0.8 + Math.sin(ang) * radius * 0.9;
+            if (k === 0) ctx.moveTo(hx, hy);
+            else ctx.lineTo(hx, hy);
+          }
+          ctx.closePath();
+          ctx.fillStyle = grad;
+          ctx.fill();
+          ctx.strokeStyle = '#cffafe';
+          ctx.stroke();
+        }
+
+        // 10. Простейшее Blastocystis (Прозрачная сфера с изумрудной вакуолью)
+        else if (a.sp.shape === 'protozoa_sphere') {
+          ctx.beginPath();
+          ctx.arc(0, 0, radius, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(52, 211, 153, 0.28)';
+          ctx.fill();
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = '#6ee7b7';
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.arc(0, 0, radius * 0.58, 0, Math.PI * 2);
+          ctx.fillStyle = grad;
+          ctx.fill();
+        }
+
+        // 11. Иммунный танк Макрофаг (Мягкая деформируемая амеба с ложноножками)
+        else if (a.sp.shape === 'amoeba_tank') {
+          ctx.beginPath();
+          const pts = 18;
+          for (let k = 0; k <= pts; k++) {
+            const ang = (k / pts) * Math.PI * 2;
+            const pseudopod = 1 + 0.25 * Math.sin(ang * 3 + this.time * 4) + 0.12 * Math.cos(ang * 5 - this.time * 3);
+            const rx = Math.cos(ang) * radius * pseudopod;
+            const ry = Math.sin(ang) * radius * pseudopod;
+            if (k === 0) ctx.moveTo(rx, ry);
+            else ctx.lineTo(rx, ry);
+          }
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(129, 140, 248, 0.52)';
+          ctx.fill();
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = '#c7d2fe';
+          ctx.stroke();
+
+          // Ядро макрофага
+          ctx.beginPath();
+          ctx.arc(-radius * 0.15, 0, radius * 0.38, 0, Math.PI * 2);
+          ctx.fillStyle = '#4338ca';
+          ctx.fill();
+        }
+
+        // Овал по умолчанию (Akkermansia)
+        else {
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, radius * 1.15, radius * 0.82, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Если у бактерии есть ПЛАЗМИДА (Колечко супер-защиты от антибиотиков) — рисуем золотое колечко внутри!
+        if (a.hasPlasmid && a.sp.kingdom.includes('БАКТЕРИИ')) {
+          ctx.beginPath();
+          ctx.arc(radius * 0.35, 0, Math.max(2.5, radius * 0.32), 0, Math.PI * 2);
+          ctx.strokeStyle = '#facc15';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+
+        ctx.restore();
+
+        // Отрисовка «Облачка мыслей» на русском языке над микробом (если включено и микроб близко)
+        if (this.showSpeechBubbles && a.speechText && a.speechTimer > 110 && proj.scale > 0.62 && this.zoom > 350) {
+          this.drawSpeechBubble(ctx, proj.sx, proj.sy - radius * 1.45 - 8, a.speechText, a.sp.color);
+        }
+      }
+
+      drawSpeechBubble(ctx, x, y, text, borderColor) {
+        ctx.save();
+        ctx.font = '600 11px Inter';
+        const padX = 8;
+        const textWidth = ctx.measureText(text).width;
+        const boxW = textWidth + padX * 2;
+        const boxH = 22;
+
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+        ctx.strokeStyle = borderColor;
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.roundRect(x - boxW * 0.5, y - boxH, boxW, boxH, 8);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#f8fafc';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, x, y - boxH * 0.5);
+        ctx.restore();
+      }
+
+      // --- РЕНДЕР 3D-СПЕЦЭФФЕКТОВ (ЛУЧИ ГАРПУНОВ T6SS, МОСТИКИ ПЛАЗМИД, ВСПЫШКИ) ---
+      renderEffects3D(ctx) {
+        ctx.save();
+        this.effects.forEach((ef) => {
+          const alpha = ef.life / ef.maxLife;
+          if (ef.type === 'harpoon') {
+            const p1 = this.project3D(ef.x1, ef.y1, ef.z1);
+            const p2 = this.project3D(ef.x2, ef.y2, ef.z2);
+            if (p1 && p2) {
+              ctx.strokeStyle = ef.color;
+              ctx.globalAlpha = alpha;
+              ctx.lineWidth = 3.5;
+              ctx.beginPath();
+              ctx.moveTo(p1.sx, p1.sy);
+              ctx.lineTo(p2.sx, p2.sy);
+              ctx.stroke();
+            }
+          } else if (ef.type === 'plasmid_bridge' && ef.a1 && ef.a2) {
+            const p1 = this.project3D(ef.a1.x, ef.a1.y, ef.a1.z);
+            const p2 = this.project3D(ef.a2.x, ef.a2.y, ef.a2.z);
+            if (p1 && p2) {
+              ctx.strokeStyle = '#facc15';
+              ctx.globalAlpha = alpha;
+              ctx.lineWidth = 2.2;
+              ctx.setLineDash([4, 4]);
+              ctx.beginPath();
+              ctx.moveTo(p1.sx, p1.sy);
+              ctx.lineTo(p2.sx, p2.sy);
+              ctx.stroke();
+              ctx.setLineDash([]);
+
+              // Бегущее по мостику золотое колечко ДНК!
+              const t = 1 - alpha;
+              const rx = p1.sx + (p2.sx - p1.sx) * t;
+              const ry = p1.sy + (p2.sy - p1.sy) * t;
+              ctx.beginPath();
+              ctx.arc(rx, ry, 6, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+          } else if (ef.type === 'burst' || ef.type === 'heal_spark') {
+            const p = this.project3D(ef.x, ef.y, ef.z);
+            if (p) {
+              const r = (1 - alpha) * 34 * p.scale + 4;
+              ctx.beginPath();
+              ctx.arc(p.sx, p.sy, r, 0, Math.PI * 2);
+              ctx.strokeStyle = ef.color;
+              ctx.globalAlpha = alpha;
+              ctx.lineWidth = 2.5;
+              ctx.stroke();
+            }
+          }
+        });
+        ctx.restore();
+      }
+
+      // --- 8. СОБЫТИЯ МЫШИ, ТАЧСКРИНА И КОЛЕСИКА ---
+      bindEvents() {
+        window.addEventListener('resize', () => this.resize());
+
+        this.canvas.addEventListener('pointerdown', (e) => {
+          this.isDragging = true;
+          this.pointerMoved = false;
+          this.dragStartX = e.clientX;
+          this.dragStartY = e.clientY;
+        });
+
+        window.addEventListener('pointermove', (e) => {
+          if (!this.isDragging) return;
+          const dx = e.clientX - this.dragStartX;
+          const dy = e.clientY - this.dragStartY;
+          if (Math.abs(dx) > 4 || Math.abs(dy) > 4) this.pointerMoved = true;
+
+          if (this.zoom < 18) {
+            this.bodyYaw += dx * 0.008;
+          } else {
+            this.camYaw = Math.max(-0.65, Math.min(0.65, this.camYaw + dx * 0.004));
+            this.camPitch = Math.max(-0.35, Math.min(0.45, this.camPitch + dy * 0.003));
+          }
+          this.dragStartX = e.clientX;
+          this.dragStartY = e.clientY;
+        });
+
+        window.addEventListener('pointerup', (e) => {
+          if (this.isDragging && !this.pointerMoved) {
+            this.handleCanvasClick(e.clientX, e.clientY);
+          }
+          this.isDragging = false;
+        });
+
+        // Колесо мыши — плавный 3D-зум от человека до микромира
+        this.canvas.addEventListener('wheel', (e) => {
+          e.preventDefault();
+          const factor = e.deltaY < 0 ? 1.22 : 0.82;
+          let next = this.targetZoom * factor;
+          if (this.targetZoom < 15 && e.deltaY < 0) next = 180;
+          this.setTargetZoom(next);
+        }, { passive: false });
+      }
+
+      handleCanvasClick(cx, cy) {
+        this.sound.init();
+
+        // Если мы в режиме 3D-Человека — проверяем клик по маячку биома
+        if (this.zoom < 18 && this.beaconHitboxes) {
+          for (const hb of this.beaconHitboxes) {
+            const d = Math.hypot(cx - hb.x, cy - hb.y);
+            if (d <= hb.r) {
+              this.loadBiome(hb.id, true);
+              return;
+            }
+          }
+          // Клик по самому человеку тоже плавно погружает в текущий биом
+          this.setTargetZoom(1500);
+          return;
+        }
+
+        // Внутри органа — ищем микроба, по которому кликнули
+        let bestAgent = null;
+        let bestDist = 38;
+        this.agents.forEach((a) => {
+          const p = this.project3D(a.x, a.y, a.z);
+          if (!p) return;
+          const d = Math.hypot(cx - p.sx, cy - p.sy);
+          if (d < bestDist) {
+            bestDist = d;
+            bestAgent = a;
+          }
+        });
+
+        if (bestAgent) {
+          this.selectAgent(bestAgent);
+          this.sound.playBubble(540);
+        }
+      }
+
+      resize() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+      }
+
+      loop(now) {
+        const dt = Math.min(0.05, (now - this.lastFrameTime) / 1000);
+        this.lastFrameTime = now;
+        this.updateSimulation(dt);
+        this.render();
+        requestAnimationFrame((t) => this.loop(t));
+      }
+    }
+
+    // Запуск приложения после загрузки окна
+    window.onload = function () {
+      window.simApp = new MicrobiomeSimulator3D();
+    };
+  </script>
+</body>
+</html>
