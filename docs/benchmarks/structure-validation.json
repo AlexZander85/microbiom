@@ -1,0 +1,42 @@
+{
+  "testedAt": "2026-10-14T22:28:41.779Z",
+  "browser": "153.0.8010.0",
+  "mainPick": {
+    "kind": "agent",
+    "agent": 3,
+    "layer": 3,
+    "distance": 11.143718670064676,
+    "point": [
+      1.858222481412032,
+      7.503094274772186,
+      16.04591284662436
+    ],
+    "via": "triangle"
+  },
+  "productionFixture": {
+    "front": {
+      "kind": "agent",
+      "agent": 0,
+      "layer": 3,
+      "distance": 21.31114982499208,
+      "point": [
+        0,
+        3.6888501750079215,
+        0
+      ]
+    },
+    "behind": {
+      "kind": "tissue",
+      "layer": 0,
+      "distance": 24.550018787384033,
+      "point": [
+        0,
+        0.4499812126159668,
+        0
+      ]
+    }
+  },
+  "groups": 5,
+  "mobileWidth": 390,
+  "errors": []
+}
