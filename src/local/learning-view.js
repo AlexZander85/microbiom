@@ -1,6 +1,7 @@
 import {STUDIES,METRICS,RELAY,narrate,highlights,report} from './learning.js';
+import {ORAL_TRIALS} from './oral.js';
 import {assayCounts} from './persistence.js';
-import {LOCAL_ACTION_NAMES,EVENT_NAMES} from './traits.js';
+import {LOCAL_ACTION_NAMES,EVENT_NAMES,siteForScenario} from './traits.js';
 const $=id=>document.getElementById(id);
 const esc=text=>String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=v=>v===0?'0':Math.abs(v)<.001?v.toExponential(2):Number.isInteger(v)?String(v):v.toFixed(3);
@@ -23,7 +24,7 @@ export function chartMarkup(points,metric,commands=[]){
 export class LearningView {
  constructor(controller){
   this.c=controller;this.eventSeq=null;this.lastDraw=-1;this.lastSession=null;
-  $('study-cards').innerHTML=Object.entries(STUDIES).map(([id,s],i)=>`<article class="study-card"><span class="eyebrow">МИНИ-ИССЛЕДОВАНИЕ 0${i+1}</span><h3>${s.title}</h3><p>${s.question}</p><button class="outline" data-study="${id}">Предсказать и проверить →</button></article>`).join('');
+  $('study-cards').innerHTML=Object.entries(STUDIES).map(([id,s],i)=>`<article class="study-card"><span class="eyebrow">${s.scenario==='oral'?'ПОЛОСТЬ РТА':'ТОЛСТАЯ КИШКА'} · 0${i+1}</span><h3>${s.title}</h3><p>${s.question}</p><button class="outline" data-study="${id}">Предсказать и проверить →</button></article>`).join('');
   $('study-cards').onclick=e=>{const b=e.target.closest('[data-study]');if(b)this.prepare(b.dataset.study);};
   $('learning-metric').innerHTML=Object.entries(METRICS).map(([id,m])=>`<option value="${id}">${m.name}</option>`).join('');
   $('learning-metric').onchange=()=>this.refresh(true);
@@ -31,6 +32,9 @@ export class LearningView {
   document.querySelectorAll('[data-assay-stop]').forEach(b=>b.onclick=()=>this.c.finish(+b.dataset.assayStop));
   document.querySelectorAll('[data-mucus-stop]').forEach(b=>b.onclick=()=>this.c.finish(+b.dataset.mucusStop));
   $('mucus-scene').onclick=()=>{this.c.navigate(2.2);$('expedition').scrollIntoView({block:'start',behavior:'auto'});};
+  document.querySelectorAll('[data-oral-stop]').forEach(b=>b.onclick=()=>this.c.finish(+b.dataset.oralStop));
+  $('oral-restart').onclick=()=>this.prepare('oral');
+  $('oral-scene').onclick=()=>{this.c.world.follow=false;this.c.world.pan=[0,0,0];this.c.navigate(2.15);$('expedition').scrollIntoView({block:'start',behavior:'auto'});};
   $('learning-finish').onclick=()=>this.c.finish();
   $('learning-control').onclick=()=>this.c.compare();
   $('learning-latest').onclick=()=>{this.eventSeq=null;this.showEvent();};
@@ -47,13 +51,13 @@ export class LearningView {
   $('relay-steps').onclick=e=>{const b=e.target.closest('[data-relay]');if(b)this.relay(+b.dataset.relay);};
  }
  prepare(id){
-  if(this.c.busy||this.c.world.model.site.id!=='colon')return;
+  if(this.c.busy||this.c.world.model.site.id!==siteForScenario(STUDIES[id].scenario))return;
   this.c.setPaused(true);const s=STUDIES[id];
-  this.c.dialog('01 / ПРЕДСКАЖИТЕ · РЕЗУЛЬТАТ ЕЩЁ НЕ ИЗВЕСТЕН',`<h2>${s.title}</h2><p>${s.setup}</p><form id="study-form"><fieldset class="prediction-options"><legend>${s.question}</legend>${s.options.map((o,i)=>`<label><input type="radio" name="prediction" value="${i}" required> ${o}</label>`).join('')}</fieldset><p class="notice">Это предположение, не экзамен. После опыта можно изменить объяснение. Начнётся новый локальный расчёт; текущий при необходимости сохраните заранее.</p><button class="primary" type="submit">Сохранить прогноз и начать →</button></form>`);
+  this.c.dialog('01 / ПРЕДСКАЖИТЕ · РЕЗУЛЬТАТ ЕЩЁ НЕ ИЗВЕСТЕН',`<h2>${s.title}</h2><p>${s.setup}</p><form id="study-form">${id==='oral'?`<label for="oral-trial">Что получает участок B?</label><select id="oral-trial" name="oral-trial">${Object.entries(ORAL_TRIALS).map(([key,t])=>`<option value="${key}" ${key==='brush_regular'?'selected':''}>${t.name}</option>`).join('')}</select><p class="notice">Контроль A всегда без ухода. Вода и оба ополаскивателя получают одинаковое число вмешательств в одинаковые моменты. Результаты — не рейтинг реальных средств.</p>`:''}<fieldset class="prediction-options"><legend>${s.question}</legend>${s.options.map((o,i)=>`<label><input type="radio" name="prediction" value="${i}" required> ${o}</label>`).join('')}</fieldset><p class="notice">Это предположение, не экзамен. После опыта можно изменить объяснение. Начнётся новый локальный расчёт; текущий при необходимости сохраните заранее.</p><button class="primary" type="submit">Сохранить прогноз и начать →</button></form>`);
   $('study-form').onsubmit=e=>{
    e.preventDefault();const answer=new FormData(e.target).get('prediction');if(answer===null)return;const prediction=Number(answer);
    if(!Number.isInteger(prediction)||prediction<0||prediction>=s.options.length)return;
-   $('dialog').close();this.c.start(s.scenario,{version:1,study:id,prediction,reflection:'',guided:true});
+   $('dialog').close();this.c.start(s.scenario,{version:1,study:id,prediction,reflection:'',guided:true,...(id==='oral'?{oralTrial:new FormData(e.target).get('oral-trial')}: {})});
    $('learning-panel').scrollIntoView({block:'start',behavior:'auto'});
   };
  }
@@ -82,16 +86,19 @@ export class LearningView {
   $('learning-panel').hidden=!active;
   $('persistence-panel').hidden=!sim?.assay;
   $('mucus-panel').hidden=!sim?.mucus;
-  $('relay-details').hidden=!!sim?.mucus;
+  $('oral-panel').hidden=!sim?.oral;
+  $('oral-restart').disabled=c.busy;$('oral-scene').disabled=c.busy;
+  document.querySelectorAll('[data-oral-stop]').forEach(b=>b.disabled=c.busy||!sim?.oral||(!session?.meta.guided&&!c.record)||(!!c.record&&+b.dataset.oralStop>c.record.endTick));
+  $('relay-details').hidden=!!sim?.mucus||!!sim?.oral;
   $('mucus-scene').disabled=c.busy;
   document.querySelectorAll('[data-mucus-stop]').forEach(b=>b.disabled=c.busy||!sim?.mucus||(!session?.meta.guided&&!c.record)||(!!c.record&&+b.dataset.mucusStop>c.record.endTick));
   document.querySelectorAll('[data-assay-stop]').forEach(b=>b.disabled=c.busy||!sim?.assay||(!session?.meta.guided&&!c.record)||(!!c.record&&+b.dataset.assayStop>c.record.endTick));
-  document.querySelectorAll('[data-study]').forEach(b=>b.disabled=c.busy||c.world.model.site.id!=='colon');
+  document.querySelectorAll('[data-study]').forEach(b=>b.disabled=c.busy||c.world.model.site.id!==siteForScenario(STUDIES[b.dataset.study].scenario));
   $('relay-start').disabled=c.busy||c.world.model.site.id!=='colon';
   $('learning-finish').disabled=c.busy||(!c.record&&(!session?.meta.guided||sim?.tick>=session.study?.end));
   for(const id of ['learning-report','learning-control','learning-latest'])$(id).disabled=c.busy;
   if(!active||!session)return;
-  if(this.lastSession!==session){this.lastSession=session;this.eventSeq=null;this.storyStamp=null;this.lastDraw=-1;$('learning-metric').value=session.study?.metric||(sim.mucus?'mucusMinimum':sim.assay?'persisterLine':'butyrate');document.querySelectorAll('[data-relay]').forEach(b=>b.setAttribute('aria-pressed','false'));$('relay-explanation').textContent='Выберите этап: он покажет соответствующее поле в сцене. Нулевое значение означает, что поток ещё не произошёл или нужных участников нет.';}
+  if(this.lastSession!==session){this.lastSession=session;this.eventSeq=null;this.storyStamp=null;this.lastDraw=-1;$('learning-metric').value=session.study?.metric||(sim.oral?'oralPH':sim.mucus?'mucusMinimum':sim.assay?'persisterLine':'butyrate');document.querySelectorAll('[data-relay]').forEach(b=>b.setAttribute('aria-pressed','false'));$('relay-explanation').textContent='Выберите этап: он покажет соответствующее поле в сцене. Нулевое значение означает, что поток ещё не произошёл или нужных участников нет.';}
   const study=session.study;
   $('learning-title').textContent=study?.title||'Что происходит и почему';
   $('learning-phase').textContent=!study?'СВОБОДНАЯ ЛАБОРАТОРИЯ':!session.meta.guided?'СВОБОДНАЯ ВЕТКА':sim.tick>=study.end?'04 / ИТОГ · ПЛАН ЗАВЕРШЁН':'02 / НАБЛЮДАЕМ · 03 / СРАВНИВАЕМ';
@@ -105,6 +112,14 @@ export class LearningView {
    $('persistence-stage').textContent=phase;
    $('persistence-live').textContent=`Сейчас: медленных S ${a.persisters}; активных в линии исходных персистеров ${a.recoveredLine}; наследуемых R ${a.resistant}. Генотип S не становится R при пробуждении.`;
    $('persistence-rounds').innerHTML=sim.assay.rounds.length?sim.assay.rounds.map(r=>`<tr><th>№${r.round}<small>шаг ${r.startTick}–${r.endTick??'…'}</small></th>${['sensitive','persisterOrigin','resistant'].map(k=>`<td>${r.start[k]} → ${r.end?r.end[k]:'ещё идёт'}</td>`).join('')}</tr>`).join(''):'<tr><td colspan="4">Воздействий ещё не было. Контроль A не получает препарат.</td></tr>';
+  }
+  if(sim.oral){
+   const o=sim.summary().oral,a=c.control.summary().oral,trial=session.meta.oralTrial;
+   $('oral-stage').textContent=`B: ${trial?ORAL_TRIALS[trial].name:'свободный опыт'} · шаг ${sim.tick} · поток слюны ×${o.flow} · ${o.snacks?'сахарные импульсы продолжаются':'новых сахарных импульсов нет'}`;
+   $('oral-plaque').textContent=o.plaque.toFixed(2);$('oral-ph').textContent=o.minPH.toFixed(2);$('oral-mineral').textContent=o.mineral.toFixed(1)+'%';
+   $('oral-comparison').innerHTML=[['Прикреплённый налёт · у.е.','plaque',2],['Активная биомасса · у.е.','active',2],['Минимальный pH','minPH',2],['Минеральный запас · % модели','mineral',1],['Участки структурного дефекта / 36','defects',0],['Кислые фазы · уч. время','acidTime',1]].map(([name,k,d])=>`<tr><th>${name}</th><td>${a[k].toFixed(d)}</td><td>${o[k].toFixed(d)}</td></tr>`).join('');
+   $('oral-budget').textContent=`С начала B: сахар ${o.foodInput.toFixed(3)}; произведено кислоты ${o.acidMade.toFixed(3)}; нейтрализовано ${o.neutralized.toFixed(3)}; снято щёткой ${o.brushed.toFixed(3)}; весь вынос C ${o.exported.toFixed(3)} у.е. Растворилось минералов ${o.dissolved.toFixed(3)}, вернулось ${o.remineralized.toFixed(3)}. Ошибки баланса C ${sim.summary().carbonError.toExponential(1)}, минералов ${o.mineralError.toExponential(1)}.`;
+   $('oral-observation').textContent=o.defects?`В B ${o.defects} участков с учебным структурным дефектом. Их форма не восстановится по кнопке ухода.`:'Структурных дефектов в B сейчас нет. Колебания минерального запаса не равны готовой полости.';
   }
   if(sim.mucus){
    const m=sim.summary().mucus,a=c.control.summary().mucus;

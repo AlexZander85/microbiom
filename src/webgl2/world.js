@@ -1,3 +1,5 @@
+import {oralSurfaceGeometry,oralSurfaceHeight} from './oral-surface.js';
+import {oralPlaque,oralPH} from '../local/oral.js';
 import {filmGeometry,filmHeight} from './mucus-film.js';
 import {GPU,STRIDE,writeInstance,colorOf} from './gpu.js';
 import {sphere,capsule,revolve,combine,tube,catmull,torus,segment,surface,heightAt,microbeGeometry,lightMicrobeGeometry,mediumMicrobeGeometry,octahedron,splitPlane} from './geometry.js';
@@ -48,6 +50,11 @@ export class World{
  enterLocal(sim){this.layerMode=false;if(!this.local)this.ambientCloud=this.cloud;this.local=sim;this.cloud=new LocalCloud(sim,this.model);this.setSite();this.setExploded(false);this.lifts.forEach(l=>{l.x=0;l.v=0;});this.goal=2.35;}
  leaveLocal(){if(!this.local)return;this.local=null;this.cloud=this.ambientCloud;this.ambientCloud=null;this.setSite();}
  buildTissue(){if(this.local){const own=data=>{const mesh=this.gpu.mesh(data);this.resources.push(mesh);return mesh;};
+  if(this.local.oral){
+   this.oralTooth=own(oralSurfaceGeometry(this.local));this.oralRenderTick=-1;this.oralSurfaceInfo=null;
+   this.tissueGroups=[this.group(this.ball,[instance([0,-3,0],[25,5.5,25],'#c7a885')],{layer:0}),this.group(this.oralTooth,[instance([0,0,0],[1,1,1],'#eee7d0')],{layer:0})];
+   this.capillaryGroup=this.group(this.rod,[],{layer:0});this.gel=own(surface(()=>0,24,8));this.gelBuffers=Array.from({length:5},()=>new Float32Array(STRIDE));return;
+  }
   this.mucusFilmTick=-1;this.mucusFilmInfo=null;
   if(this.local.mucus){this.mucusMeshes=[own(filmGeometry(this.local.mucus,this.local.chemistry.n)),own(filmGeometry(this.local.mucus,this.local.chemistry.n,true))];}
   this.tissueGroups=[this.group(own(surface(()=>this.local.mucus?-.65:-4,32,8)),[instance([0,0,0],[1,1,1],this.local.mucus?'#b17b91':'#654c60')],{layer:0})];
@@ -87,14 +94,16 @@ export class World{
  }
  if(blend>.001){this.gpu.gl.clear(this.gpu.gl.DEPTH_BUFFER_BIT);const proximity=clamp(q-2,0,1),target=[this.pan[0],4+this.pan[1]+this.lifts[4].x*3,this.pan[2]];if(this.follow&&this.selected>=0){for(let i=0;i<3;i++)target[i]=this.focusPoint[i].x;}
   const distance=q<2?mix(110,51,smooth(1.32,2,q)):mix(51,8,smooth(2,3,q));const pitch=clamp(this.pitch.x+.44,.06,1.35);this.camera(target,distance,this.yaw.x,pitch,.014);
+  if(this.local?.oral&&this.oralRenderTick!==this.local.tick){this.gpu.morph(this.oralTooth,oralSurfaceGeometry(this.local).vertices);this.oralRenderTick=this.local.tick;this.oralSurfaceInfo={tick:this.local.tick,minHeight:Math.min(...this.oralTooth.geometry.vertices.filter((_,i)=>i%6===1)),vertices:this.oralTooth.geometry.vertices.length/6};}
   this.drawGroup(this.capillaryGroup,blend,0,0,true);
   for(const group of this.tissueGroups.filter(g=>!g.transparent))this.drawGroup(group,blend,0,this.lifts[group.layer||0].x*(group.layer||0)*3.8,true);
   if(this.local?.mucus)this.renderMucus(blend,false);
+  if(this.local?.oral)this.renderOral(blend);
   this.renderCloud(blend);if(this.local)this.renderLocalEvents(blend);else{this.renderParticles(blend);this.renderLifeEvents(blend);}
   if(this.local?.mucus)this.renderMucus(blend,true);
   if(this.showConnections&&!this.local)this.connections(blend);
   for(const group of this.tissueGroups.filter(g=>g.transparent))this.drawGroup(group,blend,0,this.lifts[group.layer||0].x*(group.layer||0)*3.8,true);
-  const fluids=this.local?[1]:layerLayout(this.model.site).fluid;
+  const fluids=this.local?.oral?[]:this.local?[1]:layerLayout(this.model.site).fluid;
   for(const i of fluids){
    if(this.autoLow&&i!==fluids[0]&&!this.exploded&&this.layerHover!==i&& !this.layerMode)continue;
    const z=this.local?this.cloud.slice*2:i*1.4+this.lifts[i].x*i*3.8,data=this.gelBuffers[i];
@@ -104,6 +113,28 @@ export class World{
   }
   this.drawMicroLabels();
  }
+ }
+ renderOral(alpha){
+  const sim=this.local,o=sim.oral;let n=0;
+  for(let i=0;i<36;i++){
+   const x=sim.entities[i].pos[0]*2,z=sim.entities[i].pos[2]*2,y=oralSurfaceHeight(sim,x,z),plaque=oralPlaque(sim,i);
+   writeInstance(this.miscBuffer,n++,[x,y+.03,z],[3.7,.07,3.7],o.capacity[i]<.999?'#b79a70':o.mineral[i]<.8?'#dbd5b5':'#fbf1d6',undefined,.75);
+  }
+  this.gpu.upload(this.ball,this.miscBuffer,n);this.gpu.draw(this.ball,n,alpha,0,false);
+  n=0;for(let i=0;i<36;i++){
+   const x=sim.entities[i].pos[0]*2,z=sim.entities[i].pos[2]*2,y=oralSurfaceHeight(sim,x,z),p=oralPlaque(sim,i),h=Math.max(.05,p*2.2);
+   writeInstance(this.miscBuffer,n++,[x,y+h*.4,z],[2.9,h,2.9],'#d9bd73',undefined,Math.min(.6,p*.8),.08);
+  }
+  this.gpu.upload(this.ball,this.miscBuffer,n);this.gpu.draw(this.ball,n,alpha,0,false);
+  n=0;for(let i=0;i<36;i++){
+   const x=sim.entities[i].pos[0]*2,z=sim.entities[i].pos[2]*2,y=oralSurfaceHeight(sim,x,z),acidity=clamp((6.9-oralPH(sim,i))/2);
+   writeInstance(this.miscBuffer,n++,[x,y+.2,z],[3.2,1,3.2],'#ef92bc',undefined,acidity,.25);
+  }
+  this.gpu.upload(this.ring,this.miscBuffer,n);this.gpu.draw(this.ring,n,alpha,0,false);
+  n=0;for(let i=0;i<24;i++){const x=-23+((sim.time*o.flow*1.5+i*3.71)%46),z=-22+(i%6)*8;
+   writeInstance(this.particleBuffer,n++,[x,6.5+Math.sin(i),z],[.12,.12,.32],'#99e8f1',undefined,.7,.35);
+  }
+  this.gpu.upload(this.particle,this.particleBuffer,n);this.gpu.draw(this.particle,n,alpha,0,false);
  }
  renderMucus(alpha,outer){
   const sim=this.local,m=sim.mucus,n=sim.chemistry.n;
@@ -160,6 +191,7 @@ export class World{
  if(this.selected>=0){const p=cloud.position(this.selected);p[1]+=this.microShift;writeInstance(this.one,0,p,[.9,.9,.9],'#fff2a3',undefined,1,.5);this.gpu.upload(this.ring,this.one,1);this.gpu.draw(this.ring,1,alpha);}
  }
  renderLocalEvents(alpha){
+  if(this.local.oral){if(this.w>900&&this.travel.x<2.6){this.label('Налёт · микроколонии и матрикс',[-6,5,8],'#f4d28e');this.label('Эмаль · запас минералов, не диагноз',[-6,2,12],'#f8ebce');}return;}
   const sim=this.local;let n=0;
   if(!sim.mucus){writeInstance(this.one,0,[0,0,0],[.75,1,.75],sim.barrier>.5?'#75d6bd':'#e68b75',undefined,.04+sim.barrier*.16);this.gpu.upload(this.gel,this.one,1);this.gpu.draw(this.gel,1,alpha,0,false);}
   for(const job of sim.jobs){const a=this.cloud.position(job.from-1),b=this.cloud.position(job.to-1),seg=segment(a,b,.045);writeInstance(this.miscBuffer,n++,seg.pos,seg.scale,'#ffdf6c',seg.q,1,.5);}

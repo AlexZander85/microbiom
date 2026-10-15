@@ -1,9 +1,17 @@
+import {ORAL_TRIALS,oralPlan} from './oral.js';
 import {LOCAL_SPECIES,EVENT_NAMES,LOCAL_CAUSE_NAMES} from './traits.js';
 import {assayCounts} from './persistence.js';
 import {exportReplay} from './replay.js';
 
 // Teaching plans issue the same public commands as free play. No scripted outcomes.
 export const STUDIES={
+ oral:{title:'Что остаётся после чистки?',scenario:'oral',end:2400,metric:'oralPH',
+  question:'Чистка, вода и разные ополаскиватели делают с налётом и эмалью одно и то же?',
+  options:['Да: любой уход мгновенно удаляет налёт и чинит эмаль','Нет: удаление налёта, кислотность и минеральный баланс — разные процессы','Микробов нужно уничтожить полностью'],
+  setup:'Два одинаковых участка зубной поверхности с небольшим налётом и подготовленной ранней потерей минералов. Одинаковые сахарные импульсы идут с шага 30 каждые 120 шагов. A остаётся без ухода; B получает выбранное вмешательство с шага 360. Чистка здесь только механическая, фтор показан отдельно. Шаги не равны дням; это не сравнение эффективности реальных средств.',
+  plan:oralPlan('brush_regular'),
+  prompt:'Удалился ли прикреплённый налёт? Изменился ли pH сразу или позже? Почему улучшение минерального запаса не означает восстановления уже утраченной формы зуба?',
+  takeaway:'Без механического удаления налёт может накапливаться, а повторные сахара поддерживают кислые фазы. Слюна смывает растворённые вещества, нейтрализует кислоту и приносит минералы. Чистка снимает часть налёта, но не стерилизует рот и не чинит эмаль мгновенно. Вода меняет растворённую среду; фтор меняет баланс потери и возврата минералов; антисептик временно снижает активность, не удаляя весь каркас. Полоскания не заменяют чистку. Ранняя деминерализация и полость — не одно и то же.'},
  mucus:{title:'Кто обновляет защитное покрытие?',scenario:'mucus',end:720,metric:'mucusMinimum',
   question:'Если микробам станет меньше доступен пищевой субстрат, а затем его приток вернётся, что может произойти со слизью?',
   options:['Любой микроб, питающийся слизью, обязательно вреден','Важен баланс: сколько слизи производится и сколько расходуется','Слизь исчезнет и вернётся мгновенно по кнопке'],
@@ -41,6 +49,12 @@ export const STUDIES={
   takeaway:'В этой модели барьер разделяет отсеки. Фагоцит поглощает доступные близкие цели в ткани, а не всех «плохих» по названию. Движение через открытый барьер условно.'}
 };
 export const METRICS={
+ oralPH:{name:'Зуб · минимальный pH в налёте',unit:'pH модели',continuous:true},
+ oralPlaque:{name:'Зуб · прикреплённый налёт',unit:'у.е.'},
+ oralActive:{name:'Зуб · активная биомасса',unit:'у.е.'},
+ oralMineral:{name:'Зуб · средний минеральный запас',unit:'% модельного максимума',continuous:true},
+ oralDefects:{name:'Зуб · участки структурного дефекта',unit:'из 36'},
+ oralAcidTime:{name:'Зуб · время кислых фаз с начала',unit:'уч. ед.',continuous:true},
  mucusMinimum:{name:'Слизь · минимальный запас внутреннего слоя',unit:'% начального',continuous:true},
  mucusOuter:{name:'Слизь · наружный запас всего',unit:'у.е.'},
  mucusThin:{name:'Слизь · участки ниже учебного порога',unit:'из 144'},
@@ -69,10 +83,16 @@ export const RELAY=[
  {key:'butyrateMade',title:'04 · Выделить бутират',text:'Фекалибактерии выделили бутират.',field:'butyrate',slice:3},
  {key:'tissueButyrate',title:'05 · Достичь ткани',text:'Тканевый отсек использовал бутират.',field:'butyrate',slice:-1}
 ];
+export function studyFor(meta){
+ const s=meta.study&&STUDIES[meta.study];if(meta.study!=='oral')return s;
+ const trial=meta.oralTrial??'brush_regular';if(!Object.hasOwn(ORAL_TRIALS,trial))throw new Error('Неизвестный вариант ухода');
+ return {...s,plan:oralPlan(trial),title:s.title+' · '+ORAL_TRIALS[trial].name};
+}
 export function learningMeta(data,record){
  if(data===undefined)return {version:1,study:null,prediction:null,reflection:'',guided:false};
  if(!data||data.version!==1||!(data.study===null||Object.hasOwn(STUDIES,data.study))||typeof data.reflection!=='string'||data.reflection.length>600||typeof data.guided!=='boolean')throw new Error('Некорректная учебная запись');
- const study=data.study&&STUDIES[data.study];
+ if(data.oralTrial!==undefined&&(data.study!=='oral'||!Object.hasOwn(ORAL_TRIALS,data.oralTrial)))throw new Error('Некорректный вариант ухода');
+ const study=studyFor(data);
  if(study){
   if(record.scenario!==study.scenario||!Number.isInteger(data.prediction)||data.prediction<0||data.prediction>=study.options.length)throw new Error('Прогноз не соответствует исследованию');
   if(data.guided){
@@ -80,17 +100,17 @@ export function learningMeta(data,record){
    if(record.endTick>study.end||JSON.stringify(record.commands)!==JSON.stringify(expected))throw new Error('Команды не соответствуют учебному плану');
   }
  }else if(data.prediction!==null||data.guided)throw new Error('Некорректный свободный опыт');
- return {version:1,study:data.study,prediction:data.prediction,reflection:data.reflection,guided:data.guided};
+ return {version:1,study:data.study,prediction:data.prediction,reflection:data.reflection,guided:data.guided,...(data.study==='oral'?{oralTrial:data.oralTrial??'brush_regular'}:{})};
 }
 export function measure(sim){
  const s=sim.summary(),a=assayCounts(sim);
- return {mucusMinimum:(s.mucus?.minInner??0)*100,mucusOuter:s.mucus?.outer??0,mucusThin:s.mucus?.thinPatches??0,mucusForagers:s.mucus?.foragers??0,mucusSecreted:s.mucus?.secreted??0,mucusConsumed:s.mucus?(s.mucus.outerUsed+s.mucus.innerUsed):0,persisters:a.persisters,persisterLine:a.persisterOrigin,sensitiveLine:a.sensitive,geneticR:a.resistant,recoveredLine:a.recoveredLine,cells:s.cells,plasmids:s.plasmids,lysogens:s.lysogens,phages:s.phages,butyrate:s.butyrate,acetate:s.acetate,
+ return {oralPH:s.oral?.minPH??0,oralPlaque:s.oral?.plaque??0,oralActive:s.oral?.active??0,oralMineral:s.oral?.mineral??0,oralDefects:s.oral?.defects??0,oralAcidTime:s.oral?.acidTime??0,mucusMinimum:(s.mucus?.minInner??0)*100,mucusOuter:s.mucus?.outer??0,mucusThin:s.mucus?.thinPatches??0,mucusForagers:s.mucus?.foragers??0,mucusSecreted:s.mucus?.secreted??0,mucusConsumed:s.mucus?(s.mucus.outerUsed+s.mucus.innerUsed):0,persisters:a.persisters,persisterLine:a.persisterOrigin,sensitiveLine:a.sensitive,geneticR:a.resistant,recoveredLine:a.recoveredLine,cells:s.cells,plasmids:s.plasmids,lysogens:s.lysogens,phages:s.phages,butyrate:s.butyrate,acetate:s.acetate,
   tissueCells:sim.entities.filter(e=>e.alive&&!e.traits.immune&&!e.traits.virus&&e.pos[1]<0).length,
   tissueButyrate:sim.flux.tissueButyrate};
 }
 export class LearningSession {
- constructor(meta={version:1,study:null,prediction:null,reflection:'',guided:false}){this.meta={...meta};this.samples=[];}
- get study(){return this.meta.study?STUDIES[this.meta.study]:null;}
+ constructor(meta={version:1,study:null,prediction:null,reflection:'',guided:false}){this.meta={...meta,...(meta.study==='oral'?{oralTrial:meta.oralTrial??'brush_regular'}:{})};this.samples=[];}
+ get study(){return studyFor(this.meta);}
  applyPlan(sim){
   if(!this.meta.guided||!this.study)return;
   for(const c of this.study.plan)if(c.tick===sim.tick&&!sim.commands.some(x=>x.tick===c.tick&&x.kind===c.kind))sim.command(c.kind,c.pos);
@@ -119,6 +139,11 @@ export function narrate(sim,event){
  let text='',rule='',limit='Это правило условной локальной модели, не прогноз для человека.';
  const link=p=>{if(p&&!links.some(x=>x.seq===p.seq))links.push({seq:p.seq,tick:p.tick,label:EVENT_NAMES[p.kind]||p.kind});};
  switch(e.kind){
+ case 'oral_sugar':text=e.manual?'В B добавлен ручной сахарный импульс.':'В оба участка по общему расписанию поступил сахарный субстрат.';rule='Кислоту производит метаболизм микроколоний. Само внесение сахара не задаёт pH и не вычитает минералы эмали.';limit='Модель углеводной нагрузки, не напитка с заданной собственной кислотностью. Эрозия пищевыми кислотами не моделируется.';break;
+ case 'oral_care':text=`${e.action==='oral_brush'?'Механически снята часть налёта':'Изменены условия поверхности'}. Налёт: ${e.plaqueBefore.toFixed(3)} → ${e.plaqueAfter.toFixed(3)} у.е.`;rule=e.action==='oral_brush'?'Сняты активная биомасса, матрикс и неактивный материал. В условных углублениях удаляется меньше. Чистка не меняет минеральный запас мгновенно.':e.action==='oral_fluoride'?'Фторсодержащий вариант меняет последующие скорости растворения и реминерализации. Он не уничтожает налёт и не даёт мгновенного ремонта.':e.action==='oral_antiseptic'?'Антисептический вариант временно подавляет метаболизм и переводит часть активной биомассы в неактивный прикреплённый материал. Каркас остаётся.':e.action==='oral_water'?'Вода удаляет часть растворённых сахаров, кислот и остатков средств. Прикреплённый налёт остаётся.':'Поток слюны и повторные сахарные нагрузки меняют последующие процессы, а не мгновенно переписывают эмаль.';limit='Изолированные учебные механизмы, не состав конкретного средства и не дозировка. Ополаскиватели — не замена щётке и межзубной гигиене.';break;
+ case 'oral_acid':text=`Минимальный pH налёта снизился до ${e.ph.toFixed(2)}.`;rule='Производство и удержание кислоты превысили нейтрализацию и вынос. При низком pH модель переводит минерал эмали в растворённый пул.';limit='Порог 5.5 здесь выбран для опыта; в реальности он зависит от состава среды и не является универсальной границей кариеса.';break;
+ case 'oral_buffer':text=`Минимальный pH поднялся до ${e.ph.toFixed(2)}.`;rule='Буфер и вынос слюной теперь успевают уменьшать кислотную нагрузку. Благоприятная среда позволяет части растворённых минералов возвращаться в ранний дефект.';limit='Нейтральный pH не доказывает отсутствие налёта и не означает мгновенное восстановление зуба.';break;
+ case 'oral_defect':text=`В участке ${e.patch+1} возник учебный структурный дефект.`;rule='Длительная вычисленная потеря минералов пересекла условный порог. Верхняя граница восстановления формы снизилась и уже не растёт от чистки или полоскания.';limit='Это не диагностика полости, не клинический порог и не срок до кариеса. Сформированная полость требует стоматологической оценки.';break;
  case 'mucus_supply':text=e.action==='substrate_off'?'Приток субстрата для микробов остановлен.':e.action==='substrate_on'?'Приток субстрата для микробов возвращён.':e.action==='secretion_slow'?'Производственная способность хозяина снижена до четверти.':'Обычная производственная способность хозяина возвращена.';rule='Уже имеющиеся вещества и слизь не исчезают и не возвращаются по команде. Их количества дальше меняют перенос, питание, секреция и вынос. Контроль не получает эту команду.';limit='Не расписание питания человека. Поток ресурса хозяина здесь независим от потока еды для микробов.';break;
  case 'mucus_switch':text=`${who}: ${e.mode==='mucin'?'использует гликаны слизи':'снова использует пищевой субстрат'}.`;rule=sim.get(a)?.species==='akk'?'Этот учебный потребитель использует только наружный материал, даже при наличии пищевого субстрата. Такое потребление само по себе не истончает внутренний слой.':'Переключение рассчитано по локальному количеству субстрата. При истощении наружного запаса модели доступна часть внутренних гликанов; это явно заданное упрощение ферментативной деградации.';limit='Гликаны — сахарные цепочки муцинов. Учебные варианты и пороги не описывают все штаммы вида. Микробы не проходят в эпителий.';link(sim.events.filter(p=>p.seq<e.seq&&p.kind==='mucus_supply').at(-1));break;
  case 'mucus_thin':text=`В участке ${e.patch+1} внутренний запас снизился до ${(e.fraction*100).toFixed(1)}% начального.`;rule='Здесь расход превысил пополнение. Порог 45% нужен для отметки на графике, а не для диагноза. В модели это повышает перенос веществ через покрытие.';limit='Истончение слизи не равно повреждению эпителия. Его целостность, воспаление и болезнь здесь не рассчитываются.';link(sim.events.filter(p=>p.seq<e.seq&&p.kind==='mucus_supply').at(-1));break;
@@ -159,7 +184,7 @@ export function narrate(sim,event){
  return {title:EVENT_NAMES[e.kind]||'Событие',text,rule,limit,links,actors:[...e.actors],tick:e.tick,seq:e.seq};
 }
 export function highlights(sim){
- const kinds=['mucus_supply','mucus_switch','mucus_thin','mucus_recover','persistence_enter','persistence_exit','challenge','washout','transfer','division','lysogeny','induction','lysis','engulf','digest','t6'];
+ const kinds=['oral_sugar','oral_care','oral_acid','oral_buffer','oral_defect','mucus_supply','mucus_switch','mucus_thin','mucus_recover','persistence_enter','persistence_exit','challenge','washout','transfer','division','lysogeny','induction','lysis','engulf','digest','t6'];
  const result=[];
  for(const kind of kinds){const e=sim.events.find(e=>e.kind===kind);if(e)result.push(e);}
  for(const e of sim.events)if(['mucus_supply','challenge','washout'].includes(e.kind)&&!result.includes(e))result.push(e);
@@ -171,6 +196,13 @@ export function report(sim,control,session){
   `Живых микробных клеток: ${b.cells} в опыте / ${a.cells} в контроле. Носителей pDemoR: ${b.plasmids} / ${a.plasmids}.`,
   `Лизогенов: ${b.lysogens} / ${a.lysogens}. Микробов в ткани: ${b.tissueCells} / ${a.tissueCells}.`,
   `Бутирата в среде: ${b.butyrate.toFixed(4)} / ${a.butyrate.toFixed(4)} у.е. Использовано тканью с начала: ${b.tissueButyrate.toFixed(4)} / ${a.tissueButyrate.toFixed(4)} у.е.`];
+ if(sim.oral){
+  const o=sim.summary().oral,c=control.summary().oral;observations.splice(1);
+  observations.push(`Налёт B / A: ${o.plaque.toFixed(3)} / ${c.plaque.toFixed(3)} у.е.; активная биомасса ${o.active.toFixed(3)} / ${c.active.toFixed(3)}.`,
+   `Минимальный pH: ${o.minPH.toFixed(2)} / ${c.minPH.toFixed(2)}. Средний минеральный запас: ${o.mineral.toFixed(1)}% / ${c.mineral.toFixed(1)}% модельного максимума, не процент здоровья.`,
+   `Участков структурного дефекта: ${o.defects} / ${c.defects} из 36. Время кислых фаз: ${o.acidTime.toFixed(1)} / ${c.acidTime.toFixed(1)} учебных единиц, не дней.`,
+   `Баланс C: ${sim.summary().carbonError.toExponential(1)}; баланс минералов: ${o.mineralError.toExponential(1)}. Опыт не моделирует зубной камень, дёсны и все виды бактерий.`);
+ }
  if(sim.mucus){
   const m=sim.summary().mucus,c=control.summary().mucus;
   observations.splice(1,2);

@@ -2,7 +2,7 @@ import {LocalSimulation} from './engine.js';
 import {ReplayRunner} from './replay.js';
 import {LearningSession,learningMeta} from './learning.js';
 import {LearningView} from './learning-view.js';
-import {LOCAL_SCENARIOS,EVENT_NAMES,LOCAL_LIMITS,LOCAL_SPECIES,LOCAL_ACTION_NAMES,LOCAL_STATE_NAMES,LOCAL_CAUSE_NAMES,commandsFor} from './traits.js';
+import {LOCAL_SCENARIOS,EVENT_NAMES,LOCAL_LIMITS,LOCAL_SPECIES,LOCAL_ACTION_NAMES,LOCAL_STATE_NAMES,LOCAL_CAUSE_NAMES,commandsFor,siteForScenario} from './traits.js';
 const $=id=>document.getElementById(id);
 const escape=text=>String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export class LocalController {
@@ -10,12 +10,13 @@ export class LocalController {
   Object.assign(this,{world,navigate,selectAgent,dialog,explain,getPaused,setPaused,onChange});this.control=null;this.substep=0;this.record=null;this.request=0;this.busy=false;this.lastHUD=-1;this.learning=null;
   $('local-scenario').innerHTML=Object.entries(LOCAL_SCENARIOS).map(([id,name])=>`<option value="${id}">${name}</option>`).join('');
   $('local-scenario').value='community';
+  $('local-scenario').onchange=()=>this.refresh(true);
   $('local-open').onclick=()=>$('local-lab').scrollIntoView({block:'start',behavior:world.calm?'auto':'smooth'});
   $('local-start').onclick=()=>this.start($('local-scenario').value);
   $('local-exit').onclick=()=>this.exit();
   document.querySelectorAll('[data-local-action]').forEach(b=>b.onclick=()=>{
    if(!this.world.local||this.busy)return;
-   const e=this.world.local.get(this.world.selected+1),pos=e?.alive?e.pos:[0,3,0];
+   const e=this.world.local.get(this.world.selected+1),pos=this.world.local.oral?[0,3,0]:e?.alive?e.pos:[0,3,0];
    try{this.world.local.command(b.dataset.localAction,pos);this.record=null;this.learning.fork();this.learning.capture(this.world.local,this.control);this.world.cloud.sync();this.refresh(true);}catch(error){this.explain('Вмешательство не выполнено',error.message);}
   });
   $('local-pause').onclick=()=>{if(!this.busy){this.setPaused(!this.getPaused());this.refresh(true);}};
@@ -29,7 +30,7 @@ export class LocalController {
   this.learningView=new LearningView(this);this.refresh(true);
  }
  start(scenario,meta){
-  if(this.world.model.site.id!=='colon'){this.explain('Локальный эксперимент доступен для толстой кишки','Переключитесь на толстую кишку. Эти учебные параметры не переносятся автоматически на другие биотопы.');return;}
+  if(this.world.model.site.id!==siteForScenario(scenario)){this.explain('Другой биотоп',scenario==='oral'?'Откройте полость рта для опыта с зубом.':'Откройте толстую кишку для этого опыта.');return;}
   this.cancel();this.record=null;this.substep=0;this.control=new LocalSimulation({scenario});this.world.enterLocal(new LocalSimulation({scenario}));this.learning=new LearningSession(meta);this.learning.applyPlan(this.world.local);this.learning.capture(this.world.local,this.control);this.world.cloud.sync();$('local-scenario').value=scenario;this.navigate(2.35);this.setPaused(false);this.onChange();this.refresh(true);
   this.explain('Запущен локальный эксперимент', 'Каждый видимый агент имеет собственное состояние. Учебные штаммы и скорости условны; это не образец пациента. Агрегированная модель на время опыта остановлена.');
  }
@@ -65,7 +66,7 @@ export class LocalController {
   try{
    while(token===this.request&&this.world.local&&this.world.local.tick<target){
     if(token!==this.request)return;
-    for(let i=0;i<30&&this.world.local.tick<target;i++)this.advance();
+    for(let i=0;i<(this.world.local.oral?120:30)&&this.world.local.tick<target;i++)this.advance();
     this.world.cloud.sync();$('local-progress').textContent=`Расчёт: ${this.world.local.tick} / ${target}`;
     await new Promise(resolve=>setTimeout(resolve,0));
    }
@@ -74,13 +75,13 @@ export class LocalController {
  }
  async restore(record,target){
   const runner=new ReplayRunner(record,target),meta=learningMeta(record.learning,runner.record);
-  if(this.world.model.site.id!=='colon')throw new Error('Откройте толстую кишку перед загрузкой локального опыта');
+  if(this.world.model.site.id!==siteForScenario(runner.record.scenario))throw new Error(runner.record.scenario==='oral'?'Откройте полость рта перед загрузкой опыта с зубом':'Откройте толстую кишку перед загрузкой локального опыта');
   this.cancel();const token=this.request;this.busy=true;this.setPaused(true);this.refresh(true);
   const baseline=new LocalSimulation({seed:runner.record.seed,scenario:runner.record.scenario,engine:runner.record.engine}),learning=new LearningSession(meta);
   learning.capture(runner.sim,baseline);
   try{let done=false;while(!done){
    if(token!==this.request)return;
-   for(let n=0;n<30&&!done;n++){
+   for(let n=0;n<(runner.sim.oral?120:30)&&!done;n++){
     done=runner.run(1);while(baseline.tick<runner.sim.tick)baseline.step();learning.capture(runner.sim,baseline);
    }
    $('local-progress').textContent=`Воспроизведение: ${runner.sim.tick} / ${target}`;await new Promise(resolve=>setTimeout(resolve,0));
@@ -92,9 +93,13 @@ export class LocalController {
  }
 
  refresh(force=false){
+  const site=this.world.model.site.id;
+  for(const option of $('local-scenario').options)option.disabled=siteForScenario(option.value)!==site;
+  if(!this.world.local&&$('local-scenario').selectedOptions[0]?.disabled)$('local-scenario').value=site==='mouth'?'oral':'community';
   this.learningView?.refresh(force);
-  $('local-color-legend').textContent=this.world.local?.mucus?'Голубой и мятный — слои слизи. Высота связана с вычисленным запасом, не с диагнозом. Мысли подписывают источник питания; вид не задаёт «полезность» или «вредность».':this.world.local?.assay?'Ⅱ голубой S — медленное состояние; ◆ золотой R-demo — наследуемая устойчивость, не pDemoR. Вариант и состояние подписаны в карточке и мыслях.':'Жёлтый — pDemoR; розовый — заражение; белый — фагоцит; охристый — спора. Цвет не означает «полезный» или «вредный». ';
-  const active=!!this.world.local; $('local-controls').hidden=!active;$('local-exit').hidden=!active;$('local-start').disabled=this.busy||this.world.model.site.id!=='colon';
+  $('local-fields').hidden=!!this.world.local?.oral;$('local-field').disabled=!!this.world.local?.oral;$('local-slice').disabled=!!this.world.local?.oral;
+  $('local-color-legend').textContent=this.world.local?.oral?'Оранжевые группы — микроколонии, не отдельные клетки. Жёлтый гель — налёт; розовые ореолы — кислота; голубые частицы — поток слюны. Эмаль меняет вид по запасу минералов, не по таймеру.':this.world.local?.mucus?'Голубой и мятный — слои слизи. Высота связана с вычисленным запасом, не с диагнозом. Мысли подписывают источник питания; вид не задаёт «полезность» или «вредность».':this.world.local?.assay?'Ⅱ голубой S — медленное состояние; ◆ золотой R-demo — наследуемая устойчивость, не pDemoR. Вариант и состояние подписаны в карточке и мыслях.':'Жёлтый — pDemoR; розовый — заражение; белый — фагоцит; охристый — спора. Цвет не означает «полезный» или «вредный». ';
+  const active=!!this.world.local; $('local-controls').hidden=!active;$('local-exit').hidden=!active;$('local-start').disabled=this.busy||this.world.model.site.id!==siteForScenario($('local-scenario').value);
   $('local-scenario').disabled=this.busy;$('local-load').disabled=this.busy;
   for(const id of ['density','life-rate','feed-nearby','explode','connections','pick-layers'])$(id).disabled=(active&&!(id==='explode'&&this.world.inspect))||(id==='feed-nearby'&&!['colon','mouth','small'].includes(this.world.model.site.id));
   document.querySelectorAll('[data-exp]').forEach(b=>{if(active)b.disabled=true;});
@@ -103,10 +108,10 @@ export class LocalController {
   for(const id of ['local-step','local-save','local-fork','local-pause'])$(id).disabled=this.busy;
   document.querySelectorAll('[data-local-action]').forEach(b=>{const sim=this.world.local;b.hidden=!commandsFor(sim?.scenario).includes(b.dataset.localAction);b.disabled=this.busy||!!sim?.stopped||(b.dataset.localAction==='challenge'&&!!sim?.assay?.bath)||(b.dataset.localAction==='washout'&&!sim?.assay?.bath)||(b.dataset.localAction==='substrate_off'&&!sim?.mucus?.substrate)||(b.dataset.localAction==='substrate_on'&&!!sim?.mucus?.substrate)||(b.dataset.localAction==='secretion_slow'&&sim?.mucus?.secretionScale===.25)||(b.dataset.localAction==='secretion_restore'&&sim?.mucus?.secretionScale===1);});
   $('readouts').hidden=active;$('local-readouts').hidden=!active;
-  if(!active){$('local-summary').textContent='Новый режим: численные агенты, причинные события, химия и воспроизведение. Работает в локальном участке толстой кишки.';return;}
+  if(!active){$('local-summary').textContent='Новый режим: численные агенты, причинные события, химия и воспроизведение. Выберите толстую кишку или полость рта для соответствующего опыта.';return;}
   if(!force&&this.lastHUD===this.world.local.tick)return;this.lastHUD=this.world.local.tick;
-  const s=this.world.local.summary();$('local-summary').textContent=`${LOCAL_SCENARIOS[this.world.local.scenario]} · t=${s.time.toFixed(1)} уч. ед. · живых ${s.alive} · генеалогических записей ${this.world.local.entities.length}. ${s.stopped?'Достигнут предел времени. ':''}${s.capacityHits?'Лимит агентов ограничивает новые рождения. ':''}${s.assay?'Равномерный лабораторный тест; не лечение кишечника. ':''}Не клиническая модель.`;
-  $('local-readouts').innerHTML=[['Клетки',s.cells],['Фаги',s.phages],['pDemoR',s.plasmids],['Инфицированы',s.infected],['Лизогены',s.lysogens],['Споры',s.spores],...(s.mucus? [['Мин. запас слизи',(s.mucus.minInner*100).toFixed(1)+'%'],['Тонких участков',s.mucus.thinPatches]]:[]),...(s.assay? [['Медленные S',s.assay.persisters],['Наследуемые R',s.assay.resistant]]:[]),['Фагоциты',s.immune],['Бутират · у.е.',s.butyrate.toFixed(3)]].map(([k,v])=>`<div class="readout"><small>${k}</small><b>${v}</b></div>`).join('');
+  const s=this.world.local.summary();$('local-summary').textContent=`${LOCAL_SCENARIOS[this.world.local.scenario]} · t=${s.time.toFixed(1)} уч. ед. · ${s.oral?'микроколоний':'живых агентов'} ${s.alive}${s.oral?' (не число клеток)':' · генеалогических записей '+this.world.local.entities.length}. ${s.stopped?'Достигнут предел времени. ':''}${s.capacityHits?'Лимит агентов ограничивает новые рождения. ':''}${s.assay?'Равномерный лабораторный тест; не лечение кишечника. ':''}Не клиническая модель.`;
+  $('local-readouts').innerHTML=(s.oral?[['Микроколонии',s.cells],['Налёт · у.е.',s.oral.plaque.toFixed(2)],['Минимальный pH',s.oral.minPH.toFixed(2)],['Минерал · % модели',s.oral.mineral.toFixed(1)],['Дефектные участки',s.oral.defects]]:[['Клетки',s.cells],['Фаги',s.phages],['pDemoR',s.plasmids],['Инфицированы',s.infected],['Лизогены',s.lysogens],['Споры',s.spores],...(s.mucus? [['Мин. запас слизи',(s.mucus.minInner*100).toFixed(1)+'%'],['Тонких участков',s.mucus.thinPatches]]:[]),...(s.assay? [['Медленные S',s.assay.persisters],['Наследуемые R',s.assay.resistant]]:[]),['Фагоциты',s.immune],['Бутират · у.е.',s.butyrate.toFixed(3)]]).map(([k,v])=>`<div class="readout"><small>${k}</small><b>${v}</b></div>`).join('');
   $('local-seek').max=this.record?.endTick??s.tick;$('local-seek').value=s.tick;$('local-seek').disabled=this.busy;$('local-cursor').textContent=`Шаг ${s.tick} / ${$('local-seek').max}`;
   $('local-field').value=this.world.cloud.fieldKind;$('local-slice').value=String(this.world.cloud.slice);
   const events=this.world.local.events.filter(e=>e.kind!=='birth').slice(-7).reverse();
@@ -115,11 +120,11 @@ export class LocalController {
  history(){
   const sim=this.world.local;if(!sim)return;const id=this.world.selected+1,h=sim.lineage(id);
   const heading=h?`#${id} · ${LOCAL_SPECIES[h.entity.species].name}`:'Выберите агента в сцене или журнале';
-  const lineage=h?`<p>Состояние: ${escape(LOCAL_STATE_NAMES[h.entity.state]||h.entity.state)}. Родители: ${h.entity.parents.join(', ')||'начальная клетка'}. Потомки: ${h.children.join(', ')||'пока нет'}. ${h.entity.host?'Хозяин происхождения фага: #'+h.entity.host:''}</p><p>Плазмиды: ${h.entity.plasmids.join(', ')||'нет'}. Причина завершения: ${escape(LOCAL_CAUSE_NAMES[h.entity.cause]||LOCAL_STATE_NAMES[h.entity.state]||h.entity.state)}.</p>`:'';
-  const events=h?h.events:sim.events.slice(-100);
-  this.dialog('ПРИЧИННЫЙ ЖУРНАЛ И ГЕНЕАЛОГИЯ',`<h2>${heading}</h2>${lineage}<p>pDemoR — условная совместимая плазмида с учебным признаком устойчивости; это не свойство всех плазмид. ID сохраняются после гибели. Хозяин фага — контекст происхождения, не генетический родитель.</p><div class="notice">Лимиты: ${LOCAL_LIMITS.alive} живых агентов, ${LOCAL_LIMITS.ids} ID, ${LOCAL_LIMITS.ticks} шагов. Сохраняется до ${LOCAL_LIMITS.events} последних событий. Полное состояние восстанавливается из начальных условий и команд той же версии.</div>${events.slice(-100).reverse().map(e=>`<article class="timeline-item"><b>${(e.tick*.1).toFixed(1)} · ${EVENT_NAMES[e.kind]||e.kind}</b><p>${e.actors.map(id=>'#'+id).join(' → ')} ${e.cause?escape(LOCAL_CAUSE_NAMES[e.cause]||e.cause):''} ${e.burst!==undefined?' · потомство: '+e.burst:''}</p><button class="outline" data-history-event="${e.seq}">Почему это произошло? →</button></article>`).join('')}`);
+  const lineage=sim.oral?'<p>Каждый ID — микроколония. Меняется её активная биомасса, а не число нарисованных клеток; индивидуальные деления и родословные в этом модуле не рассчитываются.</p>':h?`<p>Состояние: ${escape(LOCAL_STATE_NAMES[h.entity.state]||h.entity.state)}. Родители: ${h.entity.parents.join(', ')||'начальная клетка'}. Потомки: ${h.children.join(', ')||'пока нет'}. ${h.entity.host?'Хозяин происхождения фага: #'+h.entity.host:''}</p><p>Плазмиды: ${h.entity.plasmids.join(', ')||'нет'}. Причина завершения: ${escape(LOCAL_CAUSE_NAMES[h.entity.cause]||LOCAL_STATE_NAMES[h.entity.state]||h.entity.state)}.</p>`:'';
+  const events=sim.oral?sim.events.slice(-100):h?h.events:sim.events.slice(-100);
+  this.dialog('ПРИЧИННЫЙ ЖУРНАЛ И ГЕНЕАЛОГИЯ',`<h2>${heading}</h2>${lineage}${sim.oral?'':`<p>pDemoR — условная совместимая плазмида с учебным признаком устойчивости; это не свойство всех плазмид. ID сохраняются после гибели. Хозяин фага — контекст происхождения, не генетический родитель.</p>`}<div class="notice">Лимиты: ${LOCAL_LIMITS.alive} живых агентов, ${LOCAL_LIMITS.ids} ID, ${LOCAL_LIMITS.ticks} шагов. Сохраняется до ${LOCAL_LIMITS.events} последних событий. Полное состояние восстанавливается из начальных условий и команд той же версии.</div>${events.slice(-100).reverse().map(e=>`<article class="timeline-item"><b>${(e.tick*.1).toFixed(1)} · ${EVENT_NAMES[e.kind]||e.kind}</b><p>${e.actors.map(id=>'#'+id).join(' → ')} ${e.cause?escape(LOCAL_CAUSE_NAMES[e.cause]||e.cause):''} ${e.burst!==undefined?' · потомство: '+e.burst:''}</p><button class="outline" data-history-event="${e.seq}">Почему это произошло? →</button></article>`).join('')}`);
   document.querySelectorAll('[data-history-event]').forEach(b=>b.onclick=()=>{const event=sim.events.find(e=>e.seq===+b.dataset.historyEvent);if(event){$('dialog').close();this.learningView.selectEvent(event);$('learning-panel').scrollIntoView({block:'start',behavior:'auto'});}});
  }
 
- compare(){const a=this.control.summary(),b=this.world.local.summary();const col=(s,title)=>`<div><h3>${title}</h3><p>Живых: ${s.alive}<br>pDemoR: ${s.plasmids}<br>Фагов: ${s.phages}<br>Лизогенов: ${s.lysogens}<br>Бутират: ${s.butyrate.toFixed(3)} у.е.<br>Поглощений: ${s.counts.engulf||0}${s.mucus?`<br>Минимальный внутренний запас: ${(s.mucus.minInner*100).toFixed(1)}% начального<br>Тонких участков: ${s.mucus.thinPatches} / 144<br>Гликанов потреблено: ${(s.mucus.outerUsed+s.mucus.innerUsed).toFixed(3)} у.е.`:''}<br>Погрешность углеродного баланса: ${s.carbonError.toExponential(2)}</p></div>`;this.dialog('ЛОКАЛЬНЫЙ КОНТРОЛЬ',`<h2>Одинаковый старт, шаг ${b.tick}</h2><div class="comparison">${col(a,'Без ваших вмешательств')}${col(b,'Ваш опыт')}</div><p>Оба расчёта начинают с одного seed и сценария. Меняется вмешательство, не графическая плотность. Условные количества — не анализ микробиома пациента.</p><button class="outline" id="compare-graphs">Траектории A/B во времени →</button>`);$('compare-graphs').onclick=()=>{$('dialog').close();$('learning-chart-area').scrollIntoView({block:'center',behavior:'auto'});};}
+ compare(){const a=this.control.summary(),b=this.world.local.summary();const col=(s,title)=>`<div><h3>${title}</h3><p>${s.oral?`Микроколоний: ${s.alive}`:`Живых: ${s.alive}<br>pDemoR: ${s.plasmids}<br>Фагов: ${s.phages}<br>Лизогенов: ${s.lysogens}<br>Бутират: ${s.butyrate.toFixed(3)} у.е.<br>Поглощений: ${s.counts.engulf||0}`}${s.oral?`<br>Налёт: ${s.oral.plaque.toFixed(3)} у.е.<br>pH: ${s.oral.minPH.toFixed(2)}<br>Минеральный запас: ${s.oral.mineral.toFixed(1)}% модели<br>Структурных дефектов: ${s.oral.defects}`:''}${s.mucus?`<br>Минимальный внутренний запас: ${(s.mucus.minInner*100).toFixed(1)}% начального<br>Тонких участков: ${s.mucus.thinPatches} / 144<br>Гликанов потреблено: ${(s.mucus.outerUsed+s.mucus.innerUsed).toFixed(3)} у.е.`:''}<br>Погрешность углеродного баланса: ${s.carbonError.toExponential(2)}</p></div>`;this.dialog('ЛОКАЛЬНЫЙ КОНТРОЛЬ',`<h2>Одинаковый старт, шаг ${b.tick}</h2><div class="comparison">${col(a,'Без ваших вмешательств')}${col(b,'Ваш опыт')}</div><p>Оба расчёта начинают с одного seed и сценария. Меняется вмешательство, не графическая плотность. Условные количества — не анализ микробиома пациента.</p><button class="outline" id="compare-graphs">Траектории A/B во времени →</button>`);$('compare-graphs').onclick=()=>{$('dialog').close();$('learning-chart-area').scrollIntoView({block:'center',behavior:'auto'});};}
 }
