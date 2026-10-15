@@ -1,3 +1,4 @@
+import {COMPETITION_TRIALS,competitionPlan} from './competition.js';
 import {ORAL_TRIALS,oralPlan} from './oral.js';
 import {LOCAL_SPECIES,EVENT_NAMES,LOCAL_CAUSE_NAMES} from './traits.js';
 import {assayCounts} from './persistence.js';
@@ -5,6 +6,16 @@ import {exportReplay} from './replay.js';
 
 // Teaching plans issue the same public commands as free play. No scripted outcomes.
 export const STUDIES={
+ competition:{title:'Защита без войны',scenario:'competition',end:1600,metric:'newcomer',
+ question:'Можно ли ограничить новичка, не нападая на него?',options:['Нет: защита возможна только через уничтожение','Да: соседи могут раньше использовать общий ресурс','Любая добавленная группа поможет одинаково'],
+ setup:'A и B получают одинаковую небольшую группу новичка на шаге 30. Он использует R, как и часть жителей. В B на шаге 300 полностью выводим потребителей R — потерю функции задаём как внешний вынос, не антибиотик. На шаге 900 возвращаем выбранную функцию. Есть варианты без возврата и без нарушения. Q — другой ресурс. Все количества — условные эквиваленты углерода; фигурки — группы, не клетки.',
+ plan:competitionPlan(),prompt:'После потери потребителей сначала изменился R или биомасса новичка? Почему равная добавка потребителей Q не заменяет потребителей R?',
+ takeaway:'Здесь нет атак, токсинов или уничтожения новичка. Жители с большим сродством к R оставляют мало доступного ресурса: прирост новичка не покрывает поддержание и вымывание. Потеря функции освобождает нишу. Возврат именно потребления R ограничивает рост; потребление Q не является его заменой. Это функциональная конкуренция в учебной модели, не рекомендация пробиотика или лечения.'},
+ transport:{title:'Одна еда — разные пути и задержки',scenario:'transport',end:1200,metric:'bloodD',
+ question:'Если замедлить выход из желудка, тот же пищевой импульс появится в крови в тот же момент?',options:['Да: все отсеки заполнятся мгновенно','Нет: профиль изменят перенос, всасывание и использование','Появление вещества в крови доказывает его действие на мозг'],
+ setup:'В A и B одинаковый импульс D/R/Q на шаге 10. Только в B выход из желудочного резерва медленнее в пять раз. D всасывается в тонкокишечном отсеке; остаток попадает в общий колонический ресурс R. R и Q кормят разные группы; продукт M может всасываться. Все отсеки принадлежат одному расчёту. D, R, Q и M — условные пулы, не названия реальных молекул.',
+ plan:[{tick:0,kind:'transit_slow',pos:[0,3,0]}],prompt:'Почему пик D в крови запаздывает и уменьшается? Куда ушёл материал, которого уже нет в просвете? Можно ли из этого заключить что-либо о настроении?',
+ takeaway:'Поступление в желудок не равно появлению в крови. Материал удерживается в отсеках, часть всасывается, часть используется печёночным отсеком, часть достигает системной крови и затем используется или выводится. Карта показывает запасы, реестр — накопленные переносы. Этап 1 не рассчитывает мозг, ГЭБ, нервные сигналы или настроение.'},
  oral:{title:'Что остаётся после чистки?',scenario:'oral',end:2400,metric:'oralPH',
   question:'Чистка, вода и разные ополаскиватели делают с налётом и эмалью одно и то же?',
   options:['Да: любой уход мгновенно удаляет налёт и чинит эмаль','Нет: удаление налёта, кислотность и минеральный баланс — разные процессы','Микробов нужно уничтожить полностью'],
@@ -49,6 +60,12 @@ export const STUDIES={
   takeaway:'В этой модели барьер разделяет отсеки. Фагоцит поглощает доступные близкие цели в ткани, а не всех «плохих» по названию. Движение через открытый барьер условно.'}
 };
 export const METRICS={
+ newcomer:{name:'Конкуренция · биомасса новичка',unit:'у.е. C',continuous:true},
+ resident:{name:'Конкуренция · биомасса потребителей R',unit:'у.е. C',continuous:true},
+ resourceR:{name:'Конкуренция · доступный ресурс R',unit:'у.е. C',continuous:true},
+ bloodD:{name:'Перенос · D в системной крови',unit:'у.е. C, не концентрация',continuous:true},
+ bloodM:{name:'Перенос · M в системной крови',unit:'у.е. C, не концентрация',continuous:true},
+ stomach:{name:'Перенос · запас в желудочном резерве',unit:'у.е. C',continuous:true},
  oralPH:{name:'Зуб · минимальный pH в налёте',unit:'pH модели',continuous:true},
  oralPlaque:{name:'Зуб · прикреплённый налёт',unit:'у.е.'},
  oralActive:{name:'Зуб · активная биомасса',unit:'у.е.'},
@@ -84,13 +101,16 @@ export const RELAY=[
  {key:'tissueButyrate',title:'05 · Достичь ткани',text:'Тканевый отсек использовал бутират.',field:'butyrate',slice:-1}
 ];
 export function studyFor(meta){
- const s=meta.study&&STUDIES[meta.study];if(meta.study!=='oral')return s;
+ const s=meta.study&&STUDIES[meta.study];
+ if(meta.study==='competition'){const trial=meta.competitionTrial??'function';if(!Object.hasOwn(COMPETITION_TRIALS,trial))throw new Error('Неизвестный вариант восстановления');return {...s,plan:competitionPlan(trial),title:s.title+' · '+COMPETITION_TRIALS[trial].name};}
+ if(meta.study!=='oral')return s;
  const trial=meta.oralTrial??'brush_regular';if(!Object.hasOwn(ORAL_TRIALS,trial))throw new Error('Неизвестный вариант ухода');
  return {...s,plan:oralPlan(trial),title:s.title+' · '+ORAL_TRIALS[trial].name};
 }
 export function learningMeta(data,record){
  if(data===undefined)return {version:1,study:null,prediction:null,reflection:'',guided:false};
  if(!data||data.version!==1||!(data.study===null||Object.hasOwn(STUDIES,data.study))||typeof data.reflection!=='string'||data.reflection.length>600||typeof data.guided!=='boolean')throw new Error('Некорректная учебная запись');
+ if(data.competitionTrial!==undefined&&(data.study!=='competition'||!Object.hasOwn(COMPETITION_TRIALS,data.competitionTrial)))throw new Error('Некорректный вариант восстановления');
  if(data.oralTrial!==undefined&&(data.study!=='oral'||!Object.hasOwn(ORAL_TRIALS,data.oralTrial)))throw new Error('Некорректный вариант ухода');
  const study=studyFor(data);
  if(study){
@@ -100,16 +120,16 @@ export function learningMeta(data,record){
    if(record.endTick>study.end||JSON.stringify(record.commands)!==JSON.stringify(expected))throw new Error('Команды не соответствуют учебному плану');
   }
  }else if(data.prediction!==null||data.guided)throw new Error('Некорректный свободный опыт');
- return {version:1,study:data.study,prediction:data.prediction,reflection:data.reflection,guided:data.guided,...(data.study==='oral'?{oralTrial:data.oralTrial??'brush_regular'}:{})};
+ return {version:1,study:data.study,prediction:data.prediction,reflection:data.reflection,guided:data.guided,...(data.study==='competition'?{competitionTrial:data.competitionTrial??'function'}:{}),...(data.study==='oral'?{oralTrial:data.oralTrial??'brush_regular'}:{})};
 }
 export function measure(sim){
  const s=sim.summary(),a=assayCounts(sim);
- return {oralPH:s.oral?.minPH??0,oralPlaque:s.oral?.plaque??0,oralActive:s.oral?.active??0,oralMineral:s.oral?.mineral??0,oralDefects:s.oral?.defects??0,oralAcidTime:s.oral?.acidTime??0,mucusMinimum:(s.mucus?.minInner??0)*100,mucusOuter:s.mucus?.outer??0,mucusThin:s.mucus?.thinPatches??0,mucusForagers:s.mucus?.foragers??0,mucusSecreted:s.mucus?.secreted??0,mucusConsumed:s.mucus?(s.mucus.outerUsed+s.mucus.innerUsed):0,persisters:a.persisters,persisterLine:a.persisterOrigin,sensitiveLine:a.sensitive,geneticR:a.resistant,recoveredLine:a.recoveredLine,cells:s.cells,plasmids:s.plasmids,lysogens:s.lysogens,phages:s.phages,butyrate:s.butyrate,acetate:s.acetate,
+ return {newcomer:s.ecology?.newcomer??0,resident:s.ecology?.resident??0,resourceR:s.ecology?.r??0,bloodD:s.ecology?.transport.bloodD??0,bloodM:s.ecology?.transport.bloodM??0,stomach:s.ecology?.transport.stomach??0,oralPH:s.oral?.minPH??0,oralPlaque:s.oral?.plaque??0,oralActive:s.oral?.active??0,oralMineral:s.oral?.mineral??0,oralDefects:s.oral?.defects??0,oralAcidTime:s.oral?.acidTime??0,mucusMinimum:(s.mucus?.minInner??0)*100,mucusOuter:s.mucus?.outer??0,mucusThin:s.mucus?.thinPatches??0,mucusForagers:s.mucus?.foragers??0,mucusSecreted:s.mucus?.secreted??0,mucusConsumed:s.mucus?(s.mucus.outerUsed+s.mucus.innerUsed):0,persisters:a.persisters,persisterLine:a.persisterOrigin,sensitiveLine:a.sensitive,geneticR:a.resistant,recoveredLine:a.recoveredLine,cells:s.cells,plasmids:s.plasmids,lysogens:s.lysogens,phages:s.phages,butyrate:s.butyrate,acetate:s.acetate,
   tissueCells:sim.entities.filter(e=>e.alive&&!e.traits.immune&&!e.traits.virus&&e.pos[1]<0).length,
   tissueButyrate:sim.flux.tissueButyrate};
 }
 export class LearningSession {
- constructor(meta={version:1,study:null,prediction:null,reflection:'',guided:false}){this.meta={...meta,...(meta.study==='oral'?{oralTrial:meta.oralTrial??'brush_regular'}:{})};this.samples=[];}
+ constructor(meta={version:1,study:null,prediction:null,reflection:'',guided:false}){this.meta={...meta,...(meta.study==='competition'?{competitionTrial:meta.competitionTrial??'function'}:{}),...(meta.study==='oral'?{oralTrial:meta.oralTrial??'brush_regular'}:{})};this.samples=[];}
  get study(){return studyFor(this.meta);}
  applyPlan(sim){
   if(!this.meta.guided||!this.study)return;
@@ -139,6 +159,11 @@ export function narrate(sim,event){
  let text='',rule='',limit='Это правило условной локальной модели, не прогноз для человека.';
  const link=p=>{if(p&&!links.some(x=>x.seq===p.seq))links.push({seq:p.seq,tick:p.tick,label:EVENT_NAMES[p.kind]||p.kind});};
  switch(e.kind){
+ case 'competition_arrival':text='Внесена небольшая группа новичка, использующая R.';rule='Плановое внесение одинаково в A и B. Входящая биомасса учтена отдельно от прироста. Новичок не получает заранее заданную судьбу.';break;
+ case 'competition_condition':text='Изменено условие опыта: '+(e.action==='remove_competitors'?'потребители R выведены во внешний резерв':e.action==='restore_competitors'?'добавлены потребители R':e.action==='restore_other'?'добавлена равная биомасса потребителей Q':'перенос или поступление материала')+'.';rule='Команда меняет условие, но не переписывает биомассу новичка. Дальше работают потребление, прирост, поддержание и вымывание.';break;
+ case 'competition_growth':text='Вычисленный прирост новичка стал больше его потерь.';rule='Больше доступного R позволяет получить больше материала для роста. Нет атаки на соседей.';link(sim.events.filter(p=>p.seq<e.seq&&p.kind==='competition_condition').at(-1));break;
+ case 'competition_limited':text='Прирост новичка больше не покрывает потери биомассы.';rule='Часть материала тратится на поддержание, часть вымывается. Меньше биомассы не означает, что кто-то убил клетки.';link(sim.events.filter(p=>p.seq<e.seq&&p.kind==='competition_condition').at(-1));break;
+ case 'transport_meal':text='D/R/Q поступили в желудочный резерв.';rule='Это внешний вход, а не мгновенное всасывание. Следующие отсеки получают фактически перенесённые количества с задержкой.';break;
  case 'oral_sugar':text=e.manual?'В B добавлен ручной сахарный импульс.':'В оба участка по общему расписанию поступил сахарный субстрат.';rule='Кислоту производит метаболизм микроколоний. Само внесение сахара не задаёт pH и не вычитает минералы эмали.';limit='Модель углеводной нагрузки, не напитка с заданной собственной кислотностью. Эрозия пищевыми кислотами не моделируется.';break;
  case 'oral_care':text=`${e.action==='oral_brush'?'Механически снята часть налёта':'Изменены условия поверхности'}. Налёт: ${e.plaqueBefore.toFixed(3)} → ${e.plaqueAfter.toFixed(3)} у.е.`;rule=e.action==='oral_brush'?'Сняты активная биомасса, матрикс и неактивный материал. В условных углублениях удаляется меньше. Чистка не меняет минеральный запас мгновенно.':e.action==='oral_fluoride'?'Фторсодержащий вариант меняет последующие скорости растворения и реминерализации. Он не уничтожает налёт и не даёт мгновенного ремонта.':e.action==='oral_antiseptic'?'Антисептический вариант временно подавляет метаболизм и переводит часть активной биомассы в неактивный прикреплённый материал. Каркас остаётся.':e.action==='oral_water'?'Вода удаляет часть растворённых сахаров, кислот и остатков средств. Прикреплённый налёт остаётся.':'Поток слюны и повторные сахарные нагрузки меняют последующие процессы, а не мгновенно переписывают эмаль.';limit='Изолированные учебные механизмы, не состав конкретного средства и не дозировка. Ополаскиватели — не замена щётке и межзубной гигиене.';break;
  case 'oral_acid':text=`Минимальный pH налёта снизился до ${e.ph.toFixed(2)}.`;rule='Производство и удержание кислоты превысили нейтрализацию и вынос. При низком pH модель переводит минерал эмали в растворённый пул.';limit='Порог 5.5 здесь выбран для опыта; в реальности он зависит от состава среды и не является универсальной границей кариеса.';break;
@@ -184,10 +209,10 @@ export function narrate(sim,event){
  return {title:EVENT_NAMES[e.kind]||'Событие',text,rule,limit,links,actors:[...e.actors],tick:e.tick,seq:e.seq};
 }
 export function highlights(sim){
- const kinds=['oral_sugar','oral_care','oral_acid','oral_buffer','oral_defect','mucus_supply','mucus_switch','mucus_thin','mucus_recover','persistence_enter','persistence_exit','challenge','washout','transfer','division','lysogeny','induction','lysis','engulf','digest','t6'];
+ const kinds=['competition_arrival','competition_condition','competition_growth','competition_limited','transport_meal','oral_sugar','oral_care','oral_acid','oral_buffer','oral_defect','mucus_supply','mucus_switch','mucus_thin','mucus_recover','persistence_enter','persistence_exit','challenge','washout','transfer','division','lysogeny','induction','lysis','engulf','digest','t6'];
  const result=[];
  for(const kind of kinds){const e=sim.events.find(e=>e.kind===kind);if(e)result.push(e);}
- for(const e of sim.events)if(['mucus_supply','challenge','washout'].includes(e.kind)&&!result.includes(e))result.push(e);
+ for(const e of sim.events)if(['competition_condition','mucus_supply','challenge','washout'].includes(e.kind)&&!result.includes(e))result.push(e);
  return result.sort((a,b)=>a.seq-b.seq);
 }
 export function report(sim,control,session){
@@ -196,6 +221,13 @@ export function report(sim,control,session){
   `Живых микробных клеток: ${b.cells} в опыте / ${a.cells} в контроле. Носителей pDemoR: ${b.plasmids} / ${a.plasmids}.`,
   `Лизогенов: ${b.lysogens} / ${a.lysogens}. Микробов в ткани: ${b.tissueCells} / ${a.tissueCells}.`,
   `Бутирата в среде: ${b.butyrate.toFixed(4)} / ${a.butyrate.toFixed(4)} у.е. Использовано тканью с начала: ${b.tissueButyrate.toFixed(4)} / ${a.tissueButyrate.toFixed(4)} у.е.`];
+ if(sim.ecology){
+  const e=sim.summary().ecology,c=control.summary().ecology;observations.splice(1);
+  observations.push(`Новичок B / A: ${e.newcomer.toFixed(4)} / ${c.newcomer.toFixed(4)} у.е. C. Потребители R: ${e.resident.toFixed(4)} / ${c.resident.toFixed(4)}. Доступный R: ${e.r.toFixed(4)} / ${c.r.toFixed(4)}.`,
+   `Новичок с начала B: потребил R ${e.usedByNewcomer.toFixed(4)}; вымыто ${e.washedNewcomer.toFixed(4)}; поддержание ${e.maintenanceNewcomer.toFixed(4)} у.е. C. Это группы, не индивидуальные клетки.`,
+   `В крови B / A: D ${e.transport.bloodD.toFixed(4)} / ${c.transport.bloodD.toFixed(4)}; M ${e.transport.bloodM.toFixed(4)} / ${c.transport.bloodM.toFixed(4)} у.е. C, не концентрация.`,
+   `Ошибка общего баланса B: ${sim.summary().carbonError.toExponential(2)}. Мозг и нейросигналы не рассчитываются.`);
+ }
  if(sim.oral){
   const o=sim.summary().oral,c=control.summary().oral;observations.splice(1);
   observations.push(`Налёт B / A: ${o.plaque.toFixed(3)} / ${c.plaque.toFixed(3)} у.е.; активная биомасса ${o.active.toFixed(3)} / ${c.active.toFixed(3)}.`,

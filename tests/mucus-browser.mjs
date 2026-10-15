@@ -1,3 +1,4 @@
+import {STUDIES} from '../src/local/learning.js';
 import {chromium} from 'playwright';
 import chrome from '@sparticuz/chromium';
 import assert from 'node:assert/strict';
@@ -10,7 +11,7 @@ const ready=t=>page.waitForFunction(t=>!microcosmos2.replayBusy&&microcosmos2.lo
 const pause=()=>page.evaluate(()=>{if(!microcosmos2.paused)document.getElementById('local-pause').click();});
 const start=async()=>{await page.click('[data-study="mucus"]');await page.check('[name="prediction"][value="1"]');await page.click('#study-form button');};
 try{
- await page.goto(process.env.TEST_URL||'http://127.0.0.1:8000');await page.waitForFunction(()=>microcosmos2?.available);assert.equal(await page.locator('[data-study]').count(),6);await start();
+ await page.goto(process.env.TEST_URL||'http://127.0.0.1:8000');await page.waitForFunction(()=>microcosmos2?.available);assert.equal(await page.locator('[data-study]').count(),Object.keys(STUDIES).length);await start();
  assert.equal(await page.locator('#mucus-panel').isVisible(),true);assert.equal(await page.locator('#persistence-panel').isVisible(),false);
  assert.equal(await page.locator('[data-local-action="breach"]').isVisible(),false);assert.equal(await page.locator('[data-local-action="substrate_on"]').isDisabled(),true);
  const aggregate=await page.evaluate(()=>microcosmos2.snapshot());

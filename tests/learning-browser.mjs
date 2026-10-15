@@ -1,3 +1,4 @@
+import {STUDIES} from '../src/local/learning.js';
 import {chromium} from 'playwright';
 import chrome from '@sparticuz/chromium';
 import assert from 'node:assert/strict';
@@ -17,7 +18,7 @@ const start=async(id,prediction='1')=>{
 };
 try{
  await page.goto(base);await page.waitForFunction(()=>microcosmos2?.available);
- assert.equal(await page.locator('[data-study]').count(),6);
+ assert.equal(await page.locator('[data-study]').count(),Object.keys(STUDIES).length);
  await page.click('[data-study="inheritance"]');
  await page.click('#study-form button');assert.equal(await page.locator('#study-form').isVisible(),true);assert.equal(await page.evaluate(()=>microcosmos2.local),null);
  await page.check('[name="prediction"][value="0"]');await page.click('#study-form button');
