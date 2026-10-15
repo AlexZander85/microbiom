@@ -90,6 +90,26 @@ export class World{
  updateCamera(dt,paused=false){if(dt>.05){const n=Math.ceil(dt/.05);for(let i=0;i<n;i++)this.updateCamera(dt/n,paused);return;}if(!paused)this.clock+=dt;this.explodeElapsed+=dt;settle(this.travel,this.goal,dt,.55,this.calm);settle(this.yaw,this.targetYaw,dt,.13,this.calm);settle(this.pitch,this.targetPitch,dt,.13,this.calm);for(let i=0;i<5;i++){if(!this.calm&&this.explodeElapsed<(this.exploded?i:4-i)*.035)continue;const s=this.lifts[i],target=this.exploded?1:0;if(this.calm){s.x=target;s.v=0;continue;}for(let k=0;k<4;k++){const h=dt/4;s.v+=(64*(target-s.x)-14.2*s.v)*h;s.x+=s.v*h;}}if(this.follow&&this.selected>=0){const point=this.cloud.position(this.selected);point[1]+=this.microShift;for(let i=0;i<3;i++)settle(this.focusPoint[i],point[i],dt,.27,this.calm);}}
  camera(target,distance,yaw,pitch,fog){if(this.flight.active){const eye=[...this.flight.position];target=eye.map((v,i)=>v+this.flight.direction()[i]);const near=this.flight.radius*.1,far=2000,vp=multiply(perspective(.72,this.w/this.h,near,far),lookAt(eye,target));this.gpu.camera(vp,eye,fog);this.cameraState={target,eye,vp,near,far};return this.cameraState;}const eye=[target[0]+Math.sin(yaw)*Math.cos(pitch)*distance,target[1]+Math.sin(pitch)*distance,target[2]+Math.cos(yaw)*Math.cos(pitch)*distance],vp=multiply(perspective(.72,this.w/this.h,Math.max(.001,distance/2000),Math.max(100,distance*20)),lookAt(eye,target));this.gpu.camera(vp,eye,fog);this.cameraState={target,eye,vp,near:Math.max(.001,distance/2000),far:Math.max(100,distance*20)};return this.cameraState;}
  drawGroup(group,alpha=1,material=0,dy=0,pickable=false){let data=group.data;if(dy){data=group.data.slice();for(let i=0;i<group.count;i++)data[i*STRIDE+1]+=dy;}this.gpu.upload(group.mesh,data,group.count);this.gpu.draw(group.mesh,group.count,alpha,material,!group.transparent&&alpha>.9,pickable?this.highlight(group.layer??0):0);if(pickable)this.recordGroup(group,data,alpha);}
+ renderLoop(alpha){
+  const a=this.local.axisLoop,n=a.neural,im=a.immune;
+  const colors={source:'#85ead2',neural:'#c7b0fa',humoral:'#ffe18e',immune:'#f4a8ba'};
+  const draw=(mesh,p,scale,color,value=0,q=undefined)=>{writeInstance(this.one,0,p,scale,color,q,alpha,.1+Math.min(1,value));this.gpu.upload(mesh,this.one,1);this.gpu.draw(mesh,1,alpha);};
+  const line=(from,to,color,on=true)=>{const d=vsub(to,from),mid=from.map((v,i)=>(v+to[i])/2);draw(this.rod,mid,[.11,Math.hypot(...d)/3.4,.11],on?color:'#617378',on?.35:0,quatFromY(d));};
+  const node=(p,label,color,value)=>{draw(this.ball,p,[1.35,1.35,1.35],color,value);this.label(label,p,color);};
+  const source=[-20,6,0],gut=[-20,16,0],nts=[15,16,0];
+  line(gut,source,colors.source);node(gut,'Желудок · '+a.food.stomach.toFixed(2)+' C',colors.source,a.food.stomach/12);
+  // Fixed glyphs represent ONE functional population, not individual counts.
+  for(let i=0;i<5;i++)draw(this.rod,[-21+(i%3)*1.2,5+Math.floor(i/3)*1.6,0],[.45,.9,.45],colors.source,a.gates.fermentation?.6:.05,quatFromY([.4,1,0]));
+  this.label('Микробный источник',[-20,8,0],colors.source);
+  for(const [y,color,value,label,outLabel,outValue,gate] of [
+   [16,colors.neural,n.receptor,'FFAR3', 'NTS',n.nts,a.gates.neural],
+   [6,colors.humoral,a.acetate.blood/(1+a.acetate.blood),'Кровь · ацетат','Мозг · ацетат',a.acetate.brain/(.06+a.acetate.brain),a.gates.bbb],
+   [-1,colors.immune,im.cytokines,'Цитокины','PGE₂ → EP3',im.ep3,a.gates.immune]]){
+   const middle=[-3,y,0],end=[15,y,0];line(source,middle,color);line(middle,end,color,gate);node(middle,label,color,value);node(end,outLabel,color,outValue);
+  }
+  const motor=[2,23,0];line(nts,[24,16,0],colors.neural,a.gates.feedback);line([24,16,0],[24,23,0],colors.neural,a.gates.feedback);line([24,23,0],motor,colors.neural,a.gates.feedback);line(motor,[-20,23,0],colors.neural,a.gates.feedback);line([-20,23,0],gut,colors.neural,a.gates.feedback);
+  node(motor,'↶ Моторный выход ×'+a.emptying.toFixed(2),colors.neural,n.motor);
+ }
  renderAxis(alpha){const a=this.local.axis,nodes=[['Сенсор','sensor'],['Глутаматный выход','glutamate'],['Афферент','afferent'],['NTS','nts']];nodes.forEach(([label,key],i)=>{const p=[-18+i*12,8,0],value=a[key];writeInstance(this.one,0,p,[2,2,2],['#77ead1','#f7cc8e','#bba1ef','#f49eaf'][i],undefined,alpha,.1+value);this.gpu.upload(this.ball,this.one,1);this.gpu.draw(this.ball,1,alpha);this.label(label+' · '+value.toFixed(3),[p[0],12,0]);if(i<3){writeInstance(this.one,0,[p[0]+6,8,0],[.18,5,.18],'#8bbdba',quatFromY([1,0,0]),alpha,.1);this.gpu.upload(this.rod,this.one,1);this.gpu.draw(this.rod,1,alpha);}});}
  render(){this.w=this.canvas.clientWidth;this.h=this.canvas.clientHeight;const ratio=Math.min(devicePixelRatio||1,1.5);if(this.overlay.width!==Math.round(this.w*ratio)||this.overlay.height!==Math.round(this.h*ratio)){this.overlay.width=Math.round(this.w*ratio);this.overlay.height=Math.round(this.h*ratio);}const c=this.ctx;c.setTransform(ratio,0,0,ratio,0,0);c.clearRect(0,0,this.w,this.h);if(this.lost){c.fillStyle='#d1dcc6';c.font='16px system-ui';c.fillText('Графический контекст потерян. Ожидаем восстановления…',30,80);return;}
  const q=this.travel.x,blend=smooth(1.32,1.88,q);this.gpu.begin(this.model.time,q<1.5?Math.max(1,this.ratio):this.ratio);this.gpu.fields(this.local?this.cloud.fieldPixels:this.model.fields,this.local?0:this.field);this.bodyLabels=[];this.pickTargets=[];this.bubbleHits=[];
@@ -101,17 +121,17 @@ export class World{
   this.drawBodyLabels(q);
  }
  if(blend>.001){this.gpu.gl.clear(this.gpu.gl.DEPTH_BUFFER_BIT);const proximity=clamp(q-2,0,1),target=[this.pan[0],4+this.pan[1]+this.lifts[4].x*3,this.pan[2]];if(this.follow&&this.selected>=0){for(let i=0;i<3;i++)target[i]=this.focusPoint[i].x;}
-  const distance=q<2?mix(110,51,smooth(1.32,2,q)):mix(51,8,smooth(2,3,q));const pitch=clamp(this.pitch.x+.44,.06,1.35);this.camera(target,distance,this.yaw.x,pitch,.014);
+  const distance=q<2?mix(110,51,smooth(1.32,2,q)):mix(51,8,smooth(2,3,q));const pitch=clamp(this.pitch.x+.44,.06,1.35);this.camera(this.local?.axisLoop?[target[0],10+this.pan[1],target[2]]:target,distance*(this.local?.axisLoop?1.85*Math.max(1,1.4/(this.w/this.h)):1),this.yaw.x,pitch,.014);
   if(this.local?.oral&&this.oralRenderTick!==this.local.tick){this.gpu.morph(this.oralTooth,oralSurfaceGeometry(this.local).vertices);this.oralRenderTick=this.local.tick;this.oralSurfaceInfo={tick:this.local.tick,minHeight:Math.min(...this.oralTooth.geometry.vertices.filter((_,i)=>i%6===1)),vertices:this.oralTooth.geometry.vertices.length/6};}
   this.drawGroup(this.capillaryGroup,blend,0,0,true);
   for(const group of this.tissueGroups.filter(g=>!g.transparent))this.drawGroup(group,blend,0,this.lifts[group.layer||0].x*(group.layer||0)*3.8,true);
   if(this.local?.mucus)this.renderMucus(blend,false);
   if(this.local?.oral)this.renderOral(blend);
-  if(this.local?.axis)this.renderAxis(blend);else this.renderCloud(blend);if(this.local)this.renderLocalEvents(blend);else{this.renderParticles(blend);this.renderLifeEvents(blend);}
+  if(this.local?.axisLoop)this.renderLoop(blend);else if(this.local?.axis)this.renderAxis(blend);else this.renderCloud(blend);if(this.local)this.renderLocalEvents(blend);else{this.renderParticles(blend);this.renderLifeEvents(blend);}
   if(this.local?.mucus)this.renderMucus(blend,true);
   if(this.showConnections&&!this.local)this.connections(blend);
   for(const group of this.tissueGroups.filter(g=>g.transparent))this.drawGroup(group,blend,0,this.lifts[group.layer||0].x*(group.layer||0)*3.8,true);
-  const fluids=this.local?.oral?[]:this.local?[1]:layerLayout(this.model.site).fluid;
+  const fluids=this.local?.oral||this.local?.axisLoop?[]:this.local?[1]:layerLayout(this.model.site).fluid;
   for(const i of fluids){
    if(this.autoLow&&i!==fluids[0]&&!this.exploded&&this.layerHover!==i&& !this.layerMode)continue;
    const z=this.local?this.cloud.slice*2:i*1.4+this.lifts[i].x*i*3.8,data=this.gelBuffers[i];
@@ -212,7 +232,7 @@ export class World{
    writeInstance(this.miscBuffer,n++,seg.pos,seg.scale,event.kind==='t6'?'#ff716b':event.kind==='engulf'?'#e9faff':'#ffe879',seg.q,1,.4);
   }
   this.gpu.upload(this.rod,this.miscBuffer,n);this.gpu.draw(this.rod,n,alpha);
-  if(!sim.mucus)this.label('Локальный срез: ткань y < 0 · просвет y > 0',[-12,-1,0],'#d6c4ee');
+  if(!sim.mucus&&!sim.axisLoop&&!sim.axis)this.label('Локальный срез: ткань y < 0 · просвет y > 0',[-12,-1,0],'#d6c4ee');
  }
  renderLifeEvents(alpha){
  let n=0;const cloud=this.cloud,t=cloud.visualTime;
