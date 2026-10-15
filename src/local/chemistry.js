@@ -28,7 +28,7 @@ export class ChemicalGrid {
   for(let step=0;step<substeps;step++)for(const k of CHEMICALS){
    const a=this.values[k],b=this.next[k];b.set(a);
    for(const [i,j,inv,wall] of this.faces){
-    const permeability=wall?(k==='oxygen'?.4:k==='signal'?.25:.03)+.6*(1-barrier):1;
+    const permeability=wall?(k==='oxygen'?.4:k==='signal'?.25:.03)+.6*(1-(typeof barrier==='number'?barrier:barrier[i%(this.n*this.n)])):1;
     const flux=(a[i]-a[j])*diffusion[k]*h*inv*permeability;b[i]-=flux;b[j]+=flux;
    }
    this.values[k]=b;this.next[k]=a;

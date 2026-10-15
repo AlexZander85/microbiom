@@ -1,4 +1,5 @@
 export const SOURCES = [
+ {id:'persistence',title:'Balaban et al. Definitions and guidelines for research on antibiotic persistence',year:2019,url:'https://doi.org/10.1038/s41579-019-0196-3',level:'Консенсусные определения',note:'Устойчивость, толерантность и персистенция различаются. Сниженная активность — один возможный механизм, не универсальное определение. Параметры учебного опыта не взяты из клинических данных.'},
  {id:'hmp',title:'Human Microbiome Project Consortium. Structure, function and diversity of the healthy human microbiome',year:2012,url:'https://doi.org/10.1038/nature11234',level:'Исследование людей',note:'Разные участки тела — разные сообщества; не универсальная норма состава.'},
  {id:'gut',title:'Thursby & Juge. Introduction to the human gut microbiota',year:2017,url:'https://pmc.ncbi.nlm.nih.gov/articles/PMC5433529/',level:'Обзор',note:'Биогеография, метаболизм, слизь и барьер кишечника.'},
  {id:'mucus',title:'Living on the edge: Mucus-associated microbes in the colon',year:2025,url:'https://www.sciencedirect.com/science/article/pii/S1933021925000418',level:'Обзор',note:'Неоднородность слизи, потребление муцина и взаимодействие с IgA.'},

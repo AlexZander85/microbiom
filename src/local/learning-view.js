@@ -1,4 +1,5 @@
 import {STUDIES,METRICS,RELAY,narrate,highlights,report} from './learning.js';
+import {assayCounts} from './persistence.js';
 import {LOCAL_ACTION_NAMES,EVENT_NAMES} from './traits.js';
 const $=id=>document.getElementById(id);
 const esc=text=>String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -8,7 +9,7 @@ export function chartMarkup(points,metric,commands=[]){
  if(!points.length)return '';
  const max=Math.max(...points.flatMap(p=>[p.a[key],p.b[key]]),.000001),end=Math.max(1,points.at(-1).tick);
  const x=t=>56+t/end*548,y=v=>170-v/max*138;
- const path=side=>points.map((p,i)=>i&&m.unit!=='у.е.'&&m.unit!=='у.е. накопительно'?`H${x(p.tick).toFixed(2)}V${y(p[side][key]).toFixed(2)}`:`${i?'L':'M'}${x(p.tick).toFixed(2)},${y(p[side][key]).toFixed(2)}`).join(' ');
+ const path=side=>points.map((p,i)=>i&&!m.continuous&&m.unit!=='у.е.'&&m.unit!=='у.е. накопительно'?`H${x(p.tick).toFixed(2)}V${y(p[side][key]).toFixed(2)}`:`${i?'L':'M'}${x(p.tick).toFixed(2)},${y(p[side][key]).toFixed(2)}`).join(' ');
  const last=points.at(-1),title=`${m.name}. Контроль A: ${num(last.a[key])}, опыт B: ${num(last.b[key])}, t = ${(last.tick*.1).toFixed(1)}. ${m.unit}.`;
  return `<svg viewBox="0 0 640 208" role="img" aria-label="${esc(title)}"><title>${esc(title)}</title>
  <path d="M56 30V170H604" fill="none" stroke="#72949b"/><path d="M56 101H604M56 32H604" stroke="#72949b" opacity=".22"/>
@@ -27,6 +28,9 @@ export class LearningView {
   $('learning-metric').innerHTML=Object.entries(METRICS).map(([id,m])=>`<option value="${id}">${m.name}</option>`).join('');
   $('learning-metric').onchange=()=>this.refresh(true);
   $('learning-report').onclick=()=>this.showReport();
+  document.querySelectorAll('[data-assay-stop]').forEach(b=>b.onclick=()=>this.c.finish(+b.dataset.assayStop));
+  document.querySelectorAll('[data-mucus-stop]').forEach(b=>b.onclick=()=>this.c.finish(+b.dataset.mucusStop));
+  $('mucus-scene').onclick=()=>{this.c.navigate(2.2);$('expedition').scrollIntoView({block:'start',behavior:'auto'});};
   $('learning-finish').onclick=()=>this.c.finish();
   $('learning-control').onclick=()=>this.c.compare();
   $('learning-latest').onclick=()=>{this.eventSeq=null;this.showEvent();};
@@ -76,12 +80,18 @@ export class LearningView {
  refresh(force=false){
   const c=this.c,sim=c.world.local,session=c.learning,active=!!sim;
   $('learning-panel').hidden=!active;
+  $('persistence-panel').hidden=!sim?.assay;
+  $('mucus-panel').hidden=!sim?.mucus;
+  $('relay-details').hidden=!!sim?.mucus;
+  $('mucus-scene').disabled=c.busy;
+  document.querySelectorAll('[data-mucus-stop]').forEach(b=>b.disabled=c.busy||!sim?.mucus||(!session?.meta.guided&&!c.record)||(!!c.record&&+b.dataset.mucusStop>c.record.endTick));
+  document.querySelectorAll('[data-assay-stop]').forEach(b=>b.disabled=c.busy||!sim?.assay||(!session?.meta.guided&&!c.record)||(!!c.record&&+b.dataset.assayStop>c.record.endTick));
   document.querySelectorAll('[data-study]').forEach(b=>b.disabled=c.busy||c.world.model.site.id!=='colon');
   $('relay-start').disabled=c.busy||c.world.model.site.id!=='colon';
   $('learning-finish').disabled=c.busy||(!c.record&&(!session?.meta.guided||sim?.tick>=session.study?.end));
   for(const id of ['learning-report','learning-control','learning-latest'])$(id).disabled=c.busy;
   if(!active||!session)return;
-  if(this.lastSession!==session){this.lastSession=session;this.eventSeq=null;this.storyStamp=null;this.lastDraw=-1;$('learning-metric').value=session.study?.metric||'butyrate';document.querySelectorAll('[data-relay]').forEach(b=>b.setAttribute('aria-pressed','false'));$('relay-explanation').textContent='Выберите этап: он покажет соответствующее поле в сцене. Нулевое значение означает, что поток ещё не произошёл или нужных участников нет.';}
+  if(this.lastSession!==session){this.lastSession=session;this.eventSeq=null;this.storyStamp=null;this.lastDraw=-1;$('learning-metric').value=session.study?.metric||(sim.mucus?'mucusMinimum':sim.assay?'persisterLine':'butyrate');document.querySelectorAll('[data-relay]').forEach(b=>b.setAttribute('aria-pressed','false'));$('relay-explanation').textContent='Выберите этап: он покажет соответствующее поле в сцене. Нулевое значение означает, что поток ещё не произошёл или нужных участников нет.';}
   const study=session.study;
   $('learning-title').textContent=study?.title||'Что происходит и почему';
   $('learning-phase').textContent=!study?'СВОБОДНАЯ ЛАБОРАТОРИЯ':!session.meta.guided?'СВОБОДНАЯ ВЕТКА':sim.tick>=study.end?'04 / ИТОГ · ПЛАН ЗАВЕРШЁН':'02 / НАБЛЮДАЕМ · 03 / СРАВНИВАЕМ';
@@ -89,6 +99,24 @@ export class LearningView {
   $('learning-prediction').textContent=study?'Ваш прогноз: '+study.options[session.meta.prediction]:'Прогноз не записан. Для опыта с вопросом выберите мини-исследование выше.';
   $('learning-finish').textContent=c.record?'Досмотреть запись →':'Рассчитать до итога →';
   this.showEvent();
+  if(sim.assay){
+   const a=assayCounts(sim),bath=sim.assay.bath,round=sim.assay.rounds.length;
+   const phase=bath?`Воздействие №${round}`:round?`Препарат удалён · восстановление после №${round}`:'До воздействия · наблюдение';
+   $('persistence-stage').textContent=phase;
+   $('persistence-live').textContent=`Сейчас: медленных S ${a.persisters}; активных в линии исходных персистеров ${a.recoveredLine}; наследуемых R ${a.resistant}. Генотип S не становится R при пробуждении.`;
+   $('persistence-rounds').innerHTML=sim.assay.rounds.length?sim.assay.rounds.map(r=>`<tr><th>№${r.round}<small>шаг ${r.startTick}–${r.endTick??'…'}</small></th>${['sensitive','persisterOrigin','resistant'].map(k=>`<td>${r.start[k]} → ${r.end?r.end[k]:'ещё идёт'}</td>`).join('')}</tr>`).join(''):'<tr><td colspan="4">Воздействий ещё не было. Контроль A не получает препарат.</td></tr>';
+  }
+  if(sim.mucus){
+   const m=sim.summary().mucus,a=c.control.summary().mucus;
+   $('mucus-stage').textContent=`${m.substrate?'Субстрат поступает':'Приток субстрата остановлен'} · производство хозяина ×${m.secretionScale} · шаг ${sim.tick}`;
+   $('mucus-minimum').textContent=(m.minInner*100).toFixed(1)+'%';
+   $('mucus-thin').textContent=m.thinPatches+' / 144';
+   $('mucus-consumers').textContent=m.foragers;
+   $('mucus-control-note').textContent=`Контроль A: минимальный запас ${(a.minInner*100).toFixed(1)}%; потреблено ${(a.outerUsed+a.innerUsed).toFixed(3)} у.е. гликанов. Потребление может идти без истончения внутреннего слоя.`;
+   $('mucus-budget').textContent=`С начала B · хозяин выделил ${m.secreted.toFixed(3)}; наружу перешло ${m.matured.toFixed(3)}; микробы использовали ${(m.outerUsed+m.innerUsed).toFixed(3)} (внутренних ${m.innerUsed.toFixed(3)}); выведено из участка ${m.exported.toFixed(3)} у.е. C. Осталось в слоях ${(m.inner+m.outer).toFixed(3)}, в резерве хозяина ${m.host.toFixed(3)}. Внешние входы: пищевой субстрат ${m.foodInput.toFixed(3)}, ресурс хозяина ${m.hostInput.toFixed(3)}. Погрешность баланса ${sim.summary().carbonError.toExponential(1)}.`;
+   const samples=session.points(sim,c.control);
+   $('mucus-checkpoints').innerHTML=[90,360,720].map(t=>{const p=samples.find(p=>p.tick===t);return `<tr><th>Шаг ${t}</th><td>${p?p.a.mucusMinimum.toFixed(1)+'%':'—'}</td><td>${p?p.b.mucusMinimum.toFixed(1)+'%':'ещё не рассчитан'}</td></tr>`;}).join('');
+  }
   if(!force&&Math.floor(sim.tick/10)===this.lastDraw)return;
   this.lastDraw=Math.floor(sim.tick/10);
   const key=$('learning-metric').value,points=session.points(sim,c.control),last=points.at(-1);

@@ -1,0 +1,35 @@
+{
+  "testedAt": "2026-10-15T08:47:11.071Z",
+  "browser": "153.0.8010.0",
+  "softwareRenderer": true,
+  "stages": {
+    "100": {
+      "sensitive": 0,
+      "persisterOrigin": 3,
+      "resistant": 3,
+      "persisters": 3,
+      "activeSensitive": 0,
+      "recoveredLine": 0,
+      "total": 6
+    },
+    "330": {
+      "sensitive": 0,
+      "persisterOrigin": 6,
+      "resistant": 6,
+      "persisters": 0,
+      "activeSensitive": 6,
+      "recoveredLine": 6,
+      "total": 12
+    },
+    "440": {
+      "sensitive": 0,
+      "persisterOrigin": 0,
+      "resistant": 6,
+      "persisters": 0,
+      "activeSensitive": 0,
+      "recoveredLine": 0,
+      "total": 6
+    }
+  },
+  "errors": []
+}

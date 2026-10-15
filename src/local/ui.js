@@ -2,13 +2,14 @@ import {LocalSimulation} from './engine.js';
 import {ReplayRunner} from './replay.js';
 import {LearningSession,learningMeta} from './learning.js';
 import {LearningView} from './learning-view.js';
-import {LOCAL_SCENARIOS,EVENT_NAMES,LOCAL_LIMITS,LOCAL_SPECIES,LOCAL_ACTION_NAMES,LOCAL_STATE_NAMES,LOCAL_CAUSE_NAMES} from './traits.js';
+import {LOCAL_SCENARIOS,EVENT_NAMES,LOCAL_LIMITS,LOCAL_SPECIES,LOCAL_ACTION_NAMES,LOCAL_STATE_NAMES,LOCAL_CAUSE_NAMES,commandsFor} from './traits.js';
 const $=id=>document.getElementById(id);
 const escape=text=>String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export class LocalController {
  constructor({world,navigate,selectAgent,dialog,explain,getPaused,setPaused,onChange}){
   Object.assign(this,{world,navigate,selectAgent,dialog,explain,getPaused,setPaused,onChange});this.control=null;this.substep=0;this.record=null;this.request=0;this.busy=false;this.lastHUD=-1;this.learning=null;
   $('local-scenario').innerHTML=Object.entries(LOCAL_SCENARIOS).map(([id,name])=>`<option value="${id}">${name}</option>`).join('');
+  $('local-scenario').value='community';
   $('local-open').onclick=()=>$('local-lab').scrollIntoView({block:'start',behavior:world.calm?'auto':'smooth'});
   $('local-start').onclick=()=>this.start($('local-scenario').value);
   $('local-exit').onclick=()=>this.exit();
@@ -53,16 +54,19 @@ export class LocalController {
   const record=this.record||this.exportRecord();
   return this.restore(record,target).catch(error=>this.explain('Воспроизведение остановлено',error.message));
  }
- async finish(){
+ async finish(target=null){
   if(!this.world.local||this.busy)return;
-  if(this.record){await this.seek(this.record.endTick);return;}
+  if(this.record){await this.seek(Math.min(target??this.record.endTick,this.record.endTick));return;}
   if(!this.learning.meta.guided)return;
+  target=Math.min(target??this.learning.study.end,this.learning.study.end);
+  if(!Number.isInteger(target)||target<0)return;
+  if(target<this.world.local.tick){await this.seek(target);return;}
   this.cancel();const token=this.request;this.busy=true;this.setPaused(true);this.refresh(true);
   try{
-   while(token===this.request&&this.world.local&&this.world.local.tick<this.learning.study.end){
+   while(token===this.request&&this.world.local&&this.world.local.tick<target){
     if(token!==this.request)return;
-    for(let i=0;i<30&&this.world.local.tick<this.learning.study.end;i++)this.advance();
-    this.world.cloud.sync();$('local-progress').textContent=`Расчёт: ${this.world.local.tick} / ${this.learning.study.end}`;
+    for(let i=0;i<30&&this.world.local.tick<target;i++)this.advance();
+    this.world.cloud.sync();$('local-progress').textContent=`Расчёт: ${this.world.local.tick} / ${target}`;
     await new Promise(resolve=>setTimeout(resolve,0));
    }
   }catch(error){this.explain('Расчёт остановлен',error.message);}
@@ -72,7 +76,7 @@ export class LocalController {
   const runner=new ReplayRunner(record,target),meta=learningMeta(record.learning,runner.record);
   if(this.world.model.site.id!=='colon')throw new Error('Откройте толстую кишку перед загрузкой локального опыта');
   this.cancel();const token=this.request;this.busy=true;this.setPaused(true);this.refresh(true);
-  const baseline=new LocalSimulation({seed:runner.record.seed,scenario:runner.record.scenario}),learning=new LearningSession(meta);
+  const baseline=new LocalSimulation({seed:runner.record.seed,scenario:runner.record.scenario,engine:runner.record.engine}),learning=new LearningSession(meta);
   learning.capture(runner.sim,baseline);
   try{let done=false;while(!done){
    if(token!==this.request)return;
@@ -89,6 +93,7 @@ export class LocalController {
 
  refresh(force=false){
   this.learningView?.refresh(force);
+  $('local-color-legend').textContent=this.world.local?.mucus?'Голубой и мятный — слои слизи. Высота связана с вычисленным запасом, не с диагнозом. Мысли подписывают источник питания; вид не задаёт «полезность» или «вредность».':this.world.local?.assay?'Ⅱ голубой S — медленное состояние; ◆ золотой R-demo — наследуемая устойчивость, не pDemoR. Вариант и состояние подписаны в карточке и мыслях.':'Жёлтый — pDemoR; розовый — заражение; белый — фагоцит; охристый — спора. Цвет не означает «полезный» или «вредный». ';
   const active=!!this.world.local; $('local-controls').hidden=!active;$('local-exit').hidden=!active;$('local-start').disabled=this.busy||this.world.model.site.id!=='colon';
   $('local-scenario').disabled=this.busy;$('local-load').disabled=this.busy;
   for(const id of ['density','life-rate','feed-nearby','explode','connections','pick-layers'])$(id).disabled=(active&&!(id==='explode'&&this.world.inspect))||(id==='feed-nearby'&&!['colon','mouth','small'].includes(this.world.model.site.id));
@@ -96,12 +101,12 @@ export class LocalController {
   document.querySelectorAll('[data-field]').forEach(b=>b.disabled=active);
   $('pause').disabled=this.busy;$('local-pause').textContent=this.getPaused()?'▷ Продолжить':'Ⅱ Пауза';
   for(const id of ['local-step','local-save','local-fork','local-pause'])$(id).disabled=this.busy;
-  document.querySelectorAll('[data-local-action]').forEach(b=>b.disabled=this.busy||!!this.world.local?.stopped);
+  document.querySelectorAll('[data-local-action]').forEach(b=>{const sim=this.world.local;b.hidden=!commandsFor(sim?.scenario).includes(b.dataset.localAction);b.disabled=this.busy||!!sim?.stopped||(b.dataset.localAction==='challenge'&&!!sim?.assay?.bath)||(b.dataset.localAction==='washout'&&!sim?.assay?.bath)||(b.dataset.localAction==='substrate_off'&&!sim?.mucus?.substrate)||(b.dataset.localAction==='substrate_on'&&!!sim?.mucus?.substrate)||(b.dataset.localAction==='secretion_slow'&&sim?.mucus?.secretionScale===.25)||(b.dataset.localAction==='secretion_restore'&&sim?.mucus?.secretionScale===1);});
   $('readouts').hidden=active;$('local-readouts').hidden=!active;
   if(!active){$('local-summary').textContent='Новый режим: численные агенты, причинные события, химия и воспроизведение. Работает в локальном участке толстой кишки.';return;}
   if(!force&&this.lastHUD===this.world.local.tick)return;this.lastHUD=this.world.local.tick;
-  const s=this.world.local.summary();$('local-summary').textContent=`${LOCAL_SCENARIOS[this.world.local.scenario]} · t=${s.time.toFixed(1)} уч. ед. · живых ${s.alive} · генеалогических записей ${this.world.local.entities.length}. ${s.stopped?'Достигнут предел времени. ':''}${s.capacityHits?'Лимит агентов ограничивает новые рождения. ':''}Не клиническая модель.`;
-  $('local-readouts').innerHTML=[['Клетки',s.cells],['Фаги',s.phages],['pDemoR',s.plasmids],['Инфицированы',s.infected],['Лизогены',s.lysogens],['Споры',s.spores],['Фагоциты',s.immune],['Бутират · у.е.',s.butyrate.toFixed(3)]].map(([k,v])=>`<div class="readout"><small>${k}</small><b>${v}</b></div>`).join('');
+  const s=this.world.local.summary();$('local-summary').textContent=`${LOCAL_SCENARIOS[this.world.local.scenario]} · t=${s.time.toFixed(1)} уч. ед. · живых ${s.alive} · генеалогических записей ${this.world.local.entities.length}. ${s.stopped?'Достигнут предел времени. ':''}${s.capacityHits?'Лимит агентов ограничивает новые рождения. ':''}${s.assay?'Равномерный лабораторный тест; не лечение кишечника. ':''}Не клиническая модель.`;
+  $('local-readouts').innerHTML=[['Клетки',s.cells],['Фаги',s.phages],['pDemoR',s.plasmids],['Инфицированы',s.infected],['Лизогены',s.lysogens],['Споры',s.spores],...(s.mucus? [['Мин. запас слизи',(s.mucus.minInner*100).toFixed(1)+'%'],['Тонких участков',s.mucus.thinPatches]]:[]),...(s.assay? [['Медленные S',s.assay.persisters],['Наследуемые R',s.assay.resistant]]:[]),['Фагоциты',s.immune],['Бутират · у.е.',s.butyrate.toFixed(3)]].map(([k,v])=>`<div class="readout"><small>${k}</small><b>${v}</b></div>`).join('');
   $('local-seek').max=this.record?.endTick??s.tick;$('local-seek').value=s.tick;$('local-seek').disabled=this.busy;$('local-cursor').textContent=`Шаг ${s.tick} / ${$('local-seek').max}`;
   $('local-field').value=this.world.cloud.fieldKind;$('local-slice').value=String(this.world.cloud.slice);
   const events=this.world.local.events.filter(e=>e.kind!=='birth').slice(-7).reverse();
@@ -116,5 +121,5 @@ export class LocalController {
   document.querySelectorAll('[data-history-event]').forEach(b=>b.onclick=()=>{const event=sim.events.find(e=>e.seq===+b.dataset.historyEvent);if(event){$('dialog').close();this.learningView.selectEvent(event);$('learning-panel').scrollIntoView({block:'start',behavior:'auto'});}});
  }
 
- compare(){const a=this.control.summary(),b=this.world.local.summary();const col=(s,title)=>`<div><h3>${title}</h3><p>Живых: ${s.alive}<br>pDemoR: ${s.plasmids}<br>Фагов: ${s.phages}<br>Лизогенов: ${s.lysogens}<br>Бутират: ${s.butyrate.toFixed(3)} у.е.<br>Поглощений: ${s.counts.engulf||0}<br>Погрешность углеродного баланса: ${s.carbonError.toExponential(2)}</p></div>`;this.dialog('ЛОКАЛЬНЫЙ КОНТРОЛЬ',`<h2>Одинаковый старт, шаг ${b.tick}</h2><div class="comparison">${col(a,'Без ваших вмешательств')}${col(b,'Ваш опыт')}</div><p>Оба расчёта начинают с одного seed и сценария. Меняется вмешательство, не графическая плотность. Условные количества — не анализ микробиома пациента.</p><button class="outline" id="compare-graphs">Траектории A/B во времени →</button>`);$('compare-graphs').onclick=()=>{$('dialog').close();$('learning-chart-area').scrollIntoView({block:'center',behavior:'auto'});};}
+ compare(){const a=this.control.summary(),b=this.world.local.summary();const col=(s,title)=>`<div><h3>${title}</h3><p>Живых: ${s.alive}<br>pDemoR: ${s.plasmids}<br>Фагов: ${s.phages}<br>Лизогенов: ${s.lysogens}<br>Бутират: ${s.butyrate.toFixed(3)} у.е.<br>Поглощений: ${s.counts.engulf||0}${s.mucus?`<br>Минимальный внутренний запас: ${(s.mucus.minInner*100).toFixed(1)}% начального<br>Тонких участков: ${s.mucus.thinPatches} / 144<br>Гликанов потреблено: ${(s.mucus.outerUsed+s.mucus.innerUsed).toFixed(3)} у.е.`:''}<br>Погрешность углеродного баланса: ${s.carbonError.toExponential(2)}</p></div>`;this.dialog('ЛОКАЛЬНЫЙ КОНТРОЛЬ',`<h2>Одинаковый старт, шаг ${b.tick}</h2><div class="comparison">${col(a,'Без ваших вмешательств')}${col(b,'Ваш опыт')}</div><p>Оба расчёта начинают с одного seed и сценария. Меняется вмешательство, не графическая плотность. Условные количества — не анализ микробиома пациента.</p><button class="outline" id="compare-graphs">Траектории A/B во времени →</button>`);$('compare-graphs').onclick=()=>{$('dialog').close();$('learning-chart-area').scrollIntoView({block:'center',behavior:'auto'});};}
 }

@@ -1,5 +1,7 @@
+import {seedMucus,mucusCarbon,mucusStats,mucusCommand,stepMucus,growMucus,finishMucus,mucusPermeability} from './mucus.js';
 import {ChemicalGrid} from './chemistry.js';
-import {traits,LOCAL_DT,LOCAL_LIMITS,LOCAL_VERSION,LOCAL_SCENARIOS} from './traits.js';
+import {traits,LOCAL_DT,LOCAL_LIMITS,LOCAL_SCENARIOS,engineForScenario,commandsFor} from './traits.js';
+import {seedPersistence,assayCommand,growAssay,assayCounts} from './persistence.js';
 const copy=v=>JSON.parse(JSON.stringify(v));
 const distance=(a,b)=>Math.hypot(...a.pos.map((v,i)=>v-b.pos[i]));
 const living=e=>e.alive&&e.state!=='spore'&&e.state!=='sporulating';
@@ -9,8 +11,9 @@ export class SpatialIndex {
  near(e,radius){const c=e.pos.map(v=>Math.floor(v/this.size)),n=Math.ceil(radius/this.size),out=[];for(let x=-n;x<=n;x++)for(let y=-n;y<=n;y++)for(let z=-n;z<=n;z++)for(const b of this.buckets.get(this.key(c[0]+x,c[1]+y,c[2]+z))||[])if(b!==e&&distance(e,b)<=radius)out.push(b);return out.sort((a,b)=>distance(e,a)-distance(e,b)||a.id-b.id);}
 }
 export class LocalSimulation {
- constructor({seed=85,scenario='community'}={}){
+ constructor({seed=85,scenario='community',engine=engineForScenario(scenario)}={}){
   if(!Number.isInteger(seed)||seed<0||seed>0xffffffff||!Object.hasOwn(LOCAL_SCENARIOS,scenario))throw new Error('Invalid local configuration');
+  if(engine!==engineForScenario(scenario))throw new Error('Несовместимый движок сценария');this.version=engine;
   this.seed=seed;this.randomState=seed||1;this.scenario=scenario;this.tick=0;this.entities=[];this.events=[];this.sequence=0;this.counts={};this.commands=[];this.jobs=[];this.barrier=1;this.cues={germinate:0,hypha:0};this.stopped=false;this.capacityHits=0;this.chemistry=new ChemicalGrid();this.inputCarbon=0;
   // Read-only accounting for teaching UI; never used by dynamics or replay checksum.
   this.flux={producerFood:0,acetateMade:0,acetateUsed:0,butyrateMade:0,tissueButyrate:0};
@@ -28,10 +31,14 @@ export class LocalSimulation {
  create(species,pos,variant='base',parents=[],mass=null){
   if(this.entities.length>=LOCAL_LIMITS.ids||this.entities.filter(e=>e.alive).length>=LOCAL_LIMITS.alive){this.capacityHits++;return null;}
   const t=traits(species,variant),e={id:this.entities.length+1,species,variant,traits:t,pos:[...pos],parents:[...parents],host:null,born:this.tick,died:null,alive:true,state:t.virus?'free':t.immune?'resting':'vegetative',timer:0,age:0,mass:mass??(t.virus?.025:t.immune?2:1),gut:0,hp:1,plasmids:t.donor?['pDemoR']:[],infection:null,cooldown:0,starved:0,target:null};
+  if(this.scenario==='mucus'){e.mucusCell=true;e.mucusMode=species==='faec'?'acetate':'food';}
+  if(this.scenario==='persistence'){e.assayCell=true;e.cohort=t.demoResistance?'resistant':'sensitive';e.slowTicks=0;e.exposure=0;}
   this.entities.push(e);this.emit('birth',[e.id,...parents]);return e;
  }
  seedScenario(){
   const add=(sp,x,y,z,v='base',m=null)=>this.create(sp,[x,y,z],v,[],m);
+  if(this.scenario==='mucus'){seedMucus(this);return;}
+  if(this.scenario==='persistence'){seedPersistence(this);return;}
   if(this.scenario==='community'){
    const groups=['bact','bif','faec','coli','meth','cand','blast','cdiff'];
    for(let i=0;i<32;i++){const sp=groups[i%groups.length];add(sp,(this.random()-.5)*16,2+this.random()*2,(this.random()-.5)*16,sp==='bact'&&i===0?'t6':sp==='coli'&&i===3?'donor':'base');}
@@ -49,11 +56,14 @@ export class LocalSimulation {
    this.chemistry.add('food',[-4,3,0],1);this.chemistry.add('food',[0,3,0],1);
   }
  }
- carbon(){return this.chemistry.carbon()+this.entities.reduce((sum,e)=>sum+(e.alive?e.mass+e.gut:0),0);}
+ carbon(){return mucusCarbon(this)+this.chemistry.carbon()+this.entities.reduce((sum,e)=>sum+(e.alive?e.mass+e.gut:0),0);}
  command(kind,pos=[0,3,0]){
-  if(!['feed','antibiotic','breach','repair','induce','germinate','hypha'].includes(kind)||!Array.isArray(pos)||pos.length!==3||pos.some(v=>!Number.isFinite(v))||Math.abs(pos[0])>12||Math.abs(pos[2])>12||pos[1]<-2||pos[1]>6)throw new Error('Invalid intervention');
+  if(!commandsFor(this.scenario).includes(kind)||!Array.isArray(pos)||pos.length!==3||pos.some(v=>!Number.isFinite(v))||Math.abs(pos[0])>12||Math.abs(pos[2])>12||pos[1]<-2||pos[1]>6)throw new Error('Invalid intervention');
   if(this.commands.length>=LOCAL_LIMITS.commands||this.stopped)throw new Error('Session limit reached; start a new experiment');
+  if(kind==='challenge'&&this.assay.bath||kind==='washout'&&!this.assay.bath)throw new Error('Недоступный этап опыта: проверьте наличие препарата');
   this.commands.push({tick:this.tick,kind,pos:[...pos]});this.emit('command',[],{action:kind,pos:[...pos]});
+  if(this.assay)assayCommand(this,kind);
+  if(this.mucus)mucusCommand(this,kind);
   if(kind==='feed'){this.chemistry.add('food',pos,6);this.inputCarbon+=6;}
   if(kind==='antibiotic')this.chemistry.add('drug',pos,2);
   if(kind==='breach')this.barrier=.1;
@@ -69,6 +79,8 @@ export class LocalSimulation {
  }
  grow(e){
   const f=this.chemistry,t=e.traits,dt=LOCAL_DT;
+  if(e.mucusCell){growMucus(this,e,dt);return;}
+  if(e.assayCell){growAssay(this,e,dt);return;}
   if(e.state==='spore'){
    if(this.cues.germinate>0&&f.sample('food',e.pos)>.008){e.state='germinating';e.timer=30;this.emit('germinating',[e.id]);}
    if(this.random()<.00002)this.kill(e,'spore-decay');return;
@@ -99,12 +111,15 @@ export class LocalSimulation {
   else if(e.mass>=1.6&&e.state==='hypha')this.divide(e,'branch');
  }
  divide(e,kind){
+  if(e.state==='persister')return;
   const needed=kind==='division'?2:1,alive=this.entities.filter(c=>c.alive).length;
   if(this.entities.length+needed>LOCAL_LIMITS.ids||alive+needed>LOCAL_LIMITS.alive){this.capacityHits++;if(e.state==='budding')e.timer=30;return;}
   const children=[],amount=e.mass/2;
   for(let i=0;i<needed;i++){
    const sign=i===0?1:-1,pos=[Math.max(-11.5,Math.min(11.5,e.pos[0]+sign*.65)),e.pos[1],e.pos[2]+(kind==='branch'?.5:0)];pos[2]=Math.max(-11.5,Math.min(11.5,pos[2]));
    const child=this.create(e.species,pos,e.variant,[e.id],amount);child.plasmids=[...e.plasmids];child.infection=e.infection?copy(e.infection):null;
+   if(e.assayCell)child.cohort=e.cohort;
+   if(e.mucusCell)child.mucusMode=e.mucusMode;
    if(kind==='branch')child.state='hypha';children.push(child.id);
   }
   if(kind==='division'){e.alive=false;e.died=this.tick;e.state='divided';e.mass=0;}else{e.mass=amount;e.state=kind==='branch'?'hypha':'vegetative';}
@@ -114,7 +129,9 @@ export class LocalSimulation {
   if(this.stopped)return;
   if(this.tick>=LOCAL_LIMITS.ticks){this.stopped=true;this.emit('limit');return;}
   this.tick++;for(let i=0;i<this.chemistry.n*this.chemistry.n*2;i++){const f=this.chemistry.values,used=f.butyrate[i]*.002;f.butyrate[i]-=used;f.waste[i]+=used;this.flux.tissueButyrate+=used;f.oxygen[i]+=(.08/(1+f.butyrate[i]*10)-f.oxygen[i])*.004;}for(const k in this.cues)this.cues[k]=Math.max(0,this.cues[k]-1);
-  this.chemistry.diffuse(LOCAL_DT,this.barrier);
+  if(this.assay)this.chemistry.values.drug.fill(this.assay.bath);
+  if(this.mucus)stepMucus(this,LOCAL_DT);
+  this.chemistry.diffuse(LOCAL_DT,this.mucus?mucusPermeability(this):this.barrier);
   for(const k of ['drug','signal'])for(let i=0;i<this.chemistry.length;i++)this.chemistry.values[k][i]*=Math.exp(-LOCAL_DT*(k==='drug'?.015:.08));
   const active=this.entities.filter(e=>e.alive);
   for(const e of active){e.age++;e.cooldown=Math.max(0,e.cooldown-1);
@@ -131,8 +148,9 @@ export class LocalSimulation {
    const speed=e.traits.virus?.025:.012;
    e.pos[0]=Math.max(-11.8,Math.min(11.8,e.pos[0]+(this.random()-.5)*speed));
    e.pos[2]=Math.max(-11.8,Math.min(11.8,e.pos[2]+(this.random()-.5)*speed));
-   if(this.barrier<.3&&!e.traits.virus&&e.pos[1]>-.8)e.pos[1]-=.012;
+   if(!this.mucus&&this.barrier<.3&&!e.traits.virus&&e.pos[1]>-.8)e.pos[1]-=.012;
   }
+  if(this.mucus)finishMucus(this);
   if(this.tick>=LOCAL_LIMITS.ticks){this.stopped=true;this.emit('limit');}
  }
  transfer(index){
@@ -184,6 +202,6 @@ export class LocalSimulation {
   if(length>1e-8){if(e.state!=='recruited')this.emit('recruit',[e.id]);e.state='recruited';e.pos=e.pos.map((v,k)=>v+gradient[k]/length*.065);e.pos[0]=Math.max(-11.8,Math.min(11.8,e.pos[0]));e.pos[2]=Math.max(-11.8,Math.min(11.8,e.pos[2]));e.pos[1]=Math.max(-1.8,Math.min(-.1,e.pos[1]));}
  }}
  lineage(id){const entity=this.get(id);if(!entity)return null;const ancestors=[],seen=new Set(),visit=id=>{if(seen.has(id))return;seen.add(id);const a=this.get(id);if(!a)return;ancestors.push(a.id);a.parents.forEach(visit);};entity.parents.forEach(visit);return {entity:copy(entity),ancestors,children:this.entities.filter(e=>e.parents.includes(id)).map(e=>e.id),events:this.events.filter(e=>e.actors.includes(id)).map(copy)};}
- summary(){const active=this.entities.filter(e=>e.alive);return {tick:this.tick,time:this.time,alive:active.length,cells:active.filter(e=>!e.traits.virus&&!e.traits.immune).length,phages:active.filter(e=>e.traits.virus).length,immune:active.filter(e=>e.traits.immune).length,plasmids:active.filter(e=>e.plasmids.includes('pDemoR')).length,infected:active.filter(e=>e.infection&&e.infection.stage!=='lysogen').length,lysogens:active.filter(e=>e.infection?.stage==='lysogen').length,spores:active.filter(e=>e.state==='spore').length,barrier:this.barrier,food:this.chemistry.total('food'),acetate:this.chemistry.total('acetate'),butyrate:this.chemistry.total('butyrate'),carbonError:this.carbon()-this.initialCarbon-this.inputCarbon,counts:{...this.counts},capacityHits:this.capacityHits,stopped:this.stopped};}
- snapshot(){return {engine:LOCAL_VERSION,seed:this.seed,scenario:this.scenario,tick:this.tick,randomState:this.randomState,entities:copy(this.entities),chemistry:this.chemistry.snapshot(),events:copy(this.events),sequence:this.sequence,counts:{...this.counts},jobs:copy(this.jobs),barrier:this.barrier,cues:{...this.cues},commands:copy(this.commands),initialCarbon:this.initialCarbon,inputCarbon:this.inputCarbon,capacityHits:this.capacityHits,stopped:this.stopped};}
+ summary(){const active=this.entities.filter(e=>e.alive);return {tick:this.tick,time:this.time,alive:active.length,cells:active.filter(e=>!e.traits.virus&&!e.traits.immune).length,phages:active.filter(e=>e.traits.virus).length,immune:active.filter(e=>e.traits.immune).length,plasmids:active.filter(e=>e.plasmids.includes('pDemoR')).length,infected:active.filter(e=>e.infection&&e.infection.stage!=='lysogen').length,lysogens:active.filter(e=>e.infection?.stage==='lysogen').length,spores:active.filter(e=>e.state==='spore').length,barrier:this.barrier,food:this.chemistry.total('food'),acetate:this.chemistry.total('acetate'),butyrate:this.chemistry.total('butyrate'),carbonError:this.carbon()-this.initialCarbon-this.inputCarbon,counts:{...this.counts},capacityHits:this.capacityHits,stopped:this.stopped,...(this.mucus?{mucus:mucusStats(this)}:{}),...(this.assay?{assay:assayCounts(this),bath:this.assay.bath}: {})};}
+ snapshot(){return {engine:this.version,seed:this.seed,scenario:this.scenario,tick:this.tick,randomState:this.randomState,entities:copy(this.entities),chemistry:this.chemistry.snapshot(),events:copy(this.events),sequence:this.sequence,counts:{...this.counts},jobs:copy(this.jobs),barrier:this.barrier,cues:{...this.cues},commands:copy(this.commands),initialCarbon:this.initialCarbon,inputCarbon:this.inputCarbon,capacityHits:this.capacityHits,stopped:this.stopped,...(this.mucus?{mucus:copy(this.mucus)}:{}),...(this.assay?{assay:copy(this.assay)}:{})};}
 }

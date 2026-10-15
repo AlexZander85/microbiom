@@ -36,6 +36,12 @@ dialog{width:min(850px,calc(100vw - 30px));max-height:90vh;overflow:auto;border:
 @media(max-width:900px){.study-grid{grid-template-columns:1fr}.study-card{padding:16px}.learning-columns{grid-template-columns:1fr}.relay-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:500px){.narrator,.learning-chart-area{padding:14px}.learning-panel .local-actions{align-items:stretch}.learning-panel .local-actions button{white-space:normal;text-align:left}.relay-steps{grid-template-columns:1fr}.relay-step{gap:7px}.study-card h3{font-size:21px}.learning-panel h2{font-size:24px}#learning-bookmarks button{max-width:100%}}
 
+/* Persistence assay: phenotype and genealogy are labelled independently. */
+.persistence-panel{margin:20px 0;padding:22px;border:1px solid #97c9dc70;border-radius:12px;background:linear-gradient(120deg,#183439,#192c34)}.persistence-panel>h3{font:27px Georgia,serif;color:#deead0;margin:10px 0}.persistence-panel p{font-size:13px;line-height:1.8}.persistence-legend{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0}.persistence-legend span{padding:8px 12px;border:1px solid #8ba3a85a;border-radius:6px;font-size:12px}.persistence-legend span:nth-child(2){color:#94d7f2}.persistence-legend span:nth-child(3){color:#f7d48a}#persistence-stage{font-weight:bold;color:#e7e8bd}.assay-table-wrap{overflow-x:auto}.assay-table{width:100%;border-collapse:collapse;margin:18px 0;font-size:12px;line-height:1.5}.assay-table caption{text-align:left;color:#c9dec5;padding:10px 0}.assay-table th,.assay-table td{padding:12px 9px;text-align:left;border-bottom:1px solid #8ba3a83a;vertical-align:top}.assay-table th{color:#d3dfcd;font-weight:500}.assay-table td{color:#f0dfb0;font-variant-numeric:tabular-nums}.assay-table small{display:block;color:#a8bcb2;margin-top:5px}.persistence-panel a{text-decoration:underline;color:#afdef0}@media(min-width:1100px){.study-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}@media(max-width:600px){.persistence-panel{padding:14px}.persistence-panel>h3{font-size:23px}.assay-table{font-size:11px}.assay-table th,.assay-table td{padding:8px 4px;overflow-wrap:anywhere}}
+
+/* Mucus turnover: material accounting rather than a health gauge. */
+.mucus-panel{margin:20px 0;padding:24px;border:1px solid #7bd8c680;border-radius:14px;background:linear-gradient(125deg,#153d3e,#1a3036)}.mucus-panel>h3{font:30px Georgia,serif;color:#e3f2d8;margin:12px 0}.mucus-panel p{font-size:13px;line-height:1.85}.mucus-panel a{color:#a3e7ef;text-decoration:underline}.mucus-flow,.mucus-readouts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:20px 0}.mucus-flow>div{border-top:2px solid #8fdfcb;padding-top:13px}.mucus-flow b{display:block;font-size:13px;color:#d7edce}.mucus-flow span,.mucus-readouts span{display:block;font-size:11px;line-height:1.7;color:#b1cfc7;margin-top:7px}.mucus-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px}.mucus-legend span:nth-child(1){color:#83dbef}.mucus-legend span:nth-child(2){color:#a5e4bd}.mucus-legend span:nth-child(3){color:#e8b8c2}#mucus-stage{color:#f1e7ba;font-weight:600}.mucus-readouts>div{background:#0d242b99;padding:18px;border:1px solid #9edcc433;border-radius:9px}.mucus-readouts small{font-size:11px;line-height:1.6;color:#c7e0d7}.mucus-readouts strong{display:block;font:30px ui-monospace,monospace;color:#b5ebde;margin-top:12px}.mucus-panel summary{cursor:pointer;color:#d9e9ba;font-size:13px}.mucus-panel details{padding:16px;background:#0d242b80;border-radius:8px}.study-card:has([data-study="mucus"]){border-color:#8dd8c47a;background:linear-gradient(140deg,#245c56,#19363d)}@media(min-width:1100px){.study-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:600px){.mucus-panel{padding:15px}.mucus-panel>h3{font-size:25px}.mucus-flow,.mucus-readouts{grid-template-columns:1fr;gap:10px}.mucus-readouts>div{padding:14px}.mucus-readouts strong{font-size:26px}.mucus-panel .local-actions button{width:100%;text-align:left}}
+
 </style><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 50'%3E%3Crect width='50' height='50' rx='12' fill='%230b1d20'/%3E%3Ccircle cx='25' cy='25' r='15' fill='none' stroke='%23cfdea3' stroke-width='3'/%3E%3Ccircle cx='25' cy='25' r='5' fill='%23cfdea3'/%3E%3C/svg%3E"></head>
 <body><a class="skip" href="#viewport">Перейти к 3D-сцене</a>
 <header><a href="#" class="brand" aria-label="Микрокосмос, к человеку"><span class="logomark">◉</span><span>микрокосмос<small>ВНУТРЕННЯЯ ВСЕЛЕННАЯ</small></span></a><nav aria-label="Разделы"><button id="home" class="nav-active">Экспедиция</button><button id="atlas">Атлас жителей <small>16</small></button><button id="guide">Как всё связано ↗</button></nav><div class="engine-badge"><i></i> WEBGL 2 <span>/</span> НАСТОЯЩИЙ 3D</div><button id="sources" class="header-source">Научная основа ↗</button></header>
@@ -58,11 +64,34 @@ dialog{width:min(850px,calc(100vw - 30px));max-height:90vh;overflow:auto;border:
  <div class="local-heading"><div><span class="eyebrow">ПРИЧИНЫ, А НЕ ДЕКОРАЦИИ · НОВЫЙ РЕЖИМ</span><h2 id="local-title">Лаборатория <em>живых процессов.</em></h2></div><div class="local-actions"><label>Сценарий <select id="local-scenario" aria-label="Сценарий локального эксперимента"></select></label><button class="primary" id="local-start">Начать опыт ↗</button><button class="outline" id="local-exit" hidden>← Обзор сообщества</button></div></div>
  <p id="local-summary"></p><p class="local-notice">Условные штаммы, 3D-сетка и ускоренные учебные времена. Не данные пациента. Во время опыта общая агрегированная модель остановлена — локальные события не считаются в ней повторно.</p>
  <div class="local-load-row"><label class="outline">Загрузить запись JSON <input id="local-load" type="file" accept=".json,application/json"></label><span id="local-progress" role="status"></span></div>
- <div class="study-intro"><span class="eyebrow">ОТ НАБЛЮДЕНИЯ К ОТКРЫТИЮ</span><h3>Сначала предположите. Потом проверьте.</h3><p class="local-notice">Три коротких исследования на готовой модели: прогноз → опыт → контроль → объяснение. Доступны в толстой кишке.</p></div>
+ <div class="study-intro"><span class="eyebrow">ОТ НАБЛЮДЕНИЯ К ОТКРЫТИЮ</span><h3>Сначала предположите. Потом проверьте.</h3><p class="local-notice">Пять коротких исследований на готовой модели: прогноз → опыт → контроль → объяснение. Доступны в толстой кишке.</p></div>
  <div id="study-cards" class="study-grid"></div>
  <div id="learning-panel" class="learning-panel" hidden>
   <div class="local-heading"><div><span id="learning-phase" class="eyebrow"></span><h2 id="learning-title"></h2></div><div class="local-actions"><button id="learning-finish" class="outline">Рассчитать до итога →</button><button id="learning-control" class="outline">Сравнить A/B</button><button id="learning-report" class="primary">Мой итог ↗</button></div></div>
   <p id="learning-setup" class="local-notice"></p><p id="learning-prediction" class="prediction-note"></p>
+  <section id="persistence-panel" class="persistence-panel" hidden aria-labelledby="persistence-title">
+   <span class="eyebrow">НОВЫЙ МОДУЛЬ · ОБРАТИМОЕ СОСТОЯНИЕ, НЕ НОВЫЙ ГЕН</span><h3 id="persistence-title">Переждать. Проснуться. Проверить снова.</h3>
+   <p>Персистенция — переживающая субпопуляция. Здесь моделируется один вариант: временное замедление без роста. Толерантность описывает замедленное уничтожение популяции; устойчивость — возможность роста при воздействии. Споры — другое состояние с отдельной структурой.</p>
+   <div class="persistence-legend"><span>● S · активные чувствительные</span><span>Ⅱ S · медленные, без роста</span><span>◆ R · наследуемая устойчивость</span></div>
+   <p id="persistence-stage" role="status"></p><div class="local-actions"><button data-assay-stop="100">1 · После первого воздействия</button><button data-assay-stop="330">2 · После восстановления роста</button><button data-assay-stop="440">3 · После повторной проверки</button></div>
+   <p class="local-notice">Кнопки рассчитывают до этапа и ставят паузу. Назад — перемотка; «Досмотреть запись» возвращает сохранённый конец. В свободной ветке будущих команд плана нет.</p>
+   <div class="assay-table-wrap"><table class="assay-table"><caption>Численность живых линий B: начало → конец воздействия</caption><thead><tr><th>Этап</th><th>Активные S в начале опыта и их линия</th><th>Исходные персистеры S и их линия</th><th>R-demo и их линия</th></tr></thead><tbody id="persistence-rounds"></tbody></table></div>
+   <p class="local-notice">«Линия исходных персистеров» — метка происхождения, а не наследуемая спячка. Числа включают деления: это не доля выживших. Все клетки получают одинаковую среду; защита расстоянием здесь исключена. При повторении исход не обязан быть одинаковым.</p>
+   <p id="persistence-live"></p><p class="local-notice">Равномерный лабораторный тест в учебном участке, не физиология целого органа. Нет клинических доз, длительности курса, MIC или назначения лечения. <a href="https://doi.org/10.1038/s41579-019-0196-3" target="_blank" rel="noopener noreferrer">Определения: Balaban et al., 2019 ↗</a></p>
+  </section>
+  <section id="mucus-panel" class="mucus-panel" hidden aria-labelledby="mucus-title">
+   <span class="eyebrow">НОВЫЙ МОДУЛЬ · НЕ СТЕНА, А ЖИВОЕ ПОКРЫТИЕ</span><h3 id="mucus-title">Произвести. Поделиться. Обновить.</h3>
+   <p>Слизь похожа на защитный гель. Клетки хозяина постоянно добавляют материал снизу. Его наружная часть — ещё и источник питания: микробы разбирают сахарные цепочки муцинов, <em>гликаны</em>. Важно не само «поедание слизи», а баланс расхода и обновления.</p>
+   <div class="mucus-flow"><div><b>01 · Хозяин производит</b><span>Резерв → внутренний слой</span></div><div><b>02 · Слой обновляется</b><span>Внутренний → наружный → вынос</span></div><div><b>03 · Микробы используют</b><span>Гликаны → биомасса + продукты обмена</span></div></div>
+   <div class="mucus-legend"><span>▰ Голубой · внутренний слой</span><span>▰ Мятный · наружный слой</span><span>▰ Розовый · эпителий, не показатель повреждения</span></div>
+   <p id="mucus-stage" role="status"></p><div class="local-actions"><button data-mucus-stop="90">1 · Старт дефицита</button><button data-mucus-stop="360">2 · Вернуть субстрат</button><button data-mucus-stop="720">3 · Проверить восстановление</button><button id="mucus-scene">Рассмотреть слои в 3D ↗</button></div>
+   <p class="local-notice">Этапы ставят расчёт на паузу. Команда меняет приток, а не запас: уже имеющиеся вещества остаются. Обратная перемотка сохраняет конец записи; свободная ветка не применяет будущие команды плана.</p>
+   <div class="mucus-readouts"><div><small>Минимальный внутренний запас B</small><strong id="mucus-minimum">100%</strong><span>от начального в одном участке</span></div><div><small>Участки ниже учебного порога</small><strong id="mucus-thin">0 / 144</strong><span>менее 45% начального запаса</span></div><div><small>Сейчас используют гликаны</small><strong id="mucus-consumers">0</strong><span>агенты, не «вредные виды»</span></div></div>
+   <p id="mucus-control-note"></p>
+   <div class="assay-table-wrap"><table class="assay-table"><caption>Минимальный внутренний запас · % от начального, не % здоровья</caption><thead><tr><th>Момент</th><th>A · без вмешательства</th><th>B · опыт</th></tr></thead><tbody id="mucus-checkpoints"></tbody></table></div>
+   <details><summary>Куда делся материал? Баланс углерода →</summary><p id="mucus-budget"></p><p class="local-notice">Все количества условны. Потоки накопительные: их нельзя просто сложить, материал проходит несколько этапов. Резерв хозяина получает отдельный вход; прекратить еду для микробов — не значит прекратить питание хозяина. Вынос включает слизь и растворённый углерод. В 3D высота иллюстрирует запас, не измеренную толщину в микрометрах.</p></details>
+   <p class="local-notice"><b>Слизь ≠ эпителий.</b> Здесь нет повреждения клеток хозяина, диагноза или пересчёта шагов в дни. Два слоя — упрощение для участка толстой кишки, не устройство всех слизистых. Данные диетических опытов на мышах не доказывают, что пропуск еды вызывает болезнь у человека. <a href="https://doi.org/10.1016/j.cell.2016.10.043" target="_blank" rel="noopener noreferrer">Desai et al., 2016 ↗</a></p>
+  </section>
   <div class="learning-columns">
    <article class="narrator"><span id="narrator-time" class="eyebrow"></span><h3 id="narrator-title"></h3><p id="narrator-text"></p><p id="narrator-rule"></p><small id="narrator-limit"></small><div id="learning-links" class="local-actions"></div><div class="local-actions"><button id="learning-rewind">↶ К этому моменту</button><button id="learning-focus">Показать живого участника</button><button id="learning-latest">Последнее событие</button></div></article>
    <section id="learning-chart-area" class="learning-chart-area" aria-label="Траектории опыта и контроля"><label for="learning-metric">Что сравниваем во времени?</label><select id="learning-metric"></select><p class="chart-legend"><span>┄ A · контроль без вмешательств</span><span>━ B · ваш опыт</span></p><div id="learning-chart"></div><p id="chart-values"></p><p id="chart-command-list" class="local-notice"></p><small>Один старт, одно время. Ось Y подстраивается под данные; штрихи отмечают вмешательства. Точки через 1 учебную единицу и при вмешательствах. Линии могут совпадать.</small></section>
@@ -72,14 +101,14 @@ dialog{width:min(850px,calc(100vw - 30px));max-height:90vh;overflow:auto;border:
  </div>
  <div class="relay-entry"><button id="relay-start" class="outline">Начать эстафету в связанном сообществе →</button><small>Новый свободный опыт; текущую запись при необходимости сохраните.</small></div>
  <div id="local-controls" hidden><div class="local-columns"><div>
-  <h3>Вмешательства в выбранной точке</h3><p class="local-notice">Выберите агента кликом или через событие; без выбора точка (0, 3, 0). Начальные близкие пары в сценариях подготовлены для наблюдения, события вычисляются.</p>
-  <div class="local-actions"><button data-local-action="feed">+ Субстрат</button><button data-local-action="antibiotic">Антибиотический импульс</button><button data-local-action="breach">Открыть барьер</button><button data-local-action="repair">Закрыть барьер</button><button data-local-action="induce">Индуцировать профаг</button><button data-local-action="germinate">Сигнал прорастания</button><button data-local-action="hypha">Сигнал гифальной формы</button></div>
-  <p class="local-notice">Жёлтый — pDemoR; розовый — заражение; белый — фагоцит; охристый — спора. Цвет не означает «полезный» или «вредный».</p><h3>Поле в срезе</h3><div class="local-actions"><label>Вещество <select id="local-field"><option value="food">Субстрат</option><option value="acetate">Ацетат</option><option value="butyrate">Бутират</option><option value="oxygen">Кислород</option><option value="signal">Сигнал из ткани</option><option value="drug">Антибиотик</option><option value="detritus">Остатки клеток</option></select></label><label>Высота y <select id="local-slice"><option value="-1">−1 · ткань</option><option value="1">1 · над барьером</option><option value="3" selected>3 · просвет</option><option value="5">5 · верхний срез</option></select></label></div>
+  <h3>Вмешательства</h3><p class="local-notice">Выберите агента кликом или через событие; без выбора точка (0, 3, 0). Начальные близкие пары в сценариях подготовлены для наблюдения, события вычисляются.</p>
+  <div class="local-actions"><button data-local-action="substrate_off" hidden>Остановить приток субстрата</button><button data-local-action="substrate_on" hidden>Вернуть приток субстрата</button><button data-local-action="secretion_slow" hidden>Снизить производство слизи ×¼</button><button data-local-action="secretion_restore" hidden>Вернуть производство слизи</button><button data-local-action="challenge" hidden>Равномерное воздействие</button><button data-local-action="washout" hidden>Удалить препарат</button><button data-local-action="feed">+ Субстрат</button><button data-local-action="antibiotic">Антибиотический импульс</button><button data-local-action="breach">Открыть барьер</button><button data-local-action="repair">Закрыть барьер</button><button data-local-action="induce">Индуцировать профаг</button><button data-local-action="germinate">Сигнал прорастания</button><button data-local-action="hypha">Сигнал гифальной формы</button></div>
+  <p id="local-color-legend" class="local-notice">Жёлтый — pDemoR; розовый — заражение; белый — фагоцит; охристый — спора. Цвет не означает «полезный» или «вредный».</p><h3>Поле в срезе</h3><div class="local-actions"><label>Вещество <select id="local-field"><option value="food">Субстрат</option><option value="acetate">Ацетат</option><option value="butyrate">Бутират</option><option value="oxygen">Кислород</option><option value="signal">Сигнал из ткани</option><option value="drug">Антибиотик</option><option value="detritus">Остатки клеток</option></select></label><label>Высота y <select id="local-slice"><option value="-1">−1 · ткань</option><option value="1">1 · над барьером</option><option value="3" selected>3 · просвет</option><option value="5">5 · верхний срез</option></select></label></div>
  </div><div><h3>Последние причинные события</h3><div id="local-events" aria-label="Журнал локальных событий"></div></div></div>
  <div class="local-replay"><div class="local-actions"><button id="local-pause">Ⅱ Пауза</button><button id="local-step">Шаг +0,1</button><button id="local-history">Генеалогия и журнал ↗</button><button id="local-save">Сохранить опыт ↓</button><button id="local-fork">Продолжить отсюда</button><span id="local-cursor"></span></div><label for="local-seek">Воспроизведение до выбранного шага · при перемотке включается пауза</label><input id="local-seek" type="range" min="0" max="0" step="1" value="0"></div></div>
 </section>
 <section class="laboratory"><div class="lab-main"><div class="section-title"><h2>Измените среду. <em>Увидьте связи.</em></h2><button id="restart">↺ Новый опыт</button></div><div id="experiments"></div><div class="explanation"><span>✧</span><div><b id="explain-title">Начните с погружения.</b><p id="explain-copy">Нажмите «Погрузиться внутрь» или приближайтесь колёсиком. В микромире можно внести пищу в выбранное место и последовать за клеткой.</p></div><button id="explain-more" aria-label="Объяснить подробнее">↗</button></div><div id="residents" aria-label="Выбор вида микробов"></div><div id="layer-buttons" role="group" aria-label="Слои ткани или части клетки"></div></div><aside class="telemetry"><div class="telemetry-head"><h3><i></i> Пульс микромира</h3><button id="pause" aria-label="Пауза">Ⅱ</button><select id="speed" aria-label="Скорость модели"><option value="1">1×</option><option value="4">4×</option></select></div><div id="readouts"></div><div id="local-readouts" hidden></div><div class="telemetry-bottom"><button id="compare">Контрольный опыт ↗</button><button id="journal">Журнал ↗</button><span id="sim-time">t = 0</span></div><p>Учебная модель · не медицинские показатели</p></aside></section>
-<footer><span><i></i> Большой мир начинается с любопытства.</span><button id="limits">Условности, масштаб и границы модели ↗</button><span>10+ <b>/</b> DISCOVERY EDITION · 0.6</span></footer>
+<footer><span><i></i> Большой мир начинается с любопытства.</span><button id="limits">Условности, масштаб и границы модели ↗</button><span>10+ <b>/</b> MUCUS TURNOVER · 0.8</span></footer>
 </main><dialog id="dialog"><div class="dialog-top"><span class="eyebrow" id="dialog-kicker">МИКРОКОСМОС</span><button id="close-dialog" aria-label="Закрыть">×</button></div><div id="dialog-content"></div></dialog><div class="sr-only" id="announcement" role="status" aria-live="polite"></div><noscript>Для путешествия нужен JavaScript. Документация находится в docs/PROJECT_SPEC.md.</noscript><script>
 "use strict";
 const __modules = Object.create(null);
@@ -2139,6 +2168,7 @@ return {GLSL_ISO,GLSL_TURN,glslPose,glCamera,glLayer,smooth,burst,settle};
 })();
 __modules["src/data.js"] = (() => {
 const SOURCES = [
+ {id:'persistence',title:'Balaban et al. Definitions and guidelines for research on antibiotic persistence',year:2019,url:'https://doi.org/10.1038/s41579-019-0196-3',level:'Консенсусные определения',note:'Устойчивость, толерантность и персистенция различаются. Сниженная активность — один возможный механизм, не универсальное определение. Параметры учебного опыта не взяты из клинических данных.'},
  {id:'hmp',title:'Human Microbiome Project Consortium. Structure, function and diversity of the healthy human microbiome',year:2012,url:'https://doi.org/10.1038/nature11234',level:'Исследование людей',note:'Разные участки тела — разные сообщества; не универсальная норма состава.'},
  {id:'gut',title:'Thursby & Juge. Introduction to the human gut microbiota',year:2017,url:'https://pmc.ncbi.nlm.nih.gov/articles/PMC5433529/',level:'Обзор',note:'Биогеография, метаболизм, слизь и барьер кишечника.'},
  {id:'mucus',title:'Living on the edge: Mucus-associated microbes in the colon',year:2025,url:'https://www.sciencedirect.com/science/article/pii/S1933021925000418',level:'Обзор',note:'Неоднородность слизи, потребление муцина и взаимодействие с IgA.'},
@@ -2448,6 +2478,7 @@ class GPU{
  this.texture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,this.texture);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);this.pixels=new Uint8Array(20*20*3);gl.pixelStorei(gl.UNPACK_ALIGNMENT,1);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB8,20,20,0,gl.RGB,gl.UNSIGNED_BYTE,this.pixels);gl.enable(gl.DEPTH_TEST);gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);this.calls=0;this.triangles=0;this.instances=0;this.meshes=[];
  }
  mesh(data){const geometry={vertices:new Float32Array(data.vertices),indices:new Uint32Array(data.indices)};const gl=this.gl,vao=gl.createVertexArray();gl.bindVertexArray(vao);const vertex=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,vertex);gl.bufferData(gl.ARRAY_BUFFER,geometry.vertices,gl.STATIC_DRAW);gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,3,gl.FLOAT,false,24,0);gl.enableVertexAttribArray(1);gl.vertexAttribPointer(1,3,gl.FLOAT,false,24,12);const index=gl.createBuffer();gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,index);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,geometry.indices,gl.STATIC_DRAW);const instances=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,instances);for(const[loc,n,offset]of[[2,3,0],[3,3,3],[4,4,6],[5,4,10],[6,3,14]]){gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,n,gl.FLOAT,false,STRIDE*4,offset*4);gl.vertexAttribDivisor(loc,1);}const mesh={vao,vertex,index,instances,count:data.indices.length,capacity:0,geometry};this.meshes.push(mesh);return mesh;}
+ morph(mesh,vertices){const a=mesh.geometry.vertices;if(vertices.length!==a.length)throw new Error('Topology changed during mesh morph');a.set(vertices);const g=this.gl;g.bindBuffer(g.ARRAY_BUFFER,mesh.vertex);g.bufferSubData(g.ARRAY_BUFFER,0,a);}
  release(mesh){const gl=this.gl;gl.deleteVertexArray(mesh.vao);gl.deleteBuffer(mesh.vertex);gl.deleteBuffer(mesh.index);gl.deleteBuffer(mesh.instances);this.meshes=this.meshes.filter(m=>m!==mesh);}
  upload(mesh,data,count){const gl=this.gl;gl.bindBuffer(gl.ARRAY_BUFFER,mesh.instances);if(mesh.capacity<data.byteLength){gl.bufferData(gl.ARRAY_BUFFER,data.byteLength,gl.DYNAMIC_DRAW);mesh.capacity=data.byteLength;}gl.bufferSubData(gl.ARRAY_BUFFER,0,data,0,count*STRIDE);}
  begin(time,ratio=1.4){const gl=this.gl,w=Math.max(1,Math.round(this.canvas.clientWidth*Math.min(devicePixelRatio||1,ratio))),h=Math.max(1,Math.round(this.canvas.clientHeight*Math.min(devicePixelRatio||1,ratio)));if(this.canvas.width!==w||this.canvas.height!==h){this.canvas.width=w;this.canvas.height=h;}gl.viewport(0,0,w,h);gl.clearColor(.025,.049,.05,1);gl.depthMask(true);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.useProgram(this.program);gl.uniform1f(this.u.uTime,time);gl.uniform1f(this.u.uVivid,this.vivid||0);this.calls=0;this.triangles=0;this.instances=0;}
@@ -2489,7 +2520,7 @@ class ChemicalGrid {
   for(let step=0;step<substeps;step++)for(const k of CHEMICALS){
    const a=this.values[k],b=this.next[k];b.set(a);
    for(const [i,j,inv,wall] of this.faces){
-    const permeability=wall?(k==='oxygen'?.4:k==='signal'?.25:.03)+.6*(1-barrier):1;
+    const permeability=wall?(k==='oxygen'?.4:k==='signal'?.25:.03)+.6*(1-(typeof barrier==='number'?barrier:barrier[i%(this.n*this.n)])):1;
     const flux=(a[i]-a[j])*diffusion[k]*h*inv*permeability;b[i]-=flux;b[j]+=flux;
    }
    this.values[k]=b;this.next[k]=a;
@@ -2503,30 +2534,214 @@ return {CHEMICALS,CARBON,ChemicalGrid};
 __modules["src/local/traits.js"] = (() => {
 const {byId} = __modules["src/data.js"];
 const LOCAL_SPECIES={...byId,immune:{id:'immune',name:'Фагоцит',latin:'Учебная клетка врождённого иммунитета',group:'Клетки хозяина',shape:'protist',color:'#e5f3ff',size:'Условный масштаб клетки хозяина',role:'Распознаёт и поглощает доступные микробы в тканевом отсеке',food:'Здесь не моделируется как микробная трофическая группа',fact:'Хемотаксис, поглощение и переваривание — упрощённые состояния. Не модель всего иммунитета.',refs:[]}};
-const LOCAL_VERSION='local-0.5.0';
+const LOCAL_VERSION='local-0.8.0';
+const PERSISTENCE_VERSION='local-0.7.0';
+const LEGACY_VERSION='local-0.5.0';
+function engineForScenario(scenario){return scenario==='mucus'?LOCAL_VERSION:scenario==='persistence'?PERSISTENCE_VERSION:LEGACY_VERSION;}
+function commandsFor(scenario){return scenario==='mucus'?['substrate_off','substrate_on','secretion_slow','secretion_restore']:scenario==='persistence'?['feed','challenge','washout']:['feed','antibiotic','breach','repair','induce','germinate','hypha'];}
 const LOCAL_DT=.1;
 const LOCAL_LIMITS={alive:192,ids:4096,ticks:6000,commands:256,events:12000};
-const LOCAL_SCENARIOS={community:'Связанное сообщество',hgt:'Конъюгация и наследование',t6:'T6SS: контакт и иммунность',phage:'Фаг: литический / умеренный',immune:'Барьер и фагоцитоз',cycles:'Деление, почкование, споры'};
-const EVENT_NAMES={birth:'Появление',division:'Деление',bud:'Почкование',branch:'Рост ветви гифы',death:'Гибель',conjugation:'Контакт для конъюгации',transfer:'Копия плазмиды передана',contact_lost:'Контакт прерван',t6:'T6SS: контактный удар',adsorption:'Адсорбция фага',injection:'Введение генома',eclipse:'Синтез компонентов',assembly:'Сборка потомства',lysis:'Лизис и выход фагов',lysogeny:'Лизогения',induction:'Индукция профага',sporulating:'Начало споруляции',spore:'Спора',germinating:'Прорастание',vegetative:'Вегетативная клетка',hypha:'Переход к гифальной форме',recruit:'Хемотаксис фагоцита',engulf:'Поглощение',digest:'Переваривание',command:'Вмешательство',limit:'Достигнут лимит'};
+const LOCAL_SCENARIOS={mucus:'Оборот слизи: расход и обновление',community:'Связанное сообщество',hgt:'Конъюгация и наследование',t6:'T6SS: контакт и иммунность',phage:'Фаг: литический / умеренный',immune:'Барьер и фагоцитоз',cycles:'Деление, почкование, споры',persistence:'Персистенция: пережить и снова расти'};
+const EVENT_NAMES={mucus_supply:'Изменение притока',mucus_switch:'Смена источника углерода',mucus_thin:'Локальное истончение слизи',mucus_recover:'Слой снова пополняется',persistence_enter:'Переход в медленное состояние',persistence_exit:'Возвращение к росту',challenge:'Начало равномерного воздействия',washout:'Препарат удалён из среды',assay_kill:'Гибель при воздействии',birth:'Появление',division:'Деление',bud:'Почкование',branch:'Рост ветви гифы',death:'Гибель',conjugation:'Контакт для конъюгации',transfer:'Копия плазмиды передана',contact_lost:'Контакт прерван',t6:'T6SS: контактный удар',adsorption:'Адсорбция фага',injection:'Введение генома',eclipse:'Синтез компонентов',assembly:'Сборка потомства',lysis:'Лизис и выход фагов',lysogeny:'Лизогения',induction:'Индукция профага',sporulating:'Начало споруляции',spore:'Спора',germinating:'Прорастание',vegetative:'Вегетативная клетка',hypha:'Переход к гифальной форме',recruit:'Хемотаксис фагоцита',engulf:'Поглощение',digest:'Переваривание',command:'Вмешательство',limit:'Достигнут лимит'};
 // These are invented experimental variants, NOT measured traits of every named taxon.
 function traits(species,variant='base'){
  const s=LOCAL_SPECIES[species];if(!s)throw new Error('Unknown local species');
- return {bacterium:s.group==='Бактерии',fungus:s.group==='Грибы',virus:species==='phage',immune:species==='immune',
-  donor:species==='coli'&&variant==='donor',compatibility:species==='coli'?'F-demo':null,
+ const assay=species==='coli'&&['assay-S','assay-R'].includes(variant);
+ return {...(assay?{demoResistance:variant==='assay-R'}:{}),bacterium:s.group==='Бактерии',fungus:s.group==='Грибы',virus:species==='phage',immune:species==='immune',
+  donor:species==='coli'&&variant==='donor',compatibility:species==='coli'&&!assay?'F-demo':null,
   receptor:species==='coli'&&variant!=='receptor-negative'?'R-demo':null,
   t6:species==='bact'&&variant==='t6'?'E-demo':null,immunity:variant==='t6'||variant==='immune-E'?'E-demo':null,
   phageType:variant==='temperate'?'temperate':'lytic',spore:species==='cdiff',motile:!!s.flagellum};
 }
-const LOCAL_ACTION_NAMES={feed:'субстрат',antibiotic:'антибиотический импульс',breach:'открытие барьера',repair:'закрытие барьера',induce:'индукция профага',germinate:'сигнал прорастания',hypha:'сигнал гифальной формы'};
-const LOCAL_VARIANT_NAMES={base:'исходный',donor:'донор pDemoR',t6:'аппарат T6SS / E-demo','immune-E':'защита от E-demo','receptor-negative':'нет рецептора R-demo',temperate:'умеренный фаг',lytic:'литический фаг'};
-const LOCAL_STATE_NAMES={vegetative:'активная клетка',free:'свободный фаг',dead:'погибла',divided:'разделилась',adsorbed:'связался с хозяином',spore:'спора',sporulating:'споруляция',germinating:'прорастание',budding:'почкование',hypha:'гифальная форма',resting:'покой',recruited:'хемотаксис',engulfing:'поглощение',digesting:'переваривание'};
+const LOCAL_ACTION_NAMES={substrate_off:'остановить приток пищевого субстрата',substrate_on:'вернуть приток пищевого субстрата',secretion_slow:'снизить производство слизи',secretion_restore:'вернуть производство слизи',challenge:'одинаковое воздействие во всём участке',washout:'удаление препарата',feed:'субстрат',antibiotic:'антибиотический импульс',breach:'открытие барьера',repair:'закрытие барьера',induce:'индукция профага',germinate:'сигнал прорастания',hypha:'сигнал гифальной формы'};
+const LOCAL_VARIANT_NAMES={'mucin-switch':'учебный переключатель субстратов','outer-forager':'учебный потребитель наружных гликанов','assay-S':'чувствительный S-demo','assay-R':'наследуемый R-demo (не плазмида)',base:'исходный',donor:'донор pDemoR',t6:'аппарат T6SS / E-demo','immune-E':'защита от E-demo','receptor-negative':'нет рецептора R-demo',temperate:'умеренный фаг',lytic:'литический фаг'};
+const LOCAL_STATE_NAMES={persister:'Ⅱ медленное обратимое состояние',vegetative:'активная клетка',free:'свободный фаг',dead:'погибла',divided:'разделилась',adsorbed:'связался с хозяином',spore:'спора',sporulating:'споруляция',germinating:'прорастание',budding:'почкование',hypha:'гифальная форма',resting:'покой',recruited:'хемотаксис',engulfing:'поглощение',digesting:'переваривание'};
 const LOCAL_CAUSE_NAMES={antibiotic:'антибиотический импульс',starvation:'истощение',T6SS:'T6SS','phage-lysis':'лизис фагом',phagocytosis:'фагоцитоз','spore-decay':'утрата жизнеспособности споры','virion-decay':'распад вирусной частицы'};
 
-return {LOCAL_SPECIES,LOCAL_VERSION,LOCAL_DT,LOCAL_LIMITS,LOCAL_SCENARIOS,EVENT_NAMES,traits,LOCAL_ACTION_NAMES,LOCAL_VARIANT_NAMES,LOCAL_STATE_NAMES,LOCAL_CAUSE_NAMES};
+return {LOCAL_SPECIES,LOCAL_VERSION,PERSISTENCE_VERSION,LEGACY_VERSION,engineForScenario,commandsFor,LOCAL_DT,LOCAL_LIMITS,LOCAL_SCENARIOS,EVENT_NAMES,traits,LOCAL_ACTION_NAMES,LOCAL_VARIANT_NAMES,LOCAL_STATE_NAMES,LOCAL_CAUSE_NAMES};
+})();
+__modules["src/local/persistence.js"] = (() => {
+// A bounded, well-mixed teaching assay, not a clinical antibiotic regimen.
+// Persistence is represented by ONE reversible low-activity mechanism, not all persistence biology.
+const PERSISTENCE_RULES=Object.freeze({entryRate:.001,wakeRate:.5,minRest:30,activeKill:.8,slowKill:.004,resistantKill:.003,uptake:.075});
+const COHORT_NAMES={sensitive:'Изначально активные S','persister-origin':'Линия исходных персистеров S',resistant:'Наследуемый R-demo'};
+function assayCounts(sim){
+ const live=sim.entities.filter(e=>e.alive&&e.assayCell);
+ return {sensitive:live.filter(e=>e.cohort==='sensitive').length,persisterOrigin:live.filter(e=>e.cohort==='persister-origin').length,
+  resistant:live.filter(e=>e.traits.demoResistance).length,persisters:live.filter(e=>e.state==='persister').length,
+  activeSensitive:live.filter(e=>!e.traits.demoResistance&&e.state==='vegetative').length,
+  recoveredLine:live.filter(e=>e.cohort==='persister-origin'&&e.state==='vegetative').length,total:live.length};
+}
+function seedPersistence(sim){
+ sim.assay={bath:0,rounds:[]};sim.chemistry.values.food.fill(.3);
+ for(let i=0;i<20;i++){
+  const resistant=i>=16,p=i>=13&&i<16;
+  const e=sim.create('coli',[-8+(i%5)*4,3,-6+Math.floor(i/5)*4],resistant?'assay-R':'assay-S');
+  e.cohort=resistant?'resistant':p?'persister-origin':'sensitive';
+  if(p){e.state='persister';sim.emit('persistence_enter',[e.id],{prepared:true});}
+ }
+}
+function assayCommand(sim,kind){
+ if(kind==='challenge'){
+  if(sim.assay.bath)throw new Error('Воздействие уже идёт. Сначала удалите препарат из среды.');
+  sim.assay.bath=1;sim.chemistry.values.drug.fill(1);
+  sim.assay.rounds.push({round:sim.assay.rounds.length+1,startTick:sim.tick,start:assayCounts(sim),endTick:null,end:null});
+  sim.emit('challenge',[],{round:sim.assay.rounds.length});
+ }
+ if(kind==='washout'){
+  if(!sim.assay.bath)throw new Error('В среде нет препарата для удаления.');
+  sim.assay.bath=0;sim.chemistry.values.drug.fill(0);
+  const round=sim.assay.rounds.at(-1);round.endTick=sim.tick;round.end=assayCounts(sim);
+  sim.emit('washout',[],{round:round.round});
+ }
+}
+function growAssay(sim,e,dt){
+ const r=PERSISTENCE_RULES,f=sim.chemistry,drug=f.sample('drug',e.pos),res=e.traits.demoResistance;
+ e.exposure+=drug*dt;
+ if(e.state==='persister'){
+  e.slowTicks++;
+  if(!drug&&e.slowTicks>=r.minRest&&f.sample('food',e.pos)>.01&&sim.random()<1-Math.exp(-r.wakeRate*dt)){
+   e.state='vegetative';e.slowTicks=0;sim.emit('persistence_exit',[e.id],{geneticResistance:!!res});
+  }
+ }else if(!res&&sim.random()<1-Math.exp(-r.entryRate*dt)){
+  e.state='persister';e.slowTicks=0;sim.emit('persistence_enter',[e.id],{prepared:false});
+ }
+ const slow=e.state==='persister',maintenance=Math.min(e.mass,dt*(slow?.00015:.0015));
+ e.mass-=maintenance;f.add('waste',e.pos,maintenance);
+ if(e.mass<.08){sim.kill(e,'starvation');return;}
+ const rate=slow?r.slowKill:res?r.resistantKill:r.activeKill;
+ if(drug&&sim.random()<1-Math.exp(-rate*drug*dt)){
+  sim.emit('assay_kill',[e.id],{state:e.state,geneticResistance:!!res,exposure:e.exposure,round:sim.assay.rounds.length});
+  sim.kill(e,'antibiotic');return;
+ }
+ // Slow survivors do not grow. Sensitive active cells cannot grow under this exposure;
+ // genetically resistant controls can. Children inherit R-demo, not the slow state.
+ if(slow||drug&&!res)return;
+ const used=f.take('food',e.pos,Math.min(dt*r.uptake*(drug?.55:1),Math.max(0,(1.7-e.mass)*2)));
+ e.mass+=used*.5;f.add('waste',e.pos,used*.5);
+ if(e.mass>=1.6)sim.divide(e,'division');
+}
+
+return {PERSISTENCE_RULES,COHORT_NAMES,assayCounts,seedPersistence,assayCommand,growAssay};
+})();
+__modules["src/local/mucus.js"] = (() => {
+const {CARBON} = __modules["src/local/chemistry.js"];
+
+// An illustrative colonic film, NOT fitted human thicknesses, rates or meal times.
+// All quantities are carbon-equivalent amounts. Inner/outer are model pools, not
+// water volume or a measurement of MUC2 structure. Host supply is independent of
+// luminal microbial substrate. No epithelial injury or bacterial invasion rule.
+const MUCUS_RULES=Object.freeze({inner:.22,outer:.18,hostReserve:5,hostCap:10,
+ hostInput:.8,secretion:.005,feedback:.04,innerCap:.25,maturation:.02,shedding:.015,
+ foodInput:.08,passage:.2,foodUptake:.06,mucinUptake:.05,specialistUptake:.024,
+ innerAccess:.4,outerCover:.025,maintenance:.0015,thin:.45,recovered:.75});
+const sum=a=>a.reduce((s,x)=>s+x,0);
+const clamp=x=>Math.max(0,Math.min(1,x));
+function mucusPatch(sim,pos){return sim.chemistry.voxel(pos)%(sim.chemistry.n**2);}
+function seedMucus(sim){
+ const n=sim.chemistry.n**2,r=MUCUS_RULES;
+ sim.mucus={inner:Array(n).fill(r.inner),outer:Array(n).fill(r.outer),thin:Array(n).fill(false),
+  host:r.hostReserve,substrate:true,secretionScale:1,hostInput:0,foodInput:0,secreted:0,
+  matured:0,shed:0,outerUsed:0,innerUsed:0,foodUsed:0,exported:0,records:[]};
+ const f=sim.chemistry;f.values.food.fill(0);
+ for(let i=n*2;i<f.length;i++)f.values.food[i]=.04;
+ // Spatially separated patches; no prearranged injury or scripted deaths.
+ for(const z of [-5,-1,3])for(const x of [-5,-1,3,7])sim.create('bact',[x,1.45,z],'mucin-switch',[],.85);
+ for(const z of [-5,-1,3,7])sim.create('akk',[-9,1.45,z],'outer-forager',[],.85);
+ for(const z of [-5,-1,3,7])sim.create('faec',[1,1.7,z],'base',[],.85);
+}
+function mucusCarbon(sim){const m=sim.mucus;return m?sum(m.inner)+sum(m.outer)+m.host+m.exported:0;}
+function mucusStats(sim){
+ const m=sim.mucus;if(!m)return null;
+ const reference=MUCUS_RULES.inner,minimum=Math.min(...m.inner),mean=sum(m.inner)/m.inner.length;
+ return {inner:sum(m.inner),outer:sum(m.outer),minInner:minimum/reference,meanInner:mean/reference,
+  thinPatches:m.inner.filter(v=>v<reference*MUCUS_RULES.thin).length,
+  foragers:sim.entities.filter(e=>e.alive&&e.mucusMode==='mucin').length,
+  host:m.host,substrate:m.substrate,secretionScale:m.secretionScale,
+  hostInput:m.hostInput,foodInput:m.foodInput,secreted:m.secreted,matured:m.matured,
+  shed:m.shed,outerUsed:m.outerUsed,innerUsed:m.innerUsed,foodUsed:m.foodUsed,exported:m.exported};
+}
+function mucusCommand(sim,kind){
+ const m=sim.mucus;
+ if(kind==='substrate_off')m.substrate=false;
+ if(kind==='substrate_on')m.substrate=true;
+ if(kind==='secretion_slow')m.secretionScale=.25;
+ if(kind==='secretion_restore')m.secretionScale=1;
+ m.records.push({tick:sim.tick,kind,...mucusStats(sim)});
+ sim.emit('mucus_supply',[],{action:kind,substrate:m.substrate,secretionScale:m.secretionScale});
+}
+function stepMucus(sim,dt){
+ const m=sim.mucus,r=MUCUS_RULES,f=sim.chemistry,n=f.n**2;
+ const supplied=Math.min(r.hostCap-m.host,r.hostInput*dt);
+ m.host+=supplied;m.hostInput+=supplied;sim.inputCarbon+=supplied;
+ const wanted=m.inner.map(v=>Math.min(Math.max(0,r.innerCap-v),dt*m.secretionScale*(r.secretion+r.feedback*Math.max(0,r.inner-v))));
+ const allocation=Math.min(1,m.host/Math.max(1e-30,sum(wanted)));
+ let foodAdded=0,exported=0;
+ for(let k=0;k<n;k++){
+  const secretion=Math.min(m.host,wanted[k]*allocation);
+  m.host-=secretion;m.inner[k]+=secretion;m.secreted+=secretion;
+  const mature=m.inner[k]*r.maturation*dt;m.inner[k]-=mature;m.outer[k]+=mature;m.matured+=mature;
+  const shed=m.outer[k]*r.shedding*dt;m.outer[k]-=shed;exported+=shed;m.shed+=shed;
+  if(m.substrate){const food=r.foodInput*dt;for(let y=2;y<=4;y++){f.values.food[n*y+k]+=food;foodAdded+=food;}}
+ }
+ // Open luminal flow: material leaving the simulated patch has an explicit ledger.
+ // Paired chemical diffusion itself remains conservative, including at the film.
+ for(const kind of CARBON)for(let i=n*2;i<f.length;i++){
+  const out=f.values[kind][i]*r.passage*dt;f.values[kind][i]-=out;exported+=out;
+ }
+ m.foodInput+=foodAdded;sim.inputCarbon+=foodAdded;m.exported+=exported;
+}
+function growMucus(sim,e,dt){
+ const m=sim.mucus,r=MUCUS_RULES,f=sim.chemistry,k=mucusPatch(sim,e.pos);
+ let uptake=0,source='acetate';
+ const capacity=Math.max(0,(1.7-e.mass)*2);
+ if(e.species==='faec'){
+  uptake=f.take('acetate',e.pos,Math.min(dt*.06,capacity));
+  e.mass+=uptake*.5;f.add('butyrate',e.pos,uptake*.5);
+  sim.flux.acetateUsed+=uptake;sim.flux.butyrateMade+=uptake*.5;
+ }else{
+  const previous=e.mucusMode||'food',food=f.sample('food',e.pos);
+  // Hysteresis illustrates regulated substrate use, not a taxon-wide threshold.
+  e.mucusMode=e.species==='akk'?'mucin':previous==='food'?(food<.008?'mucin':'food'):(food>.025?'food':'mucin');
+  if(e.mucusMode!==previous)sim.emit('mucus_switch',[e.id],{mode:e.mucusMode,food,patch:k});
+  source=e.mucusMode;
+  if(source==='food'){
+   uptake=f.take('food',e.pos,Math.min(dt*r.foodUptake,capacity));m.foodUsed+=uptake;sim.flux.producerFood+=uptake;
+  }else{
+   const demand=Math.min(dt*(e.species==='akk'?r.specialistUptake:r.mucinUptake),capacity);
+   const outer=Math.min(m.outer[k],demand);m.outer[k]-=outer;m.outerUsed+=outer;
+   // Reduced, cover-dependent access of the switcher to inner glycans. This is
+   // an explicit teaching assumption, NOT bacteria traversing an intact inner layer.
+   const access=e.species==='akk'?0:r.innerAccess*clamp(1-m.outer[k]/r.outerCover);
+   const inner=Math.min(m.inner[k],(demand-outer)*access);m.inner[k]-=inner;m.innerUsed+=inner;
+   uptake=outer+inner;
+  }
+  e.mass+=uptake*.25;f.add('acetate',e.pos,uptake*.5);f.add('waste',e.pos,uptake*.25);sim.flux.acetateMade+=uptake*.5;
+ }
+ const maintenance=Math.min(e.mass,dt*r.maintenance);e.mass-=maintenance;f.add('waste',e.pos,maintenance);
+ if(e.mass<.08){sim.kill(e,'starvation');return;}
+ if(e.mass>=1.6)sim.divide(e,'division');
+}
+function finishMucus(sim){
+ const m=sim.mucus,r=MUCUS_RULES;
+ for(let k=0;k<m.inner.length;k++){
+  const fraction=m.inner[k]/r.inner;
+  if(!m.thin[k]&&fraction<r.thin){m.thin[k]=true;sim.emit('mucus_thin',[],{patch:k,fraction});}
+  if(m.thin[k]&&fraction>r.recovered){m.thin[k]=false;sim.emit('mucus_recover',[],{patch:k,fraction});}
+ }
+ sim.barrier=sum(m.inner.map(v=>clamp(v/r.inner)))/m.inner.length;
+ // Cells remain luminal. Thickness does NOT trigger the legacy epithelial breach.
+ for(const e of sim.entities)if(e.alive)e.pos[1]=m.inner[mucusPatch(sim,e.pos)]/r.inner*1.2+.25;
+}
+function mucusPermeability(sim){return sim.mucus.inner.map(v=>clamp(v/MUCUS_RULES.inner));}
+
+return {MUCUS_RULES,mucusPatch,seedMucus,mucusCarbon,mucusStats,mucusCommand,stepMucus,growMucus,finishMucus,mucusPermeability};
 })();
 __modules["src/local/engine.js"] = (() => {
+const {seedMucus,mucusCarbon,mucusStats,mucusCommand,stepMucus,growMucus,finishMucus,mucusPermeability} = __modules["src/local/mucus.js"];
 const {ChemicalGrid} = __modules["src/local/chemistry.js"];
-const {traits,LOCAL_DT,LOCAL_LIMITS,LOCAL_VERSION,LOCAL_SCENARIOS} = __modules["src/local/traits.js"];
+const {traits,LOCAL_DT,LOCAL_LIMITS,LOCAL_SCENARIOS,engineForScenario,commandsFor} = __modules["src/local/traits.js"];
+const {seedPersistence,assayCommand,growAssay,assayCounts} = __modules["src/local/persistence.js"];
 const copy=v=>JSON.parse(JSON.stringify(v));
 const distance=(a,b)=>Math.hypot(...a.pos.map((v,i)=>v-b.pos[i]));
 const living=e=>e.alive&&e.state!=='spore'&&e.state!=='sporulating';
@@ -2536,8 +2751,9 @@ class SpatialIndex {
  near(e,radius){const c=e.pos.map(v=>Math.floor(v/this.size)),n=Math.ceil(radius/this.size),out=[];for(let x=-n;x<=n;x++)for(let y=-n;y<=n;y++)for(let z=-n;z<=n;z++)for(const b of this.buckets.get(this.key(c[0]+x,c[1]+y,c[2]+z))||[])if(b!==e&&distance(e,b)<=radius)out.push(b);return out.sort((a,b)=>distance(e,a)-distance(e,b)||a.id-b.id);}
 }
 class LocalSimulation {
- constructor({seed=85,scenario='community'}={}){
+ constructor({seed=85,scenario='community',engine=engineForScenario(scenario)}={}){
   if(!Number.isInteger(seed)||seed<0||seed>0xffffffff||!Object.hasOwn(LOCAL_SCENARIOS,scenario))throw new Error('Invalid local configuration');
+  if(engine!==engineForScenario(scenario))throw new Error('Несовместимый движок сценария');this.version=engine;
   this.seed=seed;this.randomState=seed||1;this.scenario=scenario;this.tick=0;this.entities=[];this.events=[];this.sequence=0;this.counts={};this.commands=[];this.jobs=[];this.barrier=1;this.cues={germinate:0,hypha:0};this.stopped=false;this.capacityHits=0;this.chemistry=new ChemicalGrid();this.inputCarbon=0;
   // Read-only accounting for teaching UI; never used by dynamics or replay checksum.
   this.flux={producerFood:0,acetateMade:0,acetateUsed:0,butyrateMade:0,tissueButyrate:0};
@@ -2555,10 +2771,14 @@ class LocalSimulation {
  create(species,pos,variant='base',parents=[],mass=null){
   if(this.entities.length>=LOCAL_LIMITS.ids||this.entities.filter(e=>e.alive).length>=LOCAL_LIMITS.alive){this.capacityHits++;return null;}
   const t=traits(species,variant),e={id:this.entities.length+1,species,variant,traits:t,pos:[...pos],parents:[...parents],host:null,born:this.tick,died:null,alive:true,state:t.virus?'free':t.immune?'resting':'vegetative',timer:0,age:0,mass:mass??(t.virus?.025:t.immune?2:1),gut:0,hp:1,plasmids:t.donor?['pDemoR']:[],infection:null,cooldown:0,starved:0,target:null};
+  if(this.scenario==='mucus'){e.mucusCell=true;e.mucusMode=species==='faec'?'acetate':'food';}
+  if(this.scenario==='persistence'){e.assayCell=true;e.cohort=t.demoResistance?'resistant':'sensitive';e.slowTicks=0;e.exposure=0;}
   this.entities.push(e);this.emit('birth',[e.id,...parents]);return e;
  }
  seedScenario(){
   const add=(sp,x,y,z,v='base',m=null)=>this.create(sp,[x,y,z],v,[],m);
+  if(this.scenario==='mucus'){seedMucus(this);return;}
+  if(this.scenario==='persistence'){seedPersistence(this);return;}
   if(this.scenario==='community'){
    const groups=['bact','bif','faec','coli','meth','cand','blast','cdiff'];
    for(let i=0;i<32;i++){const sp=groups[i%groups.length];add(sp,(this.random()-.5)*16,2+this.random()*2,(this.random()-.5)*16,sp==='bact'&&i===0?'t6':sp==='coli'&&i===3?'donor':'base');}
@@ -2576,11 +2796,14 @@ class LocalSimulation {
    this.chemistry.add('food',[-4,3,0],1);this.chemistry.add('food',[0,3,0],1);
   }
  }
- carbon(){return this.chemistry.carbon()+this.entities.reduce((sum,e)=>sum+(e.alive?e.mass+e.gut:0),0);}
+ carbon(){return mucusCarbon(this)+this.chemistry.carbon()+this.entities.reduce((sum,e)=>sum+(e.alive?e.mass+e.gut:0),0);}
  command(kind,pos=[0,3,0]){
-  if(!['feed','antibiotic','breach','repair','induce','germinate','hypha'].includes(kind)||!Array.isArray(pos)||pos.length!==3||pos.some(v=>!Number.isFinite(v))||Math.abs(pos[0])>12||Math.abs(pos[2])>12||pos[1]<-2||pos[1]>6)throw new Error('Invalid intervention');
+  if(!commandsFor(this.scenario).includes(kind)||!Array.isArray(pos)||pos.length!==3||pos.some(v=>!Number.isFinite(v))||Math.abs(pos[0])>12||Math.abs(pos[2])>12||pos[1]<-2||pos[1]>6)throw new Error('Invalid intervention');
   if(this.commands.length>=LOCAL_LIMITS.commands||this.stopped)throw new Error('Session limit reached; start a new experiment');
+  if(kind==='challenge'&&this.assay.bath||kind==='washout'&&!this.assay.bath)throw new Error('Недоступный этап опыта: проверьте наличие препарата');
   this.commands.push({tick:this.tick,kind,pos:[...pos]});this.emit('command',[],{action:kind,pos:[...pos]});
+  if(this.assay)assayCommand(this,kind);
+  if(this.mucus)mucusCommand(this,kind);
   if(kind==='feed'){this.chemistry.add('food',pos,6);this.inputCarbon+=6;}
   if(kind==='antibiotic')this.chemistry.add('drug',pos,2);
   if(kind==='breach')this.barrier=.1;
@@ -2596,6 +2819,8 @@ class LocalSimulation {
  }
  grow(e){
   const f=this.chemistry,t=e.traits,dt=LOCAL_DT;
+  if(e.mucusCell){growMucus(this,e,dt);return;}
+  if(e.assayCell){growAssay(this,e,dt);return;}
   if(e.state==='spore'){
    if(this.cues.germinate>0&&f.sample('food',e.pos)>.008){e.state='germinating';e.timer=30;this.emit('germinating',[e.id]);}
    if(this.random()<.00002)this.kill(e,'spore-decay');return;
@@ -2626,12 +2851,15 @@ class LocalSimulation {
   else if(e.mass>=1.6&&e.state==='hypha')this.divide(e,'branch');
  }
  divide(e,kind){
+  if(e.state==='persister')return;
   const needed=kind==='division'?2:1,alive=this.entities.filter(c=>c.alive).length;
   if(this.entities.length+needed>LOCAL_LIMITS.ids||alive+needed>LOCAL_LIMITS.alive){this.capacityHits++;if(e.state==='budding')e.timer=30;return;}
   const children=[],amount=e.mass/2;
   for(let i=0;i<needed;i++){
    const sign=i===0?1:-1,pos=[Math.max(-11.5,Math.min(11.5,e.pos[0]+sign*.65)),e.pos[1],e.pos[2]+(kind==='branch'?.5:0)];pos[2]=Math.max(-11.5,Math.min(11.5,pos[2]));
    const child=this.create(e.species,pos,e.variant,[e.id],amount);child.plasmids=[...e.plasmids];child.infection=e.infection?copy(e.infection):null;
+   if(e.assayCell)child.cohort=e.cohort;
+   if(e.mucusCell)child.mucusMode=e.mucusMode;
    if(kind==='branch')child.state='hypha';children.push(child.id);
   }
   if(kind==='division'){e.alive=false;e.died=this.tick;e.state='divided';e.mass=0;}else{e.mass=amount;e.state=kind==='branch'?'hypha':'vegetative';}
@@ -2641,7 +2869,9 @@ class LocalSimulation {
   if(this.stopped)return;
   if(this.tick>=LOCAL_LIMITS.ticks){this.stopped=true;this.emit('limit');return;}
   this.tick++;for(let i=0;i<this.chemistry.n*this.chemistry.n*2;i++){const f=this.chemistry.values,used=f.butyrate[i]*.002;f.butyrate[i]-=used;f.waste[i]+=used;this.flux.tissueButyrate+=used;f.oxygen[i]+=(.08/(1+f.butyrate[i]*10)-f.oxygen[i])*.004;}for(const k in this.cues)this.cues[k]=Math.max(0,this.cues[k]-1);
-  this.chemistry.diffuse(LOCAL_DT,this.barrier);
+  if(this.assay)this.chemistry.values.drug.fill(this.assay.bath);
+  if(this.mucus)stepMucus(this,LOCAL_DT);
+  this.chemistry.diffuse(LOCAL_DT,this.mucus?mucusPermeability(this):this.barrier);
   for(const k of ['drug','signal'])for(let i=0;i<this.chemistry.length;i++)this.chemistry.values[k][i]*=Math.exp(-LOCAL_DT*(k==='drug'?.015:.08));
   const active=this.entities.filter(e=>e.alive);
   for(const e of active){e.age++;e.cooldown=Math.max(0,e.cooldown-1);
@@ -2658,8 +2888,9 @@ class LocalSimulation {
    const speed=e.traits.virus?.025:.012;
    e.pos[0]=Math.max(-11.8,Math.min(11.8,e.pos[0]+(this.random()-.5)*speed));
    e.pos[2]=Math.max(-11.8,Math.min(11.8,e.pos[2]+(this.random()-.5)*speed));
-   if(this.barrier<.3&&!e.traits.virus&&e.pos[1]>-.8)e.pos[1]-=.012;
+   if(!this.mucus&&this.barrier<.3&&!e.traits.virus&&e.pos[1]>-.8)e.pos[1]-=.012;
   }
+  if(this.mucus)finishMucus(this);
   if(this.tick>=LOCAL_LIMITS.ticks){this.stopped=true;this.emit('limit');}
  }
  transfer(index){
@@ -2711,25 +2942,25 @@ class LocalSimulation {
   if(length>1e-8){if(e.state!=='recruited')this.emit('recruit',[e.id]);e.state='recruited';e.pos=e.pos.map((v,k)=>v+gradient[k]/length*.065);e.pos[0]=Math.max(-11.8,Math.min(11.8,e.pos[0]));e.pos[2]=Math.max(-11.8,Math.min(11.8,e.pos[2]));e.pos[1]=Math.max(-1.8,Math.min(-.1,e.pos[1]));}
  }}
  lineage(id){const entity=this.get(id);if(!entity)return null;const ancestors=[],seen=new Set(),visit=id=>{if(seen.has(id))return;seen.add(id);const a=this.get(id);if(!a)return;ancestors.push(a.id);a.parents.forEach(visit);};entity.parents.forEach(visit);return {entity:copy(entity),ancestors,children:this.entities.filter(e=>e.parents.includes(id)).map(e=>e.id),events:this.events.filter(e=>e.actors.includes(id)).map(copy)};}
- summary(){const active=this.entities.filter(e=>e.alive);return {tick:this.tick,time:this.time,alive:active.length,cells:active.filter(e=>!e.traits.virus&&!e.traits.immune).length,phages:active.filter(e=>e.traits.virus).length,immune:active.filter(e=>e.traits.immune).length,plasmids:active.filter(e=>e.plasmids.includes('pDemoR')).length,infected:active.filter(e=>e.infection&&e.infection.stage!=='lysogen').length,lysogens:active.filter(e=>e.infection?.stage==='lysogen').length,spores:active.filter(e=>e.state==='spore').length,barrier:this.barrier,food:this.chemistry.total('food'),acetate:this.chemistry.total('acetate'),butyrate:this.chemistry.total('butyrate'),carbonError:this.carbon()-this.initialCarbon-this.inputCarbon,counts:{...this.counts},capacityHits:this.capacityHits,stopped:this.stopped};}
- snapshot(){return {engine:LOCAL_VERSION,seed:this.seed,scenario:this.scenario,tick:this.tick,randomState:this.randomState,entities:copy(this.entities),chemistry:this.chemistry.snapshot(),events:copy(this.events),sequence:this.sequence,counts:{...this.counts},jobs:copy(this.jobs),barrier:this.barrier,cues:{...this.cues},commands:copy(this.commands),initialCarbon:this.initialCarbon,inputCarbon:this.inputCarbon,capacityHits:this.capacityHits,stopped:this.stopped};}
+ summary(){const active=this.entities.filter(e=>e.alive);return {tick:this.tick,time:this.time,alive:active.length,cells:active.filter(e=>!e.traits.virus&&!e.traits.immune).length,phages:active.filter(e=>e.traits.virus).length,immune:active.filter(e=>e.traits.immune).length,plasmids:active.filter(e=>e.plasmids.includes('pDemoR')).length,infected:active.filter(e=>e.infection&&e.infection.stage!=='lysogen').length,lysogens:active.filter(e=>e.infection?.stage==='lysogen').length,spores:active.filter(e=>e.state==='spore').length,barrier:this.barrier,food:this.chemistry.total('food'),acetate:this.chemistry.total('acetate'),butyrate:this.chemistry.total('butyrate'),carbonError:this.carbon()-this.initialCarbon-this.inputCarbon,counts:{...this.counts},capacityHits:this.capacityHits,stopped:this.stopped,...(this.mucus?{mucus:mucusStats(this)}:{}),...(this.assay?{assay:assayCounts(this),bath:this.assay.bath}: {})};}
+ snapshot(){return {engine:this.version,seed:this.seed,scenario:this.scenario,tick:this.tick,randomState:this.randomState,entities:copy(this.entities),chemistry:this.chemistry.snapshot(),events:copy(this.events),sequence:this.sequence,counts:{...this.counts},jobs:copy(this.jobs),barrier:this.barrier,cues:{...this.cues},commands:copy(this.commands),initialCarbon:this.initialCarbon,inputCarbon:this.inputCarbon,capacityHits:this.capacityHits,stopped:this.stopped,...(this.mucus?{mucus:copy(this.mucus)}:{}),...(this.assay?{assay:copy(this.assay)}:{})};}
 }
 
 return {SpatialIndex,LocalSimulation};
 })();
 __modules["src/local/replay.js"] = (() => {
 const {LocalSimulation} = __modules["src/local/engine.js"];
-const {LOCAL_VERSION,LOCAL_LIMITS,LOCAL_SCENARIOS} = __modules["src/local/traits.js"];
+const {LOCAL_LIMITS,LOCAL_SCENARIOS,engineForScenario,commandsFor} = __modules["src/local/traits.js"];
 function checksum(value){const text=JSON.stringify(value);let h=2166136261;for(let i=0;i<text.length;i++)h=Math.imul(h^text.charCodeAt(i),16777619);return(h>>>0).toString(16).padStart(8,'0');}
-function exportReplay(sim){return {format:'microcosmos-local-replay',version:1,engine:LOCAL_VERSION,seed:sim.seed,scenario:sim.scenario,endTick:sim.tick,commands:sim.commands.map(c=>({...c,pos:[...c.pos]})),checksum:checksum(sim.snapshot()),notice:'Uncalibrated local experiment; not clinical data. Fixed 0.1 teaching-time step.'};}
+function exportReplay(sim){return {format:'microcosmos-local-replay',version:1,engine:sim.version,seed:sim.seed,scenario:sim.scenario,endTick:sim.tick,commands:sim.commands.map(c=>({...c,pos:[...c.pos]})),checksum:checksum(sim.snapshot()),notice:'Uncalibrated local experiment; not clinical data. Fixed 0.1 teaching-time step.'};}
 function validateReplay(data){
- if(!data||data.format!=='microcosmos-local-replay'||data.version!==1||data.engine!==LOCAL_VERSION)throw new Error('Несовместимая версия записи');
+ if(!data||data.format!=='microcosmos-local-replay'||data.version!==1||data.engine!==engineForScenario(data.scenario))throw new Error('Несовместимая версия записи');
  if(!Number.isInteger(data.seed)||data.seed<0||data.seed>0xffffffff||!Object.hasOwn(LOCAL_SCENARIOS,data.scenario)||!Number.isInteger(data.endTick)||data.endTick<0||data.endTick>LOCAL_LIMITS.ticks||!Array.isArray(data.commands)||data.commands.length>LOCAL_LIMITS.commands||typeof data.checksum!=='string'||!(/^[0-9a-f]{8}$/).test(data.checksum))throw new Error('Некорректные параметры записи');
  let previous=0;const commands=data.commands.map(c=>{
-  if(!c||!Number.isInteger(c.tick)||c.tick<previous||c.tick>data.endTick||c.tick>=LOCAL_LIMITS.ticks||!['feed','antibiotic','breach','repair','induce','germinate','hypha'].includes(c.kind)||!Array.isArray(c.pos)||c.pos.length!==3||c.pos.some(v=>!Number.isFinite(v))||Math.abs(c.pos[0])>12||Math.abs(c.pos[2])>12||c.pos[1]<-2||c.pos[1]>6)throw new Error('Некорректное вмешательство');
+  if(!c||!Number.isInteger(c.tick)||c.tick<previous||c.tick>data.endTick||c.tick>=LOCAL_LIMITS.ticks||!commandsFor(data.scenario).includes(c.kind)||!Array.isArray(c.pos)||c.pos.length!==3||c.pos.some(v=>!Number.isFinite(v))||Math.abs(c.pos[0])>12||Math.abs(c.pos[2])>12||c.pos[1]<-2||c.pos[1]>6)throw new Error('Некорректное вмешательство');
   previous=c.tick;return {tick:c.tick,kind:c.kind,pos:[...c.pos]};
  });
- return {format:data.format,version:1,engine:LOCAL_VERSION,seed:data.seed,scenario:data.scenario,endTick:data.endTick,commands,checksum:data.checksum};
+ return {format:data.format,version:1,engine:data.engine,seed:data.seed,scenario:data.scenario,endTick:data.endTick,commands,checksum:data.checksum};
 }
 class ReplayRunner {
  constructor(record,target=record.endTick){this.record=validateReplay(record);if(!Number.isInteger(target)||target<0||target>this.record.endTick)throw new Error('Некорректная позиция воспроизведения');this.target=target;this.sim=new LocalSimulation(this.record);this.cursor=0;this.apply();}
@@ -3071,10 +3302,10 @@ return {cellBlueprint};
 __modules["src/local/cloud-adapter.js"] = (() => {
 const {LOCAL_SPECIES,EVENT_NAMES} = __modules["src/local/traits.js"];
 const {liveColor} = __modules["src/webgl2/living.js"];
-const STATES={vegetative:'Вегетативная клетка',free:'Свободный фаг',dead:'Погибла',divided:'Разделилась на потомков',adsorbed:'Связался с хозяином',spore:'Спора',sporulating:'Формирует спору',germinating:'Прорастает',budding:'Образует почку',hypha:'Гифальная форма',resting:'Фагоцит: наблюдение',recruited:'Движение по сигналу',engulfing:'Поглощение',digesting:'Переваривание'};
+const STATES={persister:'Ⅱ медленная S · не спора',vegetative:'Вегетативная клетка',free:'Свободный фаг',dead:'Погибла',divided:'Разделилась на потомков',adsorbed:'Связался с хозяином',spore:'Спора',sporulating:'Формирует спору',germinating:'Прорастает',budding:'Образует почку',hypha:'Гифальная форма',resting:'Фагоцит: наблюдение',recruited:'Движение по сигналу',engulfing:'Поглощение',digesting:'Переваривание'};
 class LocalCloud {
  constructor(sim,model){this.sim=sim;this.model=model;this.capacity=8000;this.requested=192;this.ids=Object.keys(LOCAL_SPECIES);for(const k of ['x','y','z','size','angle','phase','activity'])this[k]=new Float32Array(this.capacity);this.species=new Uint8Array(this.capacity);this.alive=new Uint8Array(this.capacity);this.events=[];this.deposits=[];this.fieldPixels=new Float32Array(20*20*3);this.fieldKind='food';this.slice=3;this.lastTick=-1;this.sync();}
- sync(){const sim=this.sim;if(this.lastTick===sim.tick&&this.lastCommands===sim.commands.length&&this.count===sim.entities.length)return;this.lastCommands=sim.commands.length;this.count=sim.entities.length;this.visualTime=sim.time;for(const e of sim.entities){const i=e.id-1;this.x[i]=e.pos[0]*2;this.y[i]=e.pos[1]*2;this.z[i]=e.pos[2]*2;this.alive[i]=+e.alive;this.species[i]=this.ids.indexOf(e.species);this.size[i]=(e.traits.immune?.95:e.traits.virus?.24:.4)*Math.cbrt(Math.max(.1,e.mass)/(e.traits.virus?.025:1));this.phase[i]=e.id*2.4;this.angle[i]=e.id;this.activity[i]=Math.min(1,sim.chemistry.sample('food',e.pos)*4);}
+ sync(){const sim=this.sim;if(this.lastTick===sim.tick&&this.lastCommands===sim.commands.length&&this.count===sim.entities.length)return;this.lastCommands=sim.commands.length;this.count=sim.entities.length;this.visualTime=sim.time;for(const e of sim.entities){const i=e.id-1;this.x[i]=e.pos[0]*2;this.y[i]=e.pos[1]*2;this.z[i]=e.pos[2]*2;this.alive[i]=+e.alive;this.species[i]=this.ids.indexOf(e.species);this.size[i]=(e.traits.immune?.95:e.traits.virus?.24:.4)*Math.cbrt(Math.max(.1,e.mass)/(e.traits.virus?.025:1));this.phase[i]=e.id*2.4;this.angle[i]=e.id;this.activity[i]=e.state==='persister'?0:Math.min(1,sim.chemistry.sample('food',e.pos)*4);}
   this.updateField();this.lastTick=sim.tick;
  }
  updateField(){for(let z=0;z<20;z++)for(let x=0;x<20;x++){const p=[((x+.5)/20*64-32)/2,this.slice,((z+.5)/20*64-32)/2],inside=Math.abs(p[0])<12&&Math.abs(p[2])<12,value=inside?Math.min(1,this.sim.chemistry.sample(this.fieldKind,p)*8):0,k=(z*20+x)*3;this.fieldPixels[k]=this.fieldKind==='drug'?0:value;this.fieldPixels[k+1]=this.fieldKind==='oxygen'?value:0;this.fieldPixels[k+2]=this.fieldKind==='signal'||this.fieldKind==='drug'?value:0;}}
@@ -3083,8 +3314,8 @@ class LocalCloud {
  reset(){this.sync();}
  position(i){return[this.x[i],this.y[i],this.z[i]];}
  shape(i){const e=this.sim.entities[i];return e.state==='spore'?'oval':e.state==='hypha'?'rod':e.traits.fungus?(e.state==='budding'?'yeast':'oval'):LOCAL_SPECIES[e.species].shape;}
- color(i){const e=this.sim.entities[i];return e.traits.immune?'#eef8ff':e.state==='spore'?'#c6a77b':e.infection?'#f299d9':e.plasmids.includes('pDemoR')?'#ffe879':liveColor(e.species);}
- thought(i){const e=this.sim.entities[i];if(!e)return '';const phase={adsorbed:'адсорбция',injected:'геном введён',eclipse:'синтез',assembly:'сборка',lysogen:'профаг'},inf=e.infection?` · фаг: ${phase[e.infection.stage]||e.infection.stage}`:'';return `#${e.id} ${STATES[e.state]||e.state}${inf}${e.plasmids.length?' · pDemoR':''}`;}
+ color(i){const e=this.sim.entities[i];return e.state==='persister'?'#94d7f2':e.traits.demoResistance?'#f7d48a':e.traits.immune?'#eef8ff':e.state==='spore'?'#c6a77b':e.infection?'#f299d9':e.plasmids.includes('pDemoR')?'#ffe879':liveColor(e.species);}
+ thought(i){const e=this.sim.entities[i];if(!e)return '';if(e.mucusCell)return `#${e.id} ${!e.alive?(STATES[e.state]||e.state):e.species==='faec'?'Мне достался ацетат соседа':e.species==='akk'?'Использую наружные гликаны':e.mucusMode==='mucin'?'Пищи мало — использую гликаны':'Использую пищевой субстрат'}`;const phase={adsorbed:'адсорбция',injected:'геном введён',eclipse:'синтез',assembly:'сборка',lysogen:'профаг'},inf=e.infection?` · фаг: ${phase[e.infection.stage]||e.infection.stage}`:'';return `#${e.id} ${STATES[e.state]||e.state}${inf}${e.plasmids.length?' · pDemoR':''}${e.assayCell?(e.traits.demoResistance?' · R-demo':' · S-demo'):''}`;}
  history(i){return this.sim.lineage(i+1);}
 }
 
@@ -3092,10 +3323,25 @@ return {LocalCloud};
 })();
 __modules["src/local/learning.js"] = (() => {
 const {LOCAL_SPECIES,EVENT_NAMES,LOCAL_CAUSE_NAMES} = __modules["src/local/traits.js"];
+const {assayCounts} = __modules["src/local/persistence.js"];
 const {exportReplay} = __modules["src/local/replay.js"];
 
 // Teaching plans issue the same public commands as free play. No scripted outcomes.
 const STUDIES={
+ mucus:{title:'Кто обновляет защитное покрытие?',scenario:'mucus',end:720,metric:'mucusMinimum',
+  question:'Если микробам станет меньше доступен пищевой субстрат, а затем его приток вернётся, что может произойти со слизью?',
+  options:['Любой микроб, питающийся слизью, обязательно вреден','Важен баланс: сколько слизи производится и сколько расходуется','Слизь исчезнет и вернётся мгновенно по кнопке'],
+  setup:'В обоих участках хозяин постоянно обновляет слизь. Четыре учебных потребителя наружных гликанов используют её и при обычном питании. Двенадцать переключателей при дефиците субстрата меняют источник углерода; четыре соседа используют ацетат. Только в B на шаге 90 останавливаем приток пищевого субстрата, на шаге 360 возвращаем. Ресурс хозяина поступает отдельно. Контроль A не меняется.',
+  plan:[{tick:90,kind:'substrate_off',pos:[0,3,0]},{tick:360,kind:'substrate_on',pos:[0,3,0]}],
+  prompt:'Было ли потребление слизи в контроле? Почему возвращение субстрата не восстанавливает запас мгновенно? Чем запас слизи отличается от целостности эпителия?',
+  takeaway:'Слизь — не неподвижная стена: хозяин её производит, наружный материал обновляется и используется микробами. Само питание гликанами не равно вреду. Если локальный расход превышает пополнение, запас падает; при изменении условий он может восстановиться с задержкой. Здесь меняется сопротивление слизистого покрытия переносу веществ, а не целостность эпителия. Это не опыт о пропущенном обеде и не прогноз болезни.'},
+ persistence:{title:'Пережить — не значит стать устойчивым',scenario:'persistence',end:440,metric:'persisterLine',
+  question:'Часть чувствительных клеток пережила первое воздействие в медленном состоянии. После возвращения к росту их потомки обязательно устойчивы?',
+  options:['Да: выживание всегда означает новый ген защиты','Нет: чувствительность может сохраниться после восстановления роста','Это споры, а не обычные клетки'],
+  setup:'Подготовлены 13 активных чувствительных клеток S, 3 медленные клетки с тем же S-признаком и 4 наследуемых R-demo. В опыте B два одинаковых равномерных воздействия, между ними удаление препарата и восстановление. Контроль A без препарата. Это условный лабораторный тест, не схема лечения.',
+  plan:[{tick:10,kind:'challenge',pos:[0,3,0]},{tick:100,kind:'washout',pos:[0,3,0]},{tick:340,kind:'challenge',pos:[0,3,0]},{tick:430,kind:'washout',pos:[0,3,0]}],
+  prompt:'Что показало повторное воздействие на линию исходных персистеров? Чем эта линия отличается от R-demo? Почему числа после деления — не процент выживших?',
+  takeaway:'Персистенция — переживающая субпопуляция без обязательного изменения чувствительности к препарату. Здесь показан один механизм: обратимое замедление с прекращением роста. После выхода из него дочери снова активны и чувствительны. R-demo наследуется отдельно и позволяет рост при этом воздействии. Персистер не спора и не неуязвим.'},
  inheritance:{title:'Копия, а не потеря',scenario:'hgt',end:320,metric:'plasmids',
   question:'Получатель рядом с донором получит дополнительный субстрат. Что произойдёт с pDemoR при контакте и делении?',
   options:['Донор потеряет свою плазмиду','Получатель получит копию; потомки смогут её унаследовать','Субстрат сам создаст плазмиды у всех'],
@@ -3119,6 +3365,18 @@ const STUDIES={
   takeaway:'В этой модели барьер разделяет отсеки. Фагоцит поглощает доступные близкие цели в ткани, а не всех «плохих» по названию. Движение через открытый барьер условно.'}
 };
 const METRICS={
+ mucusMinimum:{name:'Слизь · минимальный запас внутреннего слоя',unit:'% начального',continuous:true},
+ mucusOuter:{name:'Слизь · наружный запас всего',unit:'у.е.'},
+ mucusThin:{name:'Слизь · участки ниже учебного порога',unit:'из 144'},
+ mucusForagers:{name:'Слизь · потребители гликанов сейчас',unit:'агенты'},
+ mucusSecreted:{name:'Слизь · произведено хозяином с начала',unit:'у.е. накопительно'},
+ mucusConsumed:{name:'Слизь · потреблено с начала',unit:'у.е. накопительно'},
+
+ persisters:{name:'Медленные клетки сейчас',unit:'агенты'},
+ persisterLine:{name:'Живая линия исходных персистеров S',unit:'агенты'},
+ sensitiveLine:{name:'Линия изначально активных S',unit:'агенты'},
+ geneticR:{name:'Живые наследуемые R-demo',unit:'агенты'},
+ recoveredLine:{name:'Активные потомки исходных персистеров',unit:'агенты'},
  plasmids:{name:'Живые носители pDemoR',unit:'агенты'},
  lysogens:{name:'Живые лизогены',unit:'агенты'},
  tissueCells:{name:'Живые микробы в ткани',unit:'агенты'},
@@ -3149,8 +3407,8 @@ function learningMeta(data,record){
  return {version:1,study:data.study,prediction:data.prediction,reflection:data.reflection,guided:data.guided};
 }
 function measure(sim){
- const s=sim.summary();
- return {cells:s.cells,plasmids:s.plasmids,lysogens:s.lysogens,phages:s.phages,butyrate:s.butyrate,acetate:s.acetate,
+ const s=sim.summary(),a=assayCounts(sim);
+ return {mucusMinimum:(s.mucus?.minInner??0)*100,mucusOuter:s.mucus?.outer??0,mucusThin:s.mucus?.thinPatches??0,mucusForagers:s.mucus?.foragers??0,mucusSecreted:s.mucus?.secreted??0,mucusConsumed:s.mucus?(s.mucus.outerUsed+s.mucus.innerUsed):0,persisters:a.persisters,persisterLine:a.persisterOrigin,sensitiveLine:a.sensitive,geneticR:a.resistant,recoveredLine:a.recoveredLine,cells:s.cells,plasmids:s.plasmids,lysogens:s.lysogens,phages:s.phages,butyrate:s.butyrate,acetate:s.acetate,
   tissueCells:sim.entities.filter(e=>e.alive&&!e.traits.immune&&!e.traits.virus&&e.pos[1]<0).length,
   tissueButyrate:sim.flux.tissueButyrate};
 }
@@ -3185,6 +3443,16 @@ function narrate(sim,event){
  let text='',rule='',limit='Это правило условной локальной модели, не прогноз для человека.';
  const link=p=>{if(p&&!links.some(x=>x.seq===p.seq))links.push({seq:p.seq,tick:p.tick,label:EVENT_NAMES[p.kind]||p.kind});};
  switch(e.kind){
+ case 'mucus_supply':text=e.action==='substrate_off'?'Приток субстрата для микробов остановлен.':e.action==='substrate_on'?'Приток субстрата для микробов возвращён.':e.action==='secretion_slow'?'Производственная способность хозяина снижена до четверти.':'Обычная производственная способность хозяина возвращена.';rule='Уже имеющиеся вещества и слизь не исчезают и не возвращаются по команде. Их количества дальше меняют перенос, питание, секреция и вынос. Контроль не получает эту команду.';limit='Не расписание питания человека. Поток ресурса хозяина здесь независим от потока еды для микробов.';break;
+ case 'mucus_switch':text=`${who}: ${e.mode==='mucin'?'использует гликаны слизи':'снова использует пищевой субстрат'}.`;rule=sim.get(a)?.species==='akk'?'Этот учебный потребитель использует только наружный материал, даже при наличии пищевого субстрата. Такое потребление само по себе не истончает внутренний слой.':'Переключение рассчитано по локальному количеству субстрата. При истощении наружного запаса модели доступна часть внутренних гликанов; это явно заданное упрощение ферментативной деградации.';limit='Гликаны — сахарные цепочки муцинов. Учебные варианты и пороги не описывают все штаммы вида. Микробы не проходят в эпителий.';link(sim.events.filter(p=>p.seq<e.seq&&p.kind==='mucus_supply').at(-1));break;
+ case 'mucus_thin':text=`В участке ${e.patch+1} внутренний запас снизился до ${(e.fraction*100).toFixed(1)}% начального.`;rule='Здесь расход превысил пополнение. Порог 45% нужен для отметки на графике, а не для диагноза. В модели это повышает перенос веществ через покрытие.';limit='Истончение слизи не равно повреждению эпителия. Его целостность, воспаление и болезнь здесь не рассчитываются.';link(sim.events.filter(p=>p.seq<e.seq&&p.kind==='mucus_supply').at(-1));break;
+ case 'mucus_recover':text=`В участке ${e.patch+1} внутренний запас снова превысил 75% начального.`;rule='Пополнение хозяином накопило материал после более тонкого состояния. Это вычисленный запас, а не мгновенная команда ремонта. 75% — учебная отметка, не медицинская норма.';limit='Восстановление зависит от текущего расхода и производства; возвращение пищи не гарантирует его при любых параметрах.';link(sim.events.filter(p=>p.seq<e.seq&&p.kind==='mucus_thin'&&p.patch===e.patch).at(-1));break;
+
+ case 'persistence_enter':text=`${who} перешла в медленное состояние${e.prepared?' (подготовленная начальная субпопуляция)':''}.`;rule='Генетический признак S не изменился. Здесь клетка не растёт и реже гибнет при выбранном воздействии; это не универсальная защита от препаратов.';limit='Один учебный механизм персистенции. В реальности не все персистеры просто «спят». Споровой оболочки нет.';break;
+ case 'persistence_exit':text=`${who} вернулась к активному росту после удаления препарата.`;rule='Восстановление требует времени и доступного субстрата. Никакой ген устойчивости не появился; чувствительность активной клетки прежняя.';link(prior(sim,e,'persistence_enter',a));break;
+ case 'challenge':text=`Началось равномерное воздействие №${e.round} на весь участок.`;rule='Все клетки видят одну заданную среду: медленные не спрятаны от препарата в другом месте. Здесь нет клинических доз или названий лекарств.';break;
+ case 'washout':text=`После воздействия №${e.round} препарат удалён из среды.`;rule='Удаление не оживляет погибших и не мгновенно будит переживших. Наблюдайте восстановление и деление перед новой проверкой.';break;
+ case 'assay_kill':text=`${who} погибла при воздействии №${e.round}; состояние в тот момент: ${e.state==='persister'?'медленное':'активное'}.`;rule='Гибель здесь вероятностная. У медленного состояния и R-demo риск ниже, но не нулевой. Выживание одной клетки не доказывает наследуемую устойчивость.';link(prior(sim,e,'persistence_exit',a));break;
  case 'transfer':
   text=`${cell(sim,a)} передал копию pDemoR клетке ${cell(sim,b)}. Донор сохранил свою копию.`;
   rule='Сработали совместимость и непрерывный близкий контакт. Пища не создаёт плазмиду; не каждая плазмида несёт устойчивость.';link(prior(sim,e,'conjugation',a));break;
@@ -3215,9 +3483,10 @@ function narrate(sim,event){
  return {title:EVENT_NAMES[e.kind]||'Событие',text,rule,limit,links,actors:[...e.actors],tick:e.tick,seq:e.seq};
 }
 function highlights(sim){
- const kinds=['transfer','division','lysogeny','induction','lysis','engulf','digest','t6'];
+ const kinds=['mucus_supply','mucus_switch','mucus_thin','mucus_recover','persistence_enter','persistence_exit','challenge','washout','transfer','division','lysogeny','induction','lysis','engulf','digest','t6'];
  const result=[];
  for(const kind of kinds){const e=sim.events.find(e=>e.kind===kind);if(e)result.push(e);}
+ for(const e of sim.events)if(['mucus_supply','challenge','washout'].includes(e.kind)&&!result.includes(e))result.push(e);
  return result.sort((a,b)=>a.seq-b.seq);
 }
 function report(sim,control,session){
@@ -3226,6 +3495,19 @@ function report(sim,control,session){
   `Живых микробных клеток: ${b.cells} в опыте / ${a.cells} в контроле. Носителей pDemoR: ${b.plasmids} / ${a.plasmids}.`,
   `Лизогенов: ${b.lysogens} / ${a.lysogens}. Микробов в ткани: ${b.tissueCells} / ${a.tissueCells}.`,
   `Бутирата в среде: ${b.butyrate.toFixed(4)} / ${a.butyrate.toFixed(4)} у.е. Использовано тканью с начала: ${b.tissueButyrate.toFixed(4)} / ${a.tissueButyrate.toFixed(4)} у.е.`];
+ if(sim.mucus){
+  const m=sim.summary().mucus,c=control.summary().mucus;
+  observations.splice(1,2);
+  observations.push(`Минимальный внутренний запас: ${(m.minInner*100).toFixed(1)}% в опыте / ${(c.minInner*100).toFixed(1)}% в контроле от начального. Это не процент здоровья.`,
+   `Потреблено гликанов: ${(m.outerUsed+m.innerUsed).toFixed(3)} / ${(c.outerUsed+c.innerUsed).toFixed(3)} у.е.; произведено хозяином: ${m.secreted.toFixed(3)} / ${c.secreted.toFixed(3)} у.е. с начала.`,
+   `Участков ниже учебного порога: ${m.thinPatches} / ${c.thinPatches} из 144. Событий повторного пополнения выше 75%: ${sim.counts.mucus_recover||0} / ${control.counts.mucus_recover||0}.`);
+  for(const r of sim.mucus.records)observations.push(`Изменение на шаге ${r.tick}: ${r.substrate?'субстрат поступает':'приток субстрата остановлен'}, производство ×${r.secretionScale}; минимальный запас в этот момент ${(r.minInner*100).toFixed(1)}%.`);
+ }
+ if(sim.assay){
+  const ac=assayCounts(sim),cc=assayCounts(control);
+  observations.push(`Медленных клеток сейчас: ${ac.persisters} / ${cc.persisters}. Живых в линии исходных персистеров: ${ac.persisterOrigin} / ${cc.persisterOrigin}. Наследуемых R-demo: ${ac.resistant} / ${cc.resistant}.`);
+  for(const r of sim.assay.rounds)observations.push(`Воздействие №${r.round}, шаг ${r.startTick}–${r.endTick??'ещё идёт'}: линия исходных персистеров ${r.start.persisterOrigin} → ${r.end?.persisterOrigin??'ждём завершения'}; R-demo ${r.start.resistant} → ${r.end?.resistant??'ждём завершения'}. Численности включают деления, это не проценты выживания.`);
+ }
  if(study?.scenario==='hgt'){
   observations.push(`Событий передачи: ${sim.counts.transfer||0} / ${control.counts.transfer||0}. Дочерние клетки получателя #2 в опыте: ${sim.lineage(2)?.children.map(id=>'#'+id).join(', ')||'пока нет'}.`);
  }
@@ -3248,6 +3530,7 @@ return {STUDIES,METRICS,RELAY,learningMeta,measure,LearningSession,narrate,highl
 })();
 __modules["src/local/learning-view.js"] = (() => {
 const {STUDIES,METRICS,RELAY,narrate,highlights,report} = __modules["src/local/learning.js"];
+const {assayCounts} = __modules["src/local/persistence.js"];
 const {LOCAL_ACTION_NAMES,EVENT_NAMES} = __modules["src/local/traits.js"];
 const $=id=>document.getElementById(id);
 const esc=text=>String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -3257,7 +3540,7 @@ function chartMarkup(points,metric,commands=[]){
  if(!points.length)return '';
  const max=Math.max(...points.flatMap(p=>[p.a[key],p.b[key]]),.000001),end=Math.max(1,points.at(-1).tick);
  const x=t=>56+t/end*548,y=v=>170-v/max*138;
- const path=side=>points.map((p,i)=>i&&m.unit!=='у.е.'&&m.unit!=='у.е. накопительно'?`H${x(p.tick).toFixed(2)}V${y(p[side][key]).toFixed(2)}`:`${i?'L':'M'}${x(p.tick).toFixed(2)},${y(p[side][key]).toFixed(2)}`).join(' ');
+ const path=side=>points.map((p,i)=>i&&!m.continuous&&m.unit!=='у.е.'&&m.unit!=='у.е. накопительно'?`H${x(p.tick).toFixed(2)}V${y(p[side][key]).toFixed(2)}`:`${i?'L':'M'}${x(p.tick).toFixed(2)},${y(p[side][key]).toFixed(2)}`).join(' ');
  const last=points.at(-1),title=`${m.name}. Контроль A: ${num(last.a[key])}, опыт B: ${num(last.b[key])}, t = ${(last.tick*.1).toFixed(1)}. ${m.unit}.`;
  return `<svg viewBox="0 0 640 208" role="img" aria-label="${esc(title)}"><title>${esc(title)}</title>
  <path d="M56 30V170H604" fill="none" stroke="#72949b"/><path d="M56 101H604M56 32H604" stroke="#72949b" opacity=".22"/>
@@ -3276,6 +3559,9 @@ class LearningView {
   $('learning-metric').innerHTML=Object.entries(METRICS).map(([id,m])=>`<option value="${id}">${m.name}</option>`).join('');
   $('learning-metric').onchange=()=>this.refresh(true);
   $('learning-report').onclick=()=>this.showReport();
+  document.querySelectorAll('[data-assay-stop]').forEach(b=>b.onclick=()=>this.c.finish(+b.dataset.assayStop));
+  document.querySelectorAll('[data-mucus-stop]').forEach(b=>b.onclick=()=>this.c.finish(+b.dataset.mucusStop));
+  $('mucus-scene').onclick=()=>{this.c.navigate(2.2);$('expedition').scrollIntoView({block:'start',behavior:'auto'});};
   $('learning-finish').onclick=()=>this.c.finish();
   $('learning-control').onclick=()=>this.c.compare();
   $('learning-latest').onclick=()=>{this.eventSeq=null;this.showEvent();};
@@ -3325,12 +3611,18 @@ class LearningView {
  refresh(force=false){
   const c=this.c,sim=c.world.local,session=c.learning,active=!!sim;
   $('learning-panel').hidden=!active;
+  $('persistence-panel').hidden=!sim?.assay;
+  $('mucus-panel').hidden=!sim?.mucus;
+  $('relay-details').hidden=!!sim?.mucus;
+  $('mucus-scene').disabled=c.busy;
+  document.querySelectorAll('[data-mucus-stop]').forEach(b=>b.disabled=c.busy||!sim?.mucus||(!session?.meta.guided&&!c.record)||(!!c.record&&+b.dataset.mucusStop>c.record.endTick));
+  document.querySelectorAll('[data-assay-stop]').forEach(b=>b.disabled=c.busy||!sim?.assay||(!session?.meta.guided&&!c.record)||(!!c.record&&+b.dataset.assayStop>c.record.endTick));
   document.querySelectorAll('[data-study]').forEach(b=>b.disabled=c.busy||c.world.model.site.id!=='colon');
   $('relay-start').disabled=c.busy||c.world.model.site.id!=='colon';
   $('learning-finish').disabled=c.busy||(!c.record&&(!session?.meta.guided||sim?.tick>=session.study?.end));
   for(const id of ['learning-report','learning-control','learning-latest'])$(id).disabled=c.busy;
   if(!active||!session)return;
-  if(this.lastSession!==session){this.lastSession=session;this.eventSeq=null;this.storyStamp=null;this.lastDraw=-1;$('learning-metric').value=session.study?.metric||'butyrate';document.querySelectorAll('[data-relay]').forEach(b=>b.setAttribute('aria-pressed','false'));$('relay-explanation').textContent='Выберите этап: он покажет соответствующее поле в сцене. Нулевое значение означает, что поток ещё не произошёл или нужных участников нет.';}
+  if(this.lastSession!==session){this.lastSession=session;this.eventSeq=null;this.storyStamp=null;this.lastDraw=-1;$('learning-metric').value=session.study?.metric||(sim.mucus?'mucusMinimum':sim.assay?'persisterLine':'butyrate');document.querySelectorAll('[data-relay]').forEach(b=>b.setAttribute('aria-pressed','false'));$('relay-explanation').textContent='Выберите этап: он покажет соответствующее поле в сцене. Нулевое значение означает, что поток ещё не произошёл или нужных участников нет.';}
   const study=session.study;
   $('learning-title').textContent=study?.title||'Что происходит и почему';
   $('learning-phase').textContent=!study?'СВОБОДНАЯ ЛАБОРАТОРИЯ':!session.meta.guided?'СВОБОДНАЯ ВЕТКА':sim.tick>=study.end?'04 / ИТОГ · ПЛАН ЗАВЕРШЁН':'02 / НАБЛЮДАЕМ · 03 / СРАВНИВАЕМ';
@@ -3338,6 +3630,24 @@ class LearningView {
   $('learning-prediction').textContent=study?'Ваш прогноз: '+study.options[session.meta.prediction]:'Прогноз не записан. Для опыта с вопросом выберите мини-исследование выше.';
   $('learning-finish').textContent=c.record?'Досмотреть запись →':'Рассчитать до итога →';
   this.showEvent();
+  if(sim.assay){
+   const a=assayCounts(sim),bath=sim.assay.bath,round=sim.assay.rounds.length;
+   const phase=bath?`Воздействие №${round}`:round?`Препарат удалён · восстановление после №${round}`:'До воздействия · наблюдение';
+   $('persistence-stage').textContent=phase;
+   $('persistence-live').textContent=`Сейчас: медленных S ${a.persisters}; активных в линии исходных персистеров ${a.recoveredLine}; наследуемых R ${a.resistant}. Генотип S не становится R при пробуждении.`;
+   $('persistence-rounds').innerHTML=sim.assay.rounds.length?sim.assay.rounds.map(r=>`<tr><th>№${r.round}<small>шаг ${r.startTick}–${r.endTick??'…'}</small></th>${['sensitive','persisterOrigin','resistant'].map(k=>`<td>${r.start[k]} → ${r.end?r.end[k]:'ещё идёт'}</td>`).join('')}</tr>`).join(''):'<tr><td colspan="4">Воздействий ещё не было. Контроль A не получает препарат.</td></tr>';
+  }
+  if(sim.mucus){
+   const m=sim.summary().mucus,a=c.control.summary().mucus;
+   $('mucus-stage').textContent=`${m.substrate?'Субстрат поступает':'Приток субстрата остановлен'} · производство хозяина ×${m.secretionScale} · шаг ${sim.tick}`;
+   $('mucus-minimum').textContent=(m.minInner*100).toFixed(1)+'%';
+   $('mucus-thin').textContent=m.thinPatches+' / 144';
+   $('mucus-consumers').textContent=m.foragers;
+   $('mucus-control-note').textContent=`Контроль A: минимальный запас ${(a.minInner*100).toFixed(1)}%; потреблено ${(a.outerUsed+a.innerUsed).toFixed(3)} у.е. гликанов. Потребление может идти без истончения внутреннего слоя.`;
+   $('mucus-budget').textContent=`С начала B · хозяин выделил ${m.secreted.toFixed(3)}; наружу перешло ${m.matured.toFixed(3)}; микробы использовали ${(m.outerUsed+m.innerUsed).toFixed(3)} (внутренних ${m.innerUsed.toFixed(3)}); выведено из участка ${m.exported.toFixed(3)} у.е. C. Осталось в слоях ${(m.inner+m.outer).toFixed(3)}, в резерве хозяина ${m.host.toFixed(3)}. Внешние входы: пищевой субстрат ${m.foodInput.toFixed(3)}, ресурс хозяина ${m.hostInput.toFixed(3)}. Погрешность баланса ${sim.summary().carbonError.toExponential(1)}.`;
+   const samples=session.points(sim,c.control);
+   $('mucus-checkpoints').innerHTML=[90,360,720].map(t=>{const p=samples.find(p=>p.tick===t);return `<tr><th>Шаг ${t}</th><td>${p?p.a.mucusMinimum.toFixed(1)+'%':'—'}</td><td>${p?p.b.mucusMinimum.toFixed(1)+'%':'ещё не рассчитан'}</td></tr>`;}).join('');
+  }
   if(!force&&Math.floor(sim.tick/10)===this.lastDraw)return;
   this.lastDraw=Math.floor(sim.tick/10);
   const key=$('learning-metric').value,points=session.points(sim,c.control),last=points.at(-1);
@@ -3363,13 +3673,14 @@ const {LocalSimulation} = __modules["src/local/engine.js"];
 const {ReplayRunner} = __modules["src/local/replay.js"];
 const {LearningSession,learningMeta} = __modules["src/local/learning.js"];
 const {LearningView} = __modules["src/local/learning-view.js"];
-const {LOCAL_SCENARIOS,EVENT_NAMES,LOCAL_LIMITS,LOCAL_SPECIES,LOCAL_ACTION_NAMES,LOCAL_STATE_NAMES,LOCAL_CAUSE_NAMES} = __modules["src/local/traits.js"];
+const {LOCAL_SCENARIOS,EVENT_NAMES,LOCAL_LIMITS,LOCAL_SPECIES,LOCAL_ACTION_NAMES,LOCAL_STATE_NAMES,LOCAL_CAUSE_NAMES,commandsFor} = __modules["src/local/traits.js"];
 const $=id=>document.getElementById(id);
 const escape=text=>String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 class LocalController {
  constructor({world,navigate,selectAgent,dialog,explain,getPaused,setPaused,onChange}){
   Object.assign(this,{world,navigate,selectAgent,dialog,explain,getPaused,setPaused,onChange});this.control=null;this.substep=0;this.record=null;this.request=0;this.busy=false;this.lastHUD=-1;this.learning=null;
   $('local-scenario').innerHTML=Object.entries(LOCAL_SCENARIOS).map(([id,name])=>`<option value="${id}">${name}</option>`).join('');
+  $('local-scenario').value='community';
   $('local-open').onclick=()=>$('local-lab').scrollIntoView({block:'start',behavior:world.calm?'auto':'smooth'});
   $('local-start').onclick=()=>this.start($('local-scenario').value);
   $('local-exit').onclick=()=>this.exit();
@@ -3414,16 +3725,19 @@ class LocalController {
   const record=this.record||this.exportRecord();
   return this.restore(record,target).catch(error=>this.explain('Воспроизведение остановлено',error.message));
  }
- async finish(){
+ async finish(target=null){
   if(!this.world.local||this.busy)return;
-  if(this.record){await this.seek(this.record.endTick);return;}
+  if(this.record){await this.seek(Math.min(target??this.record.endTick,this.record.endTick));return;}
   if(!this.learning.meta.guided)return;
+  target=Math.min(target??this.learning.study.end,this.learning.study.end);
+  if(!Number.isInteger(target)||target<0)return;
+  if(target<this.world.local.tick){await this.seek(target);return;}
   this.cancel();const token=this.request;this.busy=true;this.setPaused(true);this.refresh(true);
   try{
-   while(token===this.request&&this.world.local&&this.world.local.tick<this.learning.study.end){
+   while(token===this.request&&this.world.local&&this.world.local.tick<target){
     if(token!==this.request)return;
-    for(let i=0;i<30&&this.world.local.tick<this.learning.study.end;i++)this.advance();
-    this.world.cloud.sync();$('local-progress').textContent=`Расчёт: ${this.world.local.tick} / ${this.learning.study.end}`;
+    for(let i=0;i<30&&this.world.local.tick<target;i++)this.advance();
+    this.world.cloud.sync();$('local-progress').textContent=`Расчёт: ${this.world.local.tick} / ${target}`;
     await new Promise(resolve=>setTimeout(resolve,0));
    }
   }catch(error){this.explain('Расчёт остановлен',error.message);}
@@ -3433,7 +3747,7 @@ class LocalController {
   const runner=new ReplayRunner(record,target),meta=learningMeta(record.learning,runner.record);
   if(this.world.model.site.id!=='colon')throw new Error('Откройте толстую кишку перед загрузкой локального опыта');
   this.cancel();const token=this.request;this.busy=true;this.setPaused(true);this.refresh(true);
-  const baseline=new LocalSimulation({seed:runner.record.seed,scenario:runner.record.scenario}),learning=new LearningSession(meta);
+  const baseline=new LocalSimulation({seed:runner.record.seed,scenario:runner.record.scenario,engine:runner.record.engine}),learning=new LearningSession(meta);
   learning.capture(runner.sim,baseline);
   try{let done=false;while(!done){
    if(token!==this.request)return;
@@ -3450,6 +3764,7 @@ class LocalController {
 
  refresh(force=false){
   this.learningView?.refresh(force);
+  $('local-color-legend').textContent=this.world.local?.mucus?'Голубой и мятный — слои слизи. Высота связана с вычисленным запасом, не с диагнозом. Мысли подписывают источник питания; вид не задаёт «полезность» или «вредность».':this.world.local?.assay?'Ⅱ голубой S — медленное состояние; ◆ золотой R-demo — наследуемая устойчивость, не pDemoR. Вариант и состояние подписаны в карточке и мыслях.':'Жёлтый — pDemoR; розовый — заражение; белый — фагоцит; охристый — спора. Цвет не означает «полезный» или «вредный». ';
   const active=!!this.world.local; $('local-controls').hidden=!active;$('local-exit').hidden=!active;$('local-start').disabled=this.busy||this.world.model.site.id!=='colon';
   $('local-scenario').disabled=this.busy;$('local-load').disabled=this.busy;
   for(const id of ['density','life-rate','feed-nearby','explode','connections','pick-layers'])$(id).disabled=(active&&!(id==='explode'&&this.world.inspect))||(id==='feed-nearby'&&!['colon','mouth','small'].includes(this.world.model.site.id));
@@ -3457,12 +3772,12 @@ class LocalController {
   document.querySelectorAll('[data-field]').forEach(b=>b.disabled=active);
   $('pause').disabled=this.busy;$('local-pause').textContent=this.getPaused()?'▷ Продолжить':'Ⅱ Пауза';
   for(const id of ['local-step','local-save','local-fork','local-pause'])$(id).disabled=this.busy;
-  document.querySelectorAll('[data-local-action]').forEach(b=>b.disabled=this.busy||!!this.world.local?.stopped);
+  document.querySelectorAll('[data-local-action]').forEach(b=>{const sim=this.world.local;b.hidden=!commandsFor(sim?.scenario).includes(b.dataset.localAction);b.disabled=this.busy||!!sim?.stopped||(b.dataset.localAction==='challenge'&&!!sim?.assay?.bath)||(b.dataset.localAction==='washout'&&!sim?.assay?.bath)||(b.dataset.localAction==='substrate_off'&&!sim?.mucus?.substrate)||(b.dataset.localAction==='substrate_on'&&!!sim?.mucus?.substrate)||(b.dataset.localAction==='secretion_slow'&&sim?.mucus?.secretionScale===.25)||(b.dataset.localAction==='secretion_restore'&&sim?.mucus?.secretionScale===1);});
   $('readouts').hidden=active;$('local-readouts').hidden=!active;
   if(!active){$('local-summary').textContent='Новый режим: численные агенты, причинные события, химия и воспроизведение. Работает в локальном участке толстой кишки.';return;}
   if(!force&&this.lastHUD===this.world.local.tick)return;this.lastHUD=this.world.local.tick;
-  const s=this.world.local.summary();$('local-summary').textContent=`${LOCAL_SCENARIOS[this.world.local.scenario]} · t=${s.time.toFixed(1)} уч. ед. · живых ${s.alive} · генеалогических записей ${this.world.local.entities.length}. ${s.stopped?'Достигнут предел времени. ':''}${s.capacityHits?'Лимит агентов ограничивает новые рождения. ':''}Не клиническая модель.`;
-  $('local-readouts').innerHTML=[['Клетки',s.cells],['Фаги',s.phages],['pDemoR',s.plasmids],['Инфицированы',s.infected],['Лизогены',s.lysogens],['Споры',s.spores],['Фагоциты',s.immune],['Бутират · у.е.',s.butyrate.toFixed(3)]].map(([k,v])=>`<div class="readout"><small>${k}</small><b>${v}</b></div>`).join('');
+  const s=this.world.local.summary();$('local-summary').textContent=`${LOCAL_SCENARIOS[this.world.local.scenario]} · t=${s.time.toFixed(1)} уч. ед. · живых ${s.alive} · генеалогических записей ${this.world.local.entities.length}. ${s.stopped?'Достигнут предел времени. ':''}${s.capacityHits?'Лимит агентов ограничивает новые рождения. ':''}${s.assay?'Равномерный лабораторный тест; не лечение кишечника. ':''}Не клиническая модель.`;
+  $('local-readouts').innerHTML=[['Клетки',s.cells],['Фаги',s.phages],['pDemoR',s.plasmids],['Инфицированы',s.infected],['Лизогены',s.lysogens],['Споры',s.spores],...(s.mucus? [['Мин. запас слизи',(s.mucus.minInner*100).toFixed(1)+'%'],['Тонких участков',s.mucus.thinPatches]]:[]),...(s.assay? [['Медленные S',s.assay.persisters],['Наследуемые R',s.assay.resistant]]:[]),['Фагоциты',s.immune],['Бутират · у.е.',s.butyrate.toFixed(3)]].map(([k,v])=>`<div class="readout"><small>${k}</small><b>${v}</b></div>`).join('');
   $('local-seek').max=this.record?.endTick??s.tick;$('local-seek').value=s.tick;$('local-seek').disabled=this.busy;$('local-cursor').textContent=`Шаг ${s.tick} / ${$('local-seek').max}`;
   $('local-field').value=this.world.cloud.fieldKind;$('local-slice').value=String(this.world.cloud.slice);
   const events=this.world.local.events.filter(e=>e.kind!=='birth').slice(-7).reverse();
@@ -3477,12 +3792,41 @@ class LocalController {
   document.querySelectorAll('[data-history-event]').forEach(b=>b.onclick=()=>{const event=sim.events.find(e=>e.seq===+b.dataset.historyEvent);if(event){$('dialog').close();this.learningView.selectEvent(event);$('learning-panel').scrollIntoView({block:'start',behavior:'auto'});}});
  }
 
- compare(){const a=this.control.summary(),b=this.world.local.summary();const col=(s,title)=>`<div><h3>${title}</h3><p>Живых: ${s.alive}<br>pDemoR: ${s.plasmids}<br>Фагов: ${s.phages}<br>Лизогенов: ${s.lysogens}<br>Бутират: ${s.butyrate.toFixed(3)} у.е.<br>Поглощений: ${s.counts.engulf||0}<br>Погрешность углеродного баланса: ${s.carbonError.toExponential(2)}</p></div>`;this.dialog('ЛОКАЛЬНЫЙ КОНТРОЛЬ',`<h2>Одинаковый старт, шаг ${b.tick}</h2><div class="comparison">${col(a,'Без ваших вмешательств')}${col(b,'Ваш опыт')}</div><p>Оба расчёта начинают с одного seed и сценария. Меняется вмешательство, не графическая плотность. Условные количества — не анализ микробиома пациента.</p><button class="outline" id="compare-graphs">Траектории A/B во времени →</button>`);$('compare-graphs').onclick=()=>{$('dialog').close();$('learning-chart-area').scrollIntoView({block:'center',behavior:'auto'});};}
+ compare(){const a=this.control.summary(),b=this.world.local.summary();const col=(s,title)=>`<div><h3>${title}</h3><p>Живых: ${s.alive}<br>pDemoR: ${s.plasmids}<br>Фагов: ${s.phages}<br>Лизогенов: ${s.lysogens}<br>Бутират: ${s.butyrate.toFixed(3)} у.е.<br>Поглощений: ${s.counts.engulf||0}${s.mucus?`<br>Минимальный внутренний запас: ${(s.mucus.minInner*100).toFixed(1)}% начального<br>Тонких участков: ${s.mucus.thinPatches} / 144<br>Гликанов потреблено: ${(s.mucus.outerUsed+s.mucus.innerUsed).toFixed(3)} у.е.`:''}<br>Погрешность углеродного баланса: ${s.carbonError.toExponential(2)}</p></div>`;this.dialog('ЛОКАЛЬНЫЙ КОНТРОЛЬ',`<h2>Одинаковый старт, шаг ${b.tick}</h2><div class="comparison">${col(a,'Без ваших вмешательств')}${col(b,'Ваш опыт')}</div><p>Оба расчёта начинают с одного seed и сценария. Меняется вмешательство, не графическая плотность. Условные количества — не анализ микробиома пациента.</p><button class="outline" id="compare-graphs">Траектории A/B во времени →</button>`);$('compare-graphs').onclick=()=>{$('dialog').close();$('learning-chart-area').scrollIntoView({block:'center',behavior:'auto'});};}
 }
 
 return {LocalController};
 })();
+__modules["src/webgl2/mucus-film.js"] = (() => {
+const {surface} = __modules["src/webgl2/geometry.js"];
+const {MUCUS_RULES} = __modules["src/local/mucus.js"];
+
+// Scene x/z and height are twice the biological coordinates. Interpolation is
+// presentation only; uptake and permeability use the original finite-volume grid.
+function filmHeight(m,n,x,z,outer=false){
+ const grid=v=>Math.max(0,Math.min(n-1,(v+24)/48*n-.5));
+ const gx=grid(x),gz=grid(z),ix=Math.floor(gx),iz=Math.floor(gz),jx=Math.min(n-1,ix+1),jz=Math.min(n-1,iz+1),fx=gx-ix,fz=gz-iz;
+ const value=(i,j)=>m.inner[j*n+i]/MUCUS_RULES.inner*2.4+(outer?m.outer[j*n+i]/MUCUS_RULES.outer*1.4:0);
+ return (value(ix,iz)*(1-fx)+value(jx,iz)*fx)*(1-fz)+(value(ix,jz)*(1-fx)+value(jx,jz)*fx)*fz;
+}
+function filmGeometry(m,n,outer=false){
+ const height=(x,z)=>filmHeight(m,n,x,z,outer),res=48,data=surface(height,24,res);
+ // Visible side walls give the two pools volume, not just coloured flat overlays.
+ for(let side=0;side<4;side++)for(let i=0;i<res;i++){
+  const a=-24+i/res*48,b=-24+(i+1)/res*48;
+  const p=side<2?[side===0?-24:24,a]:[a,side===2?-24:24],q=side<2?[p[0],b]:[b,p[1]];
+  const normal=side<2?[side===0?-1:1,0,0]:[0,0,side===2?-1:1];
+  const low=(x,z)=>outer?filmHeight(m,n,x,z,false):0,offset=data.vertices.length/6;
+  for(const [x,y,z] of [[p[0],low(...p),p[1]],[q[0],low(...q),q[1]],[p[0],height(...p),p[1]],[q[0],height(...q),q[1]]])data.vertices.push(x,y,z,...normal);
+  data.indices.push(offset,offset+1,offset+2,offset+2,offset+1,offset+3);
+ }
+ return data;
+}
+
+return {filmHeight,filmGeometry};
+})();
 __modules["src/webgl2/world.js"] = (() => {
+const {filmGeometry,filmHeight} = __modules["src/webgl2/mucus-film.js"];
 const {GPU,STRIDE,writeInstance,colorOf} = __modules["src/webgl2/gpu.js"];
 const {sphere,capsule,revolve,combine,tube,catmull,torus,segment,surface,heightAt,microbeGeometry,lightMicrobeGeometry,mediumMicrobeGeometry,octahedron,splitPlane} = __modules["src/webgl2/geometry.js"];
 const {perspective,lookAt,multiply,project,rayFromCamera,quatFromY,mix,mix3,unit,vsub} = __modules["src/webgl2/math.js"];
@@ -3532,7 +3876,10 @@ class World{
  enterLocal(sim){this.layerMode=false;if(!this.local)this.ambientCloud=this.cloud;this.local=sim;this.cloud=new LocalCloud(sim,this.model);this.setSite();this.setExploded(false);this.lifts.forEach(l=>{l.x=0;l.v=0;});this.goal=2.35;}
  leaveLocal(){if(!this.local)return;this.local=null;this.cloud=this.ambientCloud;this.ambientCloud=null;this.setSite();}
  buildTissue(){if(this.local){const own=data=>{const mesh=this.gpu.mesh(data);this.resources.push(mesh);return mesh;};
-  this.tissueGroups=[this.group(own(surface(()=>-4,32,8)),[instance([0,0,0],[1,1,1],'#654c60')],{layer:0})];
+  this.mucusFilmTick=-1;this.mucusFilmInfo=null;
+  if(this.local.mucus){this.mucusMeshes=[own(filmGeometry(this.local.mucus,this.local.chemistry.n)),own(filmGeometry(this.local.mucus,this.local.chemistry.n,true))];}
+  this.tissueGroups=[this.group(own(surface(()=>this.local.mucus?-.65:-4,32,8)),[instance([0,0,0],[1,1,1],this.local.mucus?'#b17b91':'#654c60')],{layer:0})];
+  if(this.local.mucus){const cells=[];for(let z=-22;z<=22;z+=4)for(let x=-22;x<=22;x+=4)cells.push(instance([x,-.45,z],[1.93,.55,1.93],'#d8a7ae'));this.tissueGroups.push(this.group(this.tissueCell,cells,{layer:0}));}
   this.capillaryGroup=this.group(this.rod,[],{layer:0});this.gel=own(surface(()=>0,32,12));this.gelBuffers=Array.from({length:5},()=>new Float32Array(STRIDE));return;
  }const site=this.model.site.id,rand=rng(28),g=this.gpu;const own=mesh=>{const m=g.mesh(mesh);this.resources.push(m);return m;};this.tissueGroups=[];
  const color=site==='mouth'?'#cfbea4':site==='skin'?'#c69080':site==='lung'||site==='nose'?'#b888ae':'#c2859b';
@@ -3570,7 +3917,9 @@ class World{
   const distance=q<2?mix(110,51,smooth(1.32,2,q)):mix(51,8,smooth(2,3,q));const pitch=clamp(this.pitch.x+.44,.06,1.35);this.camera(target,distance,this.yaw.x,pitch,.014);
   this.drawGroup(this.capillaryGroup,blend,0,0,true);
   for(const group of this.tissueGroups.filter(g=>!g.transparent))this.drawGroup(group,blend,0,this.lifts[group.layer||0].x*(group.layer||0)*3.8,true);
+  if(this.local?.mucus)this.renderMucus(blend,false);
   this.renderCloud(blend);if(this.local)this.renderLocalEvents(blend);else{this.renderParticles(blend);this.renderLifeEvents(blend);}
+  if(this.local?.mucus)this.renderMucus(blend,true);
   if(this.showConnections&&!this.local)this.connections(blend);
   for(const group of this.tissueGroups.filter(g=>g.transparent))this.drawGroup(group,blend,0,this.lifts[group.layer||0].x*(group.layer||0)*3.8,true);
   const fluids=this.local?[1]:layerLayout(this.model.site).fluid;
@@ -3583,6 +3932,24 @@ class World{
   }
   this.drawMicroLabels();
  }
+ }
+ renderMucus(alpha,outer){
+  const sim=this.local,m=sim.mucus,n=sim.chemistry.n;
+  if(this.mucusFilmTick!==sim.tick){
+   this.mucusMeshes.forEach((mesh,i)=>this.gpu.morph(mesh,filmGeometry(m,n,!!i).vertices));
+   this.mucusFilmTick=sim.tick;this.mucusFilmInfo={tick:sim.tick,patches:n*n,vertices:this.mucusMeshes[0].geometry.vertices.length/6,minInnerHeight:Math.min(...m.inner)/.22*2.4,maxInnerHeight:Math.max(...m.inner)/.22*2.4};
+  }
+  const mesh=this.mucusMeshes[+outer];
+  writeInstance(this.one,0,[0,0,0],[1,1,1],outer?'#a5e4bd':'#73cddd',undefined,outer?.25:.66,.10);
+  this.gpu.upload(mesh,this.one,1);this.gpu.draw(mesh,1,alpha,0,false);
+  if(outer){
+   let count=0;
+   // Motion follows computed cumulative secretion, not the decorative clock.
+   for(let k=0;k<n*n;k+=7){const x=((k%n)+.5)/n*48-24,z=(Math.floor(k/n)+.5)/n*48-24,phase=(m.secreted*.1+k*.173)%1;
+    writeInstance(this.particleBuffer,count++,[x,.1+phase*filmHeight(m,n,x,z),z],[.09,.16,.09],'#e7f6cf',undefined,.7,.4);
+   }
+   this.gpu.upload(this.particle,this.particleBuffer,count);this.gpu.draw(this.particle,count,alpha,0,false);
+  }
  }
  renderCloud(alpha){
  const cloud=this.cloud,high={},low={},mid={},t=cloud.visualTime;this.visibleAgents=[];let details=0,middle=0;
@@ -3613,7 +3980,7 @@ class World{
  this.lodStats={visible:this.visibleAgents.length,detailed:details,medium:middle,light:this.visibleAgents.length-details-middle};
  // Only nearby flagella merit filament geometry; at a distance the swimming trajectory carries the story.
  let n=0,filaments=0;
- for(const item of this.visibleAgents){if(filaments>=24)break;const i=item.id,s=byId[cloud.ids[cloud.species[i]]];if(!s.flagellum||item.radius<4)continue;filaments++;
+ for(const item of this.visibleAgents){if(filaments>=24)break;const i=item.id,s=byId[cloud.ids[cloud.species[i]]];if(!s.flagellum||item.radius<4||this.local?.get(i+1)?.state==='persister')continue;filaments++;
   const pos=cloud.position(i),angle=cloud.angle[i],r=cloud.size[i];
   for(let j=0;j<7;j++){const u=j*.16;writeInstance(this.miscBuffer,n++,[pos[0]-Math.cos(angle)*(.5+u),pos[1]+Math.sin(j*.9+t*7)*.14+this.microShift,pos[2]-Math.sin(angle)*(.5+u)],[r*.12,r*.12,r*.12],liveColor(s.id));}
  }
@@ -3622,7 +3989,7 @@ class World{
  }
  renderLocalEvents(alpha){
   const sim=this.local;let n=0;
-  writeInstance(this.one,0,[0,0,0],[.75,1,.75],sim.barrier>.5?'#75d6bd':'#e68b75',undefined,.04+sim.barrier*.16);this.gpu.upload(this.gel,this.one,1);this.gpu.draw(this.gel,1,alpha,0,false);
+  if(!sim.mucus){writeInstance(this.one,0,[0,0,0],[.75,1,.75],sim.barrier>.5?'#75d6bd':'#e68b75',undefined,.04+sim.barrier*.16);this.gpu.upload(this.gel,this.one,1);this.gpu.draw(this.gel,1,alpha,0,false);}
   for(const job of sim.jobs){const a=this.cloud.position(job.from-1),b=this.cloud.position(job.to-1),seg=segment(a,b,.045);writeInstance(this.miscBuffer,n++,seg.pos,seg.scale,'#ffdf6c',seg.q,1,.5);}
   for(const e of sim.entities)if(e.alive&&e.state==='hypha'&&e.parents.length){const parent=sim.get(e.parents[0]);if(parent?.alive){const seg=segment(this.cloud.position(e.id-1),this.cloud.position(parent.id-1),.12);writeInstance(this.miscBuffer,n++,seg.pos,seg.scale,'#ed80e7',seg.q);}}
   for(const event of sim.events.slice(-60)){if(sim.tick-event.tick>20||event.actors.length<2)continue;
@@ -3631,7 +3998,7 @@ class World{
    writeInstance(this.miscBuffer,n++,seg.pos,seg.scale,event.kind==='t6'?'#ff716b':event.kind==='engulf'?'#e9faff':'#ffe879',seg.q,1,.4);
   }
   this.gpu.upload(this.rod,this.miscBuffer,n);this.gpu.draw(this.rod,n,alpha);
-  this.label('Локальный срез: ткань y < 0 · просвет y > 0',[-12,-1,0],'#d6c4ee');
+  if(!sim.mucus)this.label('Локальный срез: ткань y < 0 · просвет y > 0',[-12,-1,0],'#d6c4ee');
  }
  renderLifeEvents(alpha){
  let n=0;const cloud=this.cloud,t=cloud.visualTime;
@@ -3704,7 +4071,7 @@ class World{
 
  label(text,pos,color='#c4dba0'){const p=project(pos,this.cameraState.vp,this.w,this.h);if(!p||p.z>1)return;const c=this.ctx;c.font='11px system-ui';const width=c.measureText(text).width+20,x=clamp(p.x+24,8,this.w-width-8),y=p.y;c.strokeStyle=color+'88';c.lineWidth=.8;c.beginPath();c.moveTo(p.x,p.y);c.lineTo(x,y-14);c.stroke();c.fillStyle='#102526ec';c.beginPath();c.roundRect(x,y-30,width,25,5);c.fill();c.fillStyle=color;c.fillText(text,x+10,y-13);}
  drawBodyLabels(q){if(q>.9)return;const c=this.ctx;for(const p of this.bodyLabels){const selected=p.id===this.model.site.id;if(!selected&&['mouth','nose'].includes(p.id))continue;c.fillStyle=selected?'#d7e7a1':'#abc8bb';c.beginPath();c.arc(p.x,p.y,selected?5:2.4,0,6.28);c.fill();if(selected){c.strokeStyle='#d7e7a16b';c.beginPath();c.arc(p.x,p.y,12,0,6.28);c.stroke();const side=p.x<this.w/2?-1:1;const tx=p.x+side*80;c.strokeStyle='#c1d4aa70';c.beginPath();c.moveTo(p.x+side*14,p.y);c.lineTo(tx,p.y-19);c.stroke();c.font='12px system-ui';c.textAlign=side<0?'right':'left';c.fillStyle='#d8e0c8';c.fillText(p.name,tx,p.y-28);c.textAlign='left';}}}
- drawMicroLabels(){if(this.exploded){this.model.site.layers.forEach((l,i)=>this.label(l,[-20,i*1.4+this.lifts[i].x*i*3.8,5],this.layerHover===i?'#fff296':LAYER_COLORS[i]));}if(this.selected>=0){const pos=this.cloud.position(this.selected);pos[1]+=this.microShift;const s=byId[this.cloud.ids[this.cloud.species[this.selected]]];if(!this.thoughts)this.label(s.name+' · #'+(this.local?this.selected+1:this.selected),pos,liveColor(s.id));}this.drawThoughts();}
+ drawMicroLabels(){if(this.local?.mucus&&this.travel.x<2.65&&this.w>900){this.label('Наружный слой · питание и вынос',[-6,filmHeight(this.local.mucus,12,-6,8,true),8],'#a5e4bd');this.label('Внутренний слой · запас покрытия',[-6,filmHeight(this.local.mucus,12,-6,12),12],'#83dbef');this.label('Эпителий · повреждение не моделируется',[-6,-.5,12],'#efbdc7');}if(this.exploded){this.model.site.layers.forEach((l,i)=>this.label(l,[-20,i*1.4+this.lifts[i].x*i*3.8,5],this.layerHover===i?'#fff296':LAYER_COLORS[i]));}if(this.selected>=0){const pos=this.cloud.position(this.selected);pos[1]+=this.microShift;const s=byId[this.cloud.ids[this.cloud.species[this.selected]]];if(!this.thoughts)this.label(s.name+' · #'+(this.local?this.selected+1:this.selected),pos,liveColor(s.id));}this.drawThoughts();}
  drawThoughts(){
  this.bubbleHits=[];if(!this.thoughts||this.inspect||this.exploded||this.travel.x<1.9)return;
  const cloud=this.cloud,c=this.ctx,t=cloud.visualTime,epoch=Math.floor(t/7),mobile=this.w<650;
@@ -3784,7 +4151,7 @@ function initialize(){
  $('experiments').innerHTML=EXPERIMENTS.map(e=>`<button class="experiment" data-exp="${e.id}" ${e.sites.includes(model.site.id)?'':'disabled'} title="${e.sites.includes(model.site.id)?e.sub:'Не моделируется для этой среды'}"><span class="icon">${e.icon}</span><span><b>${e.name}</b><small>${e.sub}</small></span></button>`).join('');document.querySelectorAll('[data-exp]').forEach(b=>b.onclick=()=>requestExperiment(b.dataset.exp));
  $('residents').innerHTML=model.site.species.map(id=>`<button class="resident" data-species="${id}"><i style="background:${liveColor(id)}"></i>${byId[id].name}</button>`).join('');document.querySelectorAll('[data-species]').forEach(b=>b.onclick=()=>{const index=world.cloud.ids.indexOf(b.dataset.species);let found=-1;for(let i=0;i<world.cloud.count;i++)if(world.cloud.species[i]===index&&(!world.cloud.alive||world.cloud.alive[i])){found=i;break;}if(found>=0)selectAgent(found);});
  }
- function showSiteCard(){if(world.local){$('card-kicker').textContent='ЛОКАЛЬНЫЙ ЭКСПЕРИМЕНТ';$('card-title').textContent='У каждой клетки — история';$('card-latin').textContent='Контакт → событие → изменение состояния';$('card-copy').textContent='Выберите агента в сцене или нажмите на событие под ней. Проследите перенос плазмиды, заражение, деление и судьбу потомков.';$('card-tag').textContent='УЧЕБНЫЕ ШТАММЫ';$('biome-glyph').textContent='⌁';$('biome-glyph').style.color='';for(const id of ['card-stats','lens-tabs','agent-live','agent-actions'])$(id).hidden=true;$('card-note').textContent='Не клиническая модель. Общий расчёт организма остановлен.';$('dive').textContent='Выбрать живого агента ↗';$('dive').onclick=()=>{const i=world.local.entities.findIndex(e=>e.alive);if(i>=0)selectAgent(i);};return;}const site=model.site;$('card-kicker').innerHTML='ВАША СЛЕДУЮЩАЯ ОСТАНОВКА <span>↗</span>';$('biome-glyph').textContent=site.icon;$('biome-glyph').style.color='';$('card-tag').textContent=site.sparse?'НИЗКАЯ БИОМАССА':site.id==='colon'?'АНАЭРОБНАЯ ЭКОСИСТЕМА':'ЖИВОЕ СООБЩЕСТВО';$('card-title').textContent=site.name;$('card-latin').textContent=site.subtitle;$('card-copy').textContent=site.id==='colon'?'Здесь соседи превращают остатки пищи в вещества, которыми пользуются другие микробы и клетки человека.':site.fact;$('card-stats').hidden=false;$('lens-tabs').hidden=true;$('agent-live').hidden=true;$('agent-actions').hidden=true;$('card-note').innerHTML='Сначала орган. Затем ткань.<br>Потом — целый мир в капле.';$('dive').innerHTML='Погрузиться внутрь <span>↘</span>';$('dive').onclick=()=>{navigate(2.55);explain('Добро пожаловать в микромир.','Потяните сцену, чтобы осмотреться. Нажмите на жителя или выберите его в списке. Клетчатку можно внести в выбранную точку.');};}
+ function showSiteCard(){if(world.local){$('card-kicker').textContent='ЛОКАЛЬНЫЙ ЭКСПЕРИМЕНТ';$('card-title').textContent='У каждой клетки — история';$('card-latin').textContent='Контакт → событие → изменение состояния';$('card-copy').textContent=world.local.mucus?'Хозяин обновляет покрытие снизу, микробы используют доступный материал снаружи. Выберите жителя: его мысли расскажут, чем он питается сейчас.':'Выберите агента в сцене или нажмите на событие под ней. Проследите перенос плазмиды, заражение, деление и судьбу потомков.';$('card-tag').textContent='УЧЕБНЫЕ ШТАММЫ';$('biome-glyph').textContent='⌁';$('biome-glyph').style.color='';for(const id of ['card-stats','lens-tabs','agent-live','agent-actions'])$(id).hidden=true;$('card-note').textContent='Не клиническая модель. Общий расчёт организма остановлен.';$('dive').textContent='Выбрать живого агента ↗';$('dive').onclick=()=>{const i=world.local.entities.findIndex(e=>e.alive);if(i>=0)selectAgent(i);};return;}const site=model.site;$('card-kicker').innerHTML='ВАША СЛЕДУЮЩАЯ ОСТАНОВКА <span>↗</span>';$('biome-glyph').textContent=site.icon;$('biome-glyph').style.color='';$('card-tag').textContent=site.sparse?'НИЗКАЯ БИОМАССА':site.id==='colon'?'АНАЭРОБНАЯ ЭКОСИСТЕМА':'ЖИВОЕ СООБЩЕСТВО';$('card-title').textContent=site.name;$('card-latin').textContent=site.subtitle;$('card-copy').textContent=site.id==='colon'?'Здесь соседи превращают остатки пищи в вещества, которыми пользуются другие микробы и клетки человека.':site.fact;$('card-stats').hidden=false;$('lens-tabs').hidden=true;$('agent-live').hidden=true;$('agent-actions').hidden=true;$('card-note').innerHTML='Сначала орган. Затем ткань.<br>Потом — целый мир в капле.';$('dive').innerHTML='Погрузиться внутрь <span>↘</span>';$('dive').onclick=()=>{navigate(2.55);explain('Добро пожаловать в микромир.','Потяните сцену, чтобы осмотреться. Нажмите на жителя или выберите его в списке. Клетчатку можно внести в выбранную точку.');};}
  function selectAgent(index){if(world.inspect){world.inspect=false;world.mechanism=null;world.setExploded(false);$('explode').setAttribute('aria-pressed','false');}world.selected=index;world.selectedSpecies=null;chosen=world.cloud.ids[world.cloud.species[index]];if(world.goal<1.8)navigate(2.35);showAgentCard();document.querySelectorAll('[data-species]').forEach(b=>b.classList.toggle('active',b.dataset.species===chosen));announce(byId[chosen].name+'. '+byId[chosen].role);updateLayers();}
  function showAgentCard(){const s=byId[chosen];$('anatomy').disabled=chosen==='immune';$('card-kicker').textContent=world.inspect?'АНАТОМИЯ · ОБОБЩЁННЫЙ РАЗРЕЗ':'ВЫБРАННЫЙ ПРЕДСТАВИТЕЛЬ · #'+(world.local?world.selected+1:Math.max(0,world.selected));$('biome-glyph').textContent=({rod:'⌁',oval:'◉',cocci:'∴',branch:'Y',yeast:'∞',phage:'⟡',spiral:'∿',protist:'◉'})[s.shape];$('biome-glyph').style.color=liveColor(s.id);$('card-tag').textContent=s.group.toUpperCase();$('card-title').textContent=s.name;$('card-latin').textContent=s.latin;$('card-copy').textContent=lens==='simple'?(s.quote||s.role)+' Питается: '+s.food+'.':s.fact;$('card-stats').hidden=true;$('lens-tabs').hidden=false;$('agent-live').hidden=world.inspect;$('agent-actions').hidden=world.inspect;$('card-note').textContent=world.local&&!world.inspect&&world.selected>=0?'Учебный вариант: '+LOCAL_VARIANT_NAMES[world.local.get(world.selected+1)?.variant]+' · не измеренные свойства штамма':s.size+' · цвет и движение условны';$('dive').innerHTML='Приблизиться к клетке <span>↗</span>';$('dive').onclick=()=>{world.inspect=false;world.mechanism=null;world.focusAgent(world.selected);explain('Теперь вы рядом.',s.role+'. Для слежения включена привязка камеры к выбранному представителю.');};$('follow').textContent=world.follow?'Отпустить камеру':'Следить за клеткой';$('follow').classList.toggle('active',world.follow);if(world.inspect){$('dive').innerHTML='← Вернуться в сообщество';$('dive').onclick=()=>{world.inspect=false;world.setExploded(false);$('explode').setAttribute('aria-pressed','false');navigate(2.4);showSiteCard();updateLayers();};}}
  document.querySelectorAll('[data-lens]').forEach(b=>b.onclick=()=>{lens=b.dataset.lens;document.querySelectorAll('[data-lens]').forEach(t=>t.classList.toggle('active',t===b));showAgentCard();});
@@ -3832,7 +4199,7 @@ function initialize(){
  $('pause').onclick=()=>{paused=!paused;accumulator=0;$('pause').textContent=paused?'▷':'Ⅱ';$('pause').setAttribute('aria-label',paused?'Продолжить':'Пауза');};$('speed').onchange=e=>speed=+e.target.value;$('restart').onclick=()=>resetSite(model.site.id);
  function compare(){if(world.local){localUI.compare();return;}const a=control.snapshot(),b=model.snapshot();const column=(s,title)=>`<div><h3>${title}</h3><dl><dt>Бутират · условные единицы</dt><dd>${model.site.id==='colon'?(s.butyrate*100).toFixed(1):'—'}</dd><dt>pH учебной среды</dt><dd>${s.pH.toFixed(2)}</dd><dt>Разнообразие H′</dt><dd>${s.diversity.toFixed(2)}</dd><dt>Устойчивый вариант · % модели</dt><dd>${(s.resistance*100).toFixed(1)}</dd></dl></div>`;dialog('ОДИН СТАРТ · РАЗНЫЕ ВМЕШАТЕЛЬСТВА',`<h2>А если ничего не менять?</h2><p>Одинаковые биотоп, зерно и модельное время t = ${b.time.toFixed(1)}. Слева — независимый контроль без ваших вмешательств, справа — ваш опыт. Это значения учебной модели, не опубликованные клинические данные.</p><div class="comparison">${column(a,'Контроль · без вмешательства')}${column(b,'Ваш эксперимент')}</div><div class="notice">Меняется только вмешательство. Несколько ваших действий могут накладываться. Менять графическую плотность можно — она не влияет на результат.</div><div class="action-row"><button class="primary" id="refresh-compare">Обновить снимки</button></div>`);$('refresh-compare').onclick=compare;}
  $('compare').onclick=compare;
- function showJournal(){if(world.local){localUI.history();return;}dialog('ЖУРНАЛ ЭКСПЕДИЦИИ',`<h2>От любопытства к наблюдению.</h2><p>Снимки через 8 секунд модельного времени. При смене среды опыт отмечается как прерванный. Не доказательство клинической причинности.</p>${journal.length?journal.map(r=>`<article class="timeline-item"><b>${r.name} · ${SITES.find(s=>s.id===r.site).name} · t=${r.time.toFixed(1)}</b><p>${r.prediction?'Предположение: '+r.prediction.answer+'<br>':''}${r.after?`H′: ${r.before.diversity.toFixed(2)} → ${r.after.diversity.toFixed(2)} · ${r.interrupted?'Прервано сменой/сбросом':'Снимок завершён'}`:'Наблюдение продолжается'}<br>Точка внесения: ${r.position.map(v=>v.toFixed(1)).join(', ')} (локальные координаты)</p></article>`).reverse().join(''):'<div class="notice">Пока нет вмешательств. Войдите в микромир и попробуйте внести пищу.</div>'}<div class="action-row"><button id="export" class="primary">Скачать наблюдения JSON ↓</button></div>`);$('export').onclick=()=>{const blob=new Blob([JSON.stringify({version:'0.6-webgl2',seed:model.seed,disclaimer:'Educational, uncalibrated model; not medical advice',records:journal,experiment:model.snapshot(),control:control.snapshot()},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='microcosmos-webgl2-observations.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};}
+ function showJournal(){if(world.local){localUI.history();return;}dialog('ЖУРНАЛ ЭКСПЕДИЦИИ',`<h2>От любопытства к наблюдению.</h2><p>Снимки через 8 секунд модельного времени. При смене среды опыт отмечается как прерванный. Не доказательство клинической причинности.</p>${journal.length?journal.map(r=>`<article class="timeline-item"><b>${r.name} · ${SITES.find(s=>s.id===r.site).name} · t=${r.time.toFixed(1)}</b><p>${r.prediction?'Предположение: '+r.prediction.answer+'<br>':''}${r.after?`H′: ${r.before.diversity.toFixed(2)} → ${r.after.diversity.toFixed(2)} · ${r.interrupted?'Прервано сменой/сбросом':'Снимок завершён'}`:'Наблюдение продолжается'}<br>Точка внесения: ${r.position.map(v=>v.toFixed(1)).join(', ')} (локальные координаты)</p></article>`).reverse().join(''):'<div class="notice">Пока нет вмешательств. Войдите в микромир и попробуйте внести пищу.</div>'}<div class="action-row"><button id="export" class="primary">Скачать наблюдения JSON ↓</button></div>`);$('export').onclick=()=>{const blob=new Blob([JSON.stringify({version:'0.8-webgl2',seed:model.seed,disclaimer:'Educational, uncalibrated model; not medical advice',records:journal,experiment:model.snapshot(),control:control.snapshot()},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='microcosmos-webgl2-observations.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};}
  $('journal').onclick=showJournal;
  function atlas(){dialog('АТЛАС ЖИТЕЛЕЙ · ПЯТЬ ГРУПП',`<h2>Разные формы. Общая жизнь.</h2><p>16 представителей, не все известные виды. Бактерии и археи — разные домены; грибы и протисты — эукариоты; вирусы — не клеточные организмы.</p><div class="filter-row"><input id="search" placeholder="Русское название, род или пища…" aria-label="Поиск жителей"><select id="group" aria-label="Группа"><option value="">Все группы</option>${['Бактерии','Археи','Грибы','Вирусы','Протисты'].map(s=>`<option>${s}</option>`).join('')}</select></div><div class="atlas-grid" id="atlas-grid"></div>`);const filter=()=>{const q=$('search').value.trim().toLowerCase(),group=$('group').value,found=SPECIES.filter(s=>(!group||s.group===group)&&[s.name,s.latin,s.food,s.taxonomy].join(' ').toLowerCase().includes(q));$('atlas-grid').innerHTML=found.length?found.map(s=>`<button class="atlas-card" data-card="${s.id}"><span class="tag" style="color:${liveColor(s.id)}">${s.group}</span><h3>${s.name}</h3><span class="latin">${s.latin}</span><p>${s.role}</p></button>`).join(''):'<p>Такого представителя пока нет в атласе.</p>';document.querySelectorAll('[data-card]').forEach(b=>b.onclick=()=>speciesCard(b.dataset.card));};$('search').oninput=filter;$('group').onchange=filter;filter();}
  function speciesCard(id){const s=byId[id];dialog(s.group.toUpperCase(),`<span class="tag">${s.size}</span><h2>${s.name}</h2><p><i>${s.latin}</i></p><h3>Простыми словами</h3><p>${s.quote||s.role}</p><h3>Научный факт</h3><p>${s.fact}</p><div class="steps"><span><b>Питается</b><br>${s.food}</span><span><b>Производит</b><br>${s.product}</span></div><p>${s.taxonomy}</p>${links(s.refs)}<div class="action-row"><button class="primary" id="inspect-from-atlas">Устройство в 3D ↗</button><button class="outline" id="atlas-back">← Атлас</button></div>`);$('inspect-from-atlas').onclick=()=>{close();openCell(id);};$('atlas-back').onclick=atlas;}
@@ -3859,7 +4226,7 @@ function initialize(){
  const reading=$('dialog').open||document.querySelector('.discovery:hover')||document.activeElement?.closest('.discovery');if(tour&&!paused&&!world.calm&&!reading&&now>tourAt&&now-lastInput>(tourIndex?3600:1400)){const sequence=[0,1,2,2.6,0];navigate(sequence[tourIndex%5]);tourIndex++;tourAt=now+10000;if(tourIndex>=5){tour=false;$('tour').textContent='▷ Экскурсия с гидом';}}
  }
  requestAnimationFrame(frame);
- window.microcosmos2={available:true,snapshot:()=>model.snapshot(),control:()=>control.snapshot(),get depth(){return world.travel.x;},get targetDepth(){return world.goal;},get site(){return model.site.id;},get count(){return world.cloud.count;},get selected(){return world.selected;},get follow(){return world.follow;},get inspect(){return world.inspect;},get paused(){return paused;},get calm(){return world.calm;},get lost(){return world.lost;},get visualTime(){return world.cloud.visualTime;},get bubbles(){return world.bubbleHits.map(b=>({...b}));},get lifeEvents(){return world.cloud.events.map(e=>({...e}));},get quality(){return {profile:world.quality,autoLow:world.autoLow,...world.lodStats};},get stats(){return{updateMs:updateCost,renderMs:renderCost,drawCalls:world.gpu.calls,triangles:world.gpu.triangles,instances:world.gpu.instances,webglVersion:world.gpu.gl.getParameter(world.gpu.gl.VERSION)};},get local(){return world.local?.summary()||null;},get localControl(){return localUI.control?.summary()||null;},get localEvents(){return world.local?.events.map(e=>({...e,actors:[...e.actors]}))||[];},localRecord:()=>localUI.exportRecord(),get learning(){return localUI.learning?{meta:{...localUI.learning.meta},samples:localUI.learning.samples.map(p=>({...p,a:{...p.a},b:{...p.b}})),flux:{...world.local.flux},controlFlux:{...localUI.control.flux}}:null;},localLineage:id=>world.local?.lineage(id),get replayBusy(){return localUI.busy;},get structure(){return world.inspect&&!world.mechanism?cellBlueprint(world.inspectedSpecies||'faec'):null;},get highlightedPart(){return world.cellPart;},get highlightedLayer(){return world.layerHover;},get layerMode(){return world.layerMode;},get microLayer(){return world.microLayer;},get picking(){return {triangles:true,instances:world.pickTargets.length};},pickAt:(x,y)=>world.pick(x,y),projectAgent:(i=0)=>{const p=world.cloud.position(i);p[1]+=world.microShift;return{position:p,screen:project(p,world.cameraState.vp,world.w,world.h)};}};
+ window.microcosmos2={available:true,snapshot:()=>model.snapshot(),control:()=>control.snapshot(),get depth(){return world.travel.x;},get targetDepth(){return world.goal;},get site(){return model.site.id;},get count(){return world.cloud.count;},get selected(){return world.selected;},get follow(){return world.follow;},get inspect(){return world.inspect;},get paused(){return paused;},get calm(){return world.calm;},get lost(){return world.lost;},get visualTime(){return world.cloud.visualTime;},get bubbles(){return world.bubbleHits.map(b=>({...b}));},get lifeEvents(){return world.cloud.events.map(e=>({...e}));},get quality(){return {profile:world.quality,autoLow:world.autoLow,...world.lodStats};},get stats(){return{updateMs:updateCost,renderMs:renderCost,drawCalls:world.gpu.calls,triangles:world.gpu.triangles,instances:world.gpu.instances,webglVersion:world.gpu.gl.getParameter(world.gpu.gl.VERSION)};},get mucusFilm(){return world.local?.mucus&&world.mucusFilmInfo?{...world.mucusFilmInfo}:null;},get local(){return world.local?.summary()||null;},get localControl(){return localUI.control?.summary()||null;},get localEvents(){return world.local?.events.map(e=>({...e,actors:[...e.actors]}))||[];},localRecord:()=>localUI.exportRecord(),get learning(){return localUI.learning?{meta:{...localUI.learning.meta},samples:localUI.learning.samples.map(p=>({...p,a:{...p.a},b:{...p.b}})),flux:{...world.local.flux},controlFlux:{...localUI.control.flux}}:null;},localLineage:id=>world.local?.lineage(id),get replayBusy(){return localUI.busy;},get structure(){return world.inspect&&!world.mechanism?cellBlueprint(world.inspectedSpecies||'faec'):null;},get highlightedPart(){return world.cellPart;},get highlightedLayer(){return world.layerHover;},get layerMode(){return world.layerMode;},get microLayer(){return world.microLayer;},get picking(){return {triangles:true,instances:world.pickTargets.length};},pickAt:(x,y)=>world.pick(x,y),projectAgent:(i=0)=>{const p=world.cloud.position(i);p[1]+=world.microShift;return{position:p,screen:project(p,world.cameraState.vp,world.w,world.h)};}};
 }
 
 return {};
