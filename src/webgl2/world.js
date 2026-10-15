@@ -2,7 +2,9 @@ import {GPU,STRIDE,writeInstance,colorOf} from './gpu.js';
 import {sphere,capsule,revolve,combine,tube,catmull,torus,segment,surface,heightAt,microbeGeometry,lightMicrobeGeometry,mediumMicrobeGeometry,octahedron,splitPlane} from './geometry.js';
 import {perspective,lookAt,multiply,project,rayFromCamera,quatFromY,mix,mix3,unit,vsub} from './math.js';
 import {settle,smooth,burst} from '../../gl.mjs';
-import {byId,SITES} from '../data.js';
+import {SITES} from '../data.js';
+import {LOCAL_SPECIES as byId} from '../local/traits.js';
+import {LocalCloud} from '../local/cloud-adapter.js';
 import {rng,clamp} from '../model.js';
 import {LivingCloud,liveColor} from './living.js';
 import {humanGeometry} from './human.js';
@@ -42,7 +44,12 @@ export class World{
  const stars=[],rand=rng(531);for(let i=0;i<170;i++)stars.push(instance([(rand()-.5)*18,(rand()-.5)*12,-4-rand()*6],[.007,.007,.007],'#8ea99f',undefined,.45,.5));add(this.particle,stars,'stars');
  }
  setSite(){for(const m of this.resources)this.gpu.release(m);this.resources=[];this.cloud.model=this.model;this.cloud.reset(this.cloud.requested);this.selected=-1;this.follow=false;this.inspect=false;this.pan=[0,0,0];this.layerHover=-1;this.pickTargets=[];this.bubbleSlots=[];this.bubbleHits=[];this.buildTissue();}
- buildTissue(){const site=this.model.site.id,rand=rng(28),g=this.gpu;const own=mesh=>{const m=g.mesh(mesh);this.resources.push(m);return m;};this.tissueGroups=[];
+ enterLocal(sim){this.layerMode=false;if(!this.local)this.ambientCloud=this.cloud;this.local=sim;this.cloud=new LocalCloud(sim,this.model);this.setSite();this.setExploded(false);this.lifts.forEach(l=>{l.x=0;l.v=0;});this.goal=2.35;}
+ leaveLocal(){if(!this.local)return;this.local=null;this.cloud=this.ambientCloud;this.ambientCloud=null;this.setSite();}
+ buildTissue(){if(this.local){const own=data=>{const mesh=this.gpu.mesh(data);this.resources.push(mesh);return mesh;};
+  this.tissueGroups=[this.group(own(surface(()=>-4,32,8)),[instance([0,0,0],[1,1,1],'#654c60')],{layer:0})];
+  this.capillaryGroup=this.group(this.rod,[],{layer:0});this.gel=own(surface(()=>0,32,12));this.gelBuffers=Array.from({length:5},()=>new Float32Array(STRIDE));return;
+ }const site=this.model.site.id,rand=rng(28),g=this.gpu;const own=mesh=>{const m=g.mesh(mesh);this.resources.push(m);return m;};this.tissueGroups=[];
  const color=site==='mouth'?'#cfbea4':site==='skin'?'#c69080':site==='lung'||site==='nose'?'#b888ae':'#c2859b';
  this.tissueGroups.push(this.group(own(surface((x,z)=>heightAt(site,x,z),32,36)),[instance([0,0,0],[1,1,1],color)],{layer:0}));
  const cells=[];for(let x=-29;x<=29;x+=3.1)for(let z=-29;z<=29;z+=3.1){const y=heightAt(site,x,z)-.28,c=(Math.round(x+z)*3)%11===0?'#699c93':color;cells.push(instance([x,y,z],[1.48,.45,1.48],c,undefined,1));}this.tissueGroups.push(this.group(this.tissueCell,cells,{layer:0}));
@@ -55,7 +62,7 @@ export class World{
  this.capillary=own(tube(catmull([[-30,-3,8],[-12,-4,3],[0,-3,9],[15,-3,-1],[30,-4,-6]],10),.7,10));this.capillaryGroup=this.group(this.capillary,[instance([0,0,0],[1,1,1],'#a66468')],{layer:0});
  }
  get microLayer(){return layerLayout(this.model.site).micro;}
- get microShift(){return this.lifts[this.microLayer].x*this.microLayer*3.8;}
+ get microShift(){if(this.local)return 0;return this.lifts[this.microLayer].x*this.microLayer*3.8;}
  highlight(layer){return this.layerHover===layer?1:0;}
  recordGroup(group,data,alpha){
   for(let i=0;i<group.count;i++)this.pickTargets.push({geometry:group.mesh.geometry,data,offset:i*STRIDE,kind:group.transparent?'fluid':'tissue',layer:group.layer??0,opacity:alpha*data[i*STRIDE+13]});
@@ -66,7 +73,7 @@ export class World{
  camera(target,distance,yaw,pitch,fog){const eye=[target[0]+Math.sin(yaw)*Math.cos(pitch)*distance,target[1]+Math.sin(pitch)*distance,target[2]+Math.cos(yaw)*Math.cos(pitch)*distance],vp=multiply(perspective(.72,this.w/this.h,Math.max(.001,distance/2000),Math.max(100,distance*20)),lookAt(eye,target));this.gpu.camera(vp,eye,fog);this.cameraState={target,eye,vp,near:Math.max(.001,distance/2000),far:Math.max(100,distance*20)};return this.cameraState;}
  drawGroup(group,alpha=1,material=0,dy=0,pickable=false){let data=group.data;if(dy){data=group.data.slice();for(let i=0;i<group.count;i++)data[i*STRIDE+1]+=dy;}this.gpu.upload(group.mesh,data,group.count);this.gpu.draw(group.mesh,group.count,alpha,material,!group.transparent&&alpha>.9,pickable?this.highlight(group.layer??0):0);if(pickable)this.recordGroup(group,data,alpha);}
  render(){this.w=this.canvas.clientWidth;this.h=this.canvas.clientHeight;const ratio=Math.min(devicePixelRatio||1,1.5);if(this.overlay.width!==Math.round(this.w*ratio)||this.overlay.height!==Math.round(this.h*ratio)){this.overlay.width=Math.round(this.w*ratio);this.overlay.height=Math.round(this.h*ratio);}const c=this.ctx;c.setTransform(ratio,0,0,ratio,0,0);c.clearRect(0,0,this.w,this.h);if(this.lost){c.fillStyle='#d1dcc6';c.font='16px system-ui';c.fillText('Графический контекст потерян. Ожидаем восстановления…',30,80);return;}
- const q=this.travel.x,blend=smooth(1.32,1.88,q);this.gpu.begin(this.model.time,q<1.5?Math.max(1,this.ratio):this.ratio);this.gpu.fields(this.model.fields,this.field);this.bodyLabels=[];this.pickTargets=[];this.bubbleHits=[];
+ const q=this.travel.x,blend=smooth(1.32,1.88,q);this.gpu.begin(this.model.time,q<1.5?Math.max(1,this.ratio):this.ratio);this.gpu.fields(this.local?this.cloud.fieldPixels:this.model.fields,this.local?0:this.field);this.bodyLabels=[];this.pickTargets=[];this.bubbleHits=[];
  if(this.inspect){this.renderCell();return;}
  if(blend<.998){const target=mix3([0,-.32,0],ORGAN_POINTS[this.model.site.id],smooth(0,1,q)),distance=q<1?mix(9.7,2.6,smooth(0,1,q)):2.6*Math.exp(-(q-1)*3.8);const cam=this.camera(target,distance*(this.w<650?2.3:1),this.yaw.x,this.pitch.x,.022);
   for(const group of this.bodyGroups){const isSelected=group.site===this.model.site.id;const a=group.site==='stars'?(1-smooth(0,.8,q)):(group.site==='floor'?1-smooth(.3,.9,q):1-(isSelected?0:smooth(.6,1.5,q)*.76));this.drawGroup(group,(1-blend)*a);}
@@ -78,16 +85,16 @@ export class World{
   const distance=q<2?mix(110,51,smooth(1.32,2,q)):mix(51,8,smooth(2,3,q));const pitch=clamp(this.pitch.x+.44,.06,1.35);this.camera(target,distance,this.yaw.x,pitch,.014);
   this.drawGroup(this.capillaryGroup,blend,0,0,true);
   for(const group of this.tissueGroups.filter(g=>!g.transparent))this.drawGroup(group,blend,0,this.lifts[group.layer||0].x*(group.layer||0)*3.8,true);
-  this.renderCloud(blend);this.renderParticles(blend);this.renderLifeEvents(blend);
-  if(this.showConnections)this.connections(blend);
+  this.renderCloud(blend);if(this.local)this.renderLocalEvents(blend);else{this.renderParticles(blend);this.renderLifeEvents(blend);}
+  if(this.showConnections&&!this.local)this.connections(blend);
   for(const group of this.tissueGroups.filter(g=>g.transparent))this.drawGroup(group,blend,0,this.lifts[group.layer||0].x*(group.layer||0)*3.8,true);
-  const fluids=layerLayout(this.model.site).fluid;
+  const fluids=this.local?[1]:layerLayout(this.model.site).fluid;
   for(const i of fluids){
    if(this.autoLow&&i!==fluids[0]&&!this.exploded&&this.layerHover!==i&& !this.layerMode)continue;
-   const z=i*1.4+this.lifts[i].x*i*3.8,data=this.gelBuffers[i];
-   writeInstance(data,0,[0,z,0],[1,1,1],LAYER_COLORS[i],undefined,.14);
+   const z=this.local?this.cloud.slice*2:i*1.4+this.lifts[i].x*i*3.8,data=this.gelBuffers[i];
+   writeInstance(data,0,[0,z,0],[1,1,1],LAYER_COLORS[i],undefined,this.local?.7:.14);
    this.gpu.upload(this.gel,data,1);this.gpu.draw(this.gel,1,blend,2,false,this.highlight(i));
-   this.pickTargets.push({geometry:this.gel.geometry,data,offset:0,kind:'fluid',layer:i,opacity:.14*blend});
+   this.pickTargets.push({geometry:this.gel.geometry,data,offset:0,kind:'fluid',layer:i,opacity:(this.local?.7:.14)*blend});
   }
   this.drawMicroLabels();
  }
@@ -97,22 +104,23 @@ export class World{
  const budget=this.quality==='detail'?420:this.quality==='eco'||this.autoLow?36:120;
  for(const key in this.speciesBuffers){high[key]=0;low[key]=0;mid[key]=0;}
  for(let i=0;i<cloud.count;i++){
-  const id=cloud.ids[cloud.species[i]],s=byId[id],type=s.shape,vp=this.cameraState.vp,x=cloud.x[i],y=cloud.y[i]+this.microShift,z=cloud.z[i];
+  if(cloud.alive&&!cloud.alive[i])continue;
+  const id=cloud.ids[cloud.species[i]],s=byId[id],type=cloud.shape?cloud.shape(i):s.shape,vp=this.cameraState.vp,x=cloud.x[i],y=cloud.y[i]+this.microShift,z=cloud.z[i];
   const cw=vp[3]*x+vp[7]*y+vp[11]*z+vp[15],cx=vp[0]*x+vp[4]*y+vp[8]*z+vp[12],cy=vp[1]*x+vp[5]*y+vp[9]*z+vp[13];
   if(cw<.01||Math.abs(cx)>cw+2||Math.abs(cy)>cw+2)continue;
-  const mass=this.model.pop[id]/this.model.initial[id],size=cloud.size[i]*clamp(Math.sqrt(mass),.24,1.5),radius=size*this.h/(.75*cw);
+  const mass=this.local?1:this.model.pop[id]/this.model.initial[id],size=cloud.size[i]*clamp(Math.sqrt(mass),.24,1.5),radius=size*this.h/(.75*cw);
   this.visibleAgents.push({id:i,x:(cx/cw*.5+.5)*this.w,y:(.5-cy/cw*.5)*this.h,radius,depth:cw,size});
  }
  this.visibleAgents.sort((a,b)=>(b.id===this.selected?1:0)-(a.id===this.selected?1:0)||b.radius-a.radius);
  for(const item of this.visibleAgents){
-  const i=item.id,id=cloud.ids[cloud.species[i]],s=byId[id],type=s.shape,size=item.size,phase=cloud.phase[i],angle=cloud.angle[i];
+  const i=item.id,id=cloud.ids[cloud.species[i]],s=byId[id],type=cloud.shape?cloud.shape(i):s.shape,size=item.size,phase=cloud.phase[i],angle=cloud.angle[i];
   const detailed=i===this.selected||(item.radius>7&&details<budget),medium=!detailed&&item.radius>3&&middle<(this.quality==='detail'?400:180);
   if(detailed)details++;if(medium)middle++;
   const buf=detailed?this.speciesBuffers[type]:medium?this.mediumBuffers[type]:this.lightBuffers[type],counts=detailed?high:medium?mid:low;
-  const mass=this.model.pop[id]/this.model.initial[id],a=clamp(mass,.06,1)*(this.selectedSpecies&&this.selectedSpecies!==id?.25:1);
+  const mass=this.local?1:this.model.pop[id]/this.model.initial[id],a=clamp(mass,.06,1)*(this.selectedSpecies&&this.selectedSpecies!==id?.25:1);
   const q=quatFromY([Math.cos(angle),Math.sin(phase+t*.55)*.16,Math.sin(angle)]),pulse=this.calm?1:1+cloud.activity[i]*.07*Math.sin(t*5+phase);
   const slot=counts[type]++;item.kind='agent';item.agent=i;item.layer=this.microLayer;item.data=buf;item.offset=slot*STRIDE;item.opacity=a*alpha;item.geometry=(detailed?this.microMeshes[type]:medium?this.mediumMeshes[type]:this.lightMeshes[type]).geometry;this.pickTargets.push(item);
-  writeInstance(buf,slot,[cloud.x[i],cloud.y[i]+this.microShift,cloud.z[i]],[size*pulse,size,size*pulse],liveColor(id),q,a,cloud.activity[i]*.45,phase);
+  writeInstance(buf,slot,[cloud.x[i],cloud.y[i]+this.microShift,cloud.z[i]],[size*pulse,size,size*pulse],cloud.color?cloud.color(i):liveColor(id),q,a,cloud.activity[i]*.45,phase);
  }
  for(const[type,count]of Object.entries(mid))if(count){this.gpu.upload(this.mediumMeshes[type],this.mediumBuffers[type],count);this.gpu.draw(this.mediumMeshes[type],count,alpha,0,true,this.highlight(this.microLayer));}
  for(const[type,count]of Object.entries(low))if(count){this.gpu.upload(this.lightMeshes[type],this.lightBuffers[type],count);this.gpu.draw(this.lightMeshes[type],count,alpha,0,true,this.highlight(this.microLayer));}
@@ -126,6 +134,19 @@ export class World{
  }
  this.gpu.upload(this.tissueCell,this.miscBuffer,n);this.gpu.draw(this.tissueCell,n,alpha);
  if(this.selected>=0){const p=cloud.position(this.selected);p[1]+=this.microShift;writeInstance(this.one,0,p,[.9,.9,.9],'#fff2a3',undefined,1,.5);this.gpu.upload(this.ring,this.one,1);this.gpu.draw(this.ring,1,alpha);}
+ }
+ renderLocalEvents(alpha){
+  const sim=this.local;let n=0;
+  writeInstance(this.one,0,[0,0,0],[.75,1,.75],sim.barrier>.5?'#75d6bd':'#e68b75',undefined,.04+sim.barrier*.16);this.gpu.upload(this.gel,this.one,1);this.gpu.draw(this.gel,1,alpha,0,false);
+  for(const job of sim.jobs){const a=this.cloud.position(job.from-1),b=this.cloud.position(job.to-1),seg=segment(a,b,.045);writeInstance(this.miscBuffer,n++,seg.pos,seg.scale,'#ffdf6c',seg.q,1,.5);}
+  for(const e of sim.entities)if(e.alive&&e.state==='hypha'&&e.parents.length){const parent=sim.get(e.parents[0]);if(parent?.alive){const seg=segment(this.cloud.position(e.id-1),this.cloud.position(parent.id-1),.12);writeInstance(this.miscBuffer,n++,seg.pos,seg.scale,'#ed80e7',seg.q);}}
+  for(const event of sim.events.slice(-60)){if(sim.tick-event.tick>20||event.actors.length<2)continue;
+   if(!['transfer','t6','adsorption','engulf'].includes(event.kind))continue;
+   const a=this.cloud.position(event.actors[0]-1),b=this.cloud.position(event.actors[1]-1),seg=segment(a,b,.065);
+   writeInstance(this.miscBuffer,n++,seg.pos,seg.scale,event.kind==='t6'?'#ff716b':event.kind==='engulf'?'#e9faff':'#ffe879',seg.q,1,.4);
+  }
+  this.gpu.upload(this.rod,this.miscBuffer,n);this.gpu.draw(this.rod,n,alpha);
+  this.label('Локальный срез: ткань y < 0 · просвет y > 0',[-12,-1,0],'#d6c4ee');
  }
  renderLifeEvents(alpha){
  let n=0;const cloud=this.cloud,t=cloud.visualTime;
@@ -198,7 +219,7 @@ export class World{
 
  label(text,pos,color='#c4dba0'){const p=project(pos,this.cameraState.vp,this.w,this.h);if(!p||p.z>1)return;const c=this.ctx;c.font='11px system-ui';const width=c.measureText(text).width+20,x=clamp(p.x+24,8,this.w-width-8),y=p.y;c.strokeStyle=color+'88';c.lineWidth=.8;c.beginPath();c.moveTo(p.x,p.y);c.lineTo(x,y-14);c.stroke();c.fillStyle='#102526ec';c.beginPath();c.roundRect(x,y-30,width,25,5);c.fill();c.fillStyle=color;c.fillText(text,x+10,y-13);}
  drawBodyLabels(q){if(q>.9)return;const c=this.ctx;for(const p of this.bodyLabels){const selected=p.id===this.model.site.id;if(!selected&&['mouth','nose'].includes(p.id))continue;c.fillStyle=selected?'#d7e7a1':'#abc8bb';c.beginPath();c.arc(p.x,p.y,selected?5:2.4,0,6.28);c.fill();if(selected){c.strokeStyle='#d7e7a16b';c.beginPath();c.arc(p.x,p.y,12,0,6.28);c.stroke();const side=p.x<this.w/2?-1:1;const tx=p.x+side*80;c.strokeStyle='#c1d4aa70';c.beginPath();c.moveTo(p.x+side*14,p.y);c.lineTo(tx,p.y-19);c.stroke();c.font='12px system-ui';c.textAlign=side<0?'right':'left';c.fillStyle='#d8e0c8';c.fillText(p.name,tx,p.y-28);c.textAlign='left';}}}
- drawMicroLabels(){if(this.exploded){this.model.site.layers.forEach((l,i)=>this.label(l,[-20,i*1.4+this.lifts[i].x*i*3.8,5],this.layerHover===i?'#fff296':LAYER_COLORS[i]));}if(this.selected>=0){const pos=this.cloud.position(this.selected);pos[1]+=this.microShift;const s=byId[this.cloud.ids[this.cloud.species[this.selected]]];if(!this.thoughts)this.label(s.name+' · #'+this.selected,pos,liveColor(s.id));}this.drawThoughts();}
+ drawMicroLabels(){if(this.exploded){this.model.site.layers.forEach((l,i)=>this.label(l,[-20,i*1.4+this.lifts[i].x*i*3.8,5],this.layerHover===i?'#fff296':LAYER_COLORS[i]));}if(this.selected>=0){const pos=this.cloud.position(this.selected);pos[1]+=this.microShift;const s=byId[this.cloud.ids[this.cloud.species[this.selected]]];if(!this.thoughts)this.label(s.name+' · #'+(this.local?this.selected+1:this.selected),pos,liveColor(s.id));}this.drawThoughts();}
  drawThoughts(){
  this.bubbleHits=[];if(!this.thoughts||this.inspect||this.exploded||this.travel.x<1.9)return;
  const cloud=this.cloud,c=this.ctx,t=cloud.visualTime,epoch=Math.floor(t/7),mobile=this.w<650;
@@ -220,7 +241,7 @@ export class World{
   const alpha=this.calm||id===this.selected?1:Math.min(1,(t%7)/.25,(7-t%7)/.4);if(alpha<.02)continue;c.globalAlpha=alpha;
   c.strokeStyle=liveColor(s.id);c.lineWidth=1.4;c.fillStyle='#122940f5';c.beginPath();c.roundRect(x,y,width,height,10);c.fill();c.stroke();
   c.beginPath();c.moveTo(clamp(p.x,x+10,x+width-10),y+height);c.lineTo(p.x,p.y-p.radius-3);c.stroke();
-  c.fillStyle=liveColor(s.id);c.font='10px system-ui';c.fillText(s.name+' · #'+id,x+11,y+16);c.fillStyle='#fff9e8';c.font='600 12px system-ui';
+  c.fillStyle=liveColor(s.id);c.font='10px system-ui';c.fillText(s.name+' · #'+(this.local?id+1:id),x+11,y+16);c.fillStyle='#fff9e8';c.font='600 12px system-ui';
   lines.forEach((line,j)=>c.fillText(line,x+11,y+34+j*16));c.globalAlpha=1;boxes.push(box);
  }
  this.bubbleHits=boxes;

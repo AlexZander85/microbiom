@@ -1,0 +1,58 @@
+{
+  "testedAt": "2026-10-15T07:43:25.257Z",
+  "viewport": [
+    1440,
+    1000
+  ],
+  "browser": "153.0.8010.0",
+  "displacementInThreeVisualSeconds": 2.969390163959773,
+  "live": {
+    "time": 8.166666666666648,
+    "pos": [
+      26.3441162109375,
+      3.879802942276001,
+      -4.264781475067139
+    ],
+    "events": 3,
+    "stats": {
+      "updateMs": 22.399999999906868,
+      "renderMs": 5.800000000046566,
+      "drawCalls": 25,
+      "triangles": 53144,
+      "instances": 2593,
+      "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+    },
+    "quality": {
+      "profile": "auto",
+      "autoLow": true,
+      "visible": 1931,
+      "detailed": 36,
+      "medium": 180,
+      "light": 1715
+    }
+  },
+  "performance": {
+    "fps": 5.4887480664637485,
+    "medianMs": 183.29999999999563,
+    "p95Ms": 233.3000000000029,
+    "frames": 44,
+    "stats": {
+      "updateMs": 10.699999999953434,
+      "renderMs": 3.5,
+      "drawCalls": 26,
+      "triangles": 49204,
+      "instances": 2189,
+      "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+    },
+    "quality": {
+      "profile": "auto",
+      "autoLow": true,
+      "visible": 1546,
+      "detailed": 36,
+      "medium": 180,
+      "light": 1330
+    },
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+  },
+  "errors": []
+}

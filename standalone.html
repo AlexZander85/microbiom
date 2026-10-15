@@ -29,6 +29,8 @@ dialog{width:min(850px,calc(100vw - 30px));max-height:90vh;overflow:auto;border:
 
 #layer-buttons button{border-left:3px solid var(--part-color,#d1dea5)}#layer-buttons button:hover,#layer-buttons button:focus-visible,#layer-buttons button[aria-pressed="true"]{background:#ffe27620;color:#fff1b5;border-color:#ffe276}#pick-layers[aria-pressed="true"]{color:#fff1b5;background:#ffe27620}
 
+.local-lab{padding:32px 3%;border-block:1px solid var(--line);background:linear-gradient(125deg,#13282b,#101d24)}.local-heading{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}.local-lab h2{font:30px Georgia,serif;margin:10px 0}.local-lab h2 em{color:#c6d8a9;font-style:normal}.local-lab h3{font-size:13px;color:#d4e1c5;margin:18px 0 10px}.local-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.local-actions button,.local-actions label,.local-load-row label{border:1px solid #a9d5c135;border-radius:6px;padding:9px 11px;font-size:11px}.local-actions .primary{width:auto}.local-actions select{max-width:230px;background:#132c2e;color:#d8e4cc;border:1px solid #a9d5c135;border-radius:4px;margin-left:5px;padding:4px}.local-lab>p{font-size:12px;line-height:1.7;margin:10px 0}.local-notice{color:#9ab5ad;font-size:11px;line-height:1.7}.local-columns{display:grid;grid-template-columns:1.1fr 1fr;gap:36px}.local-load-row{display:flex;align-items:center;gap:12px;margin:12px 0;font-size:11px;color:#b8d0b2}.local-load-row input{max-width:225px;font-size:10px;margin-left:8px}#local-events{display:flex;flex-direction:column;gap:5px;min-height:50px}#local-events button{text-align:left;font:11px/1.5 ui-monospace,monospace;padding:7px 10px;border-left:2px solid #bbd899;background:#0b1b2380;border-radius:4px}#local-events button:disabled{opacity:.7}.local-replay{margin-top:20px;border-top:1px solid var(--line);padding-top:16px}.local-replay>label{display:block;font-size:10px;color:#a4bbae;margin:14px 0 6px}#local-seek{width:100%;accent-color:#c7db9a}#local-cursor{font:11px ui-monospace,monospace;color:#a9bdab}#local-readouts{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}#local-progress{color:#e6df9d}@media(max-width:700px){.local-columns{grid-template-columns:1fr;gap:10px}.local-lab{padding:24px 16px}.local-lab h2{font-size:25px}.local-heading{gap:8px}.local-load-row{flex-wrap:wrap}.local-load-row input{max-width:180px}.local-actions label{max-width:100%}.local-actions select{max-width:190px}}
+
 </style><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 50'%3E%3Crect width='50' height='50' rx='12' fill='%230b1d20'/%3E%3Ccircle cx='25' cy='25' r='15' fill='none' stroke='%23cfdea3' stroke-width='3'/%3E%3Ccircle cx='25' cy='25' r='5' fill='%23cfdea3'/%3E%3C/svg%3E"></head>
 <body><a class="skip" href="#viewport">Перейти к 3D-сцене</a>
 <header><a href="#" class="brand" aria-label="Микрокосмос, к человеку"><span class="logomark">◉</span><span>микрокосмос<small>ВНУТРЕННЯЯ ВСЕЛЕННАЯ</small></span></a><nav aria-label="Разделы"><button id="home" class="nav-active">Экспедиция</button><button id="atlas">Атлас жителей <small>16</small></button><button id="guide">Как всё связано ↗</button></nav><div class="engine-badge"><i></i> WEBGL 2 <span>/</span> НАСТОЯЩИЙ 3D</div><button id="sources" class="header-source">Научная основа ↗</button></header>
@@ -40,15 +42,26 @@ dialog{width:min(850px,calc(100vw - 30px));max-height:90vh;overflow:auto;border:
  <div id="viewport" class="viewport-focus" tabindex="0" aria-label="Управление сценой: стрелки — поворот, W/S — вперёд и назад, A/D — вбок, пробел — разбор. Мышь: перетаскивание — поворот; колесо — погружение; Shift и перетаскивание — перемещение."></div>
  <aside class="discovery" id="discovery"><div class="eyebrow" id="card-kicker">ВАША СЛЕДУЮЩАЯ ОСТАНОВКА <span>↗</span></div><div class="biome-glyph" id="biome-glyph">∿</div><div class="card-tag" id="card-tag">АНАЭРОБНАЯ ЭКОСИСТЕМА</div><h2 id="card-title">Толстая кишка</h2><p class="card-latin" id="card-latin">Маленькие жители. Большие связи.</p><p id="card-copy">Здесь соседи превращают остатки пищи в вещества, которыми пользуются другие микробы и клетки человека.</p><div class="card-stats" id="card-stats"><div><span>ГРУПП В АТЛАСЕ</span><b>5</b></div><div><span>МАСШТАБ ЖИТЕЛЕЙ</span><b>нм — мкм</b></div></div><div class="lens-tabs" id="lens-tabs" hidden><button class="active" data-lens="simple">Просто</button><button data-lens="science">Научно</button></div><div class="agent-live" id="agent-live" hidden></div><button class="primary" id="dive">Погрузиться внутрь <span>↘</span></button><div class="card-actions" id="agent-actions" hidden><button id="follow">Следить за клеткой</button><button id="anatomy">Устройство ↗</button></div><p class="card-note" id="card-note">Сначала орган. Затем ткань.<br>Потом — целый мир в капле.</p></aside>
  <div class="camera-controls" aria-label="Инструменты камеры"><button id="closer" title="Приблизиться" aria-label="Приблизиться">+</button><button id="farther" title="Отдалиться" aria-label="Отдалиться">−</button><div></div><button id="reset-camera" title="Вернуть камеру" aria-label="Вернуть камеру">↺</button><button id="calm" title="Уменьшить движение" aria-label="Уменьшить движение" aria-pressed="false">≈</button><button id="explode" title="Разбор по слоям (пробел)" aria-label="Разбор по слоям" aria-pressed="false">▱</button></div>
- <div class="micro-tools" id="micro-tools" hidden><button data-field="0" class="active">Живая среда</button><button data-field="1">Бутират</button><button data-field="2">Кислород</button><button id="pick-layers" aria-pressed="false">Выбирать слои</button><button id="connections">Путь метаболитов</button><button id="thoughts" aria-pressed="true">💬 Мысли: вкл</button><button id="feed-nearby" aria-label="Добавить корм в выбранную точку">⌇ Корм</button><label>Плотность <select id="density"><option value="1800">1 800</option><option value="3600" selected>3 600</option><option value="7000">7 000</option></select></label><label>Анимация <select id="life-rate" aria-label="Темп учебной анимации"><option value="1">Живая</option><option value="2">Быстрее ×2</option><option value="4">Быстрее ×4</option></select></label><label>Графика <select id="quality" aria-label="Качество графики"><option value="auto">Авто</option><option value="eco">Эконом</option><option value="detail">Детали</option></select></label><small id="motion-note">Движение ускорено · мысли — подсказки рассказчика</small></div>
+ <div class="micro-tools" id="micro-tools" hidden><button data-field="0" class="active">Живая среда</button><button data-field="1">Бутират</button><button data-field="2">Кислород</button><button id="local-open">Локальные процессы →</button><button id="pick-layers" aria-pressed="false">Выбирать слои</button><button id="connections">Путь метаболитов</button><button id="thoughts" aria-pressed="true">💬 Мысли: вкл</button><button id="feed-nearby" aria-label="Добавить корм в выбранную точку">⌇ Корм</button><label>Плотность <select id="density"><option value="1800">1 800</option><option value="3600" selected>3 600</option><option value="7000">7 000</option></select></label><label>Анимация <select id="life-rate" aria-label="Темп учебной анимации"><option value="1">Живая</option><option value="2">Быстрее ×2</option><option value="4">Быстрее ×4</option></select></label><label>Графика <select id="quality" aria-label="Качество графики"><option value="auto">Авто</option><option value="eco">Эконом</option><option value="detail">Детали</option></select></label><small id="motion-note">Движение ускорено · мысли — подсказки рассказчика</small></div>
  <div class="scale-caption"><span id="scale-kicker">МАСШТАБ ОРИЕНТИРА</span><b id="scale-value">Человек · ~1,7 м</b><span id="scale-note">Обобщённая анатомическая модель</span></div>
  <div class="scene-hint" id="scene-hint"><span>↔</span> Поверните человека <i>·</i> Колесо — путешествие внутрь</div>
  <div class="journey"><div class="journey-label"><span class="eyebrow">ГЛУБИНА ПОГРУЖЕНИЯ</span><span id="instance-count">01 / ЧЕЛОВЕК</span></div><div class="journey-steps"><button data-depth="0" class="active"><i></i>Человек <small>метры</small></button><button data-depth="1"><i></i>Орган <small>сантиметры</small></button><button data-depth="2"><i></i>Ткань <small>микросреда</small></button><button data-depth="2.8"><i></i>Микромир <small>микрометры</small></button></div><input id="depth" aria-label="Глубина погружения" type="range" min="0" max="3" step="0.01" value="0"></div>
  <div class="error-panel" id="gpu-error" hidden><h2>Для этого путешествия нужен WebGL2</h2><p>Включите аппаратное ускорение или откройте страницу в другом современном браузере.</p><a href="classic.html">Открыть упрощённую Canvas-версию →</a></div>
  <div id="drop-hint" hidden>Нажмите в микромире, чтобы внести пищу <button id="cancel-drop">Отмена ×</button></div>
 </section>
-<section class="laboratory"><div class="lab-main"><div class="section-title"><h2>Измените среду. <em>Увидьте связи.</em></h2><button id="restart">↺ Новый опыт</button></div><div id="experiments"></div><div class="explanation"><span>✧</span><div><b id="explain-title">Начните с погружения.</b><p id="explain-copy">Нажмите «Погрузиться внутрь» или приближайтесь колёсиком. В микромире можно внести пищу в выбранное место и последовать за клеткой.</p></div><button id="explain-more" aria-label="Объяснить подробнее">↗</button></div><div id="residents" aria-label="Выбор вида микробов"></div><div id="layer-buttons" role="group" aria-label="Слои ткани или части клетки"></div></div><aside class="telemetry"><div class="telemetry-head"><h3><i></i> Пульс микромира</h3><button id="pause" aria-label="Пауза">Ⅱ</button><select id="speed" aria-label="Скорость модели"><option value="1">1×</option><option value="4">4×</option></select></div><div id="readouts"></div><div class="telemetry-bottom"><button id="compare">Контрольный опыт ↗</button><button id="journal">Журнал ↗</button><span id="sim-time">t = 0</span></div><p>Учебная модель · не медицинские показатели</p></aside></section>
-<footer><span><i></i> Большой мир начинается с любопытства.</span><button id="limits">Условности, масштаб и границы модели ↗</button><span>10+ <b>/</b> STRUCTURE EDITION · 0.4</span></footer>
+<section class="local-lab" id="local-lab" aria-labelledby="local-title">
+ <div class="local-heading"><div><span class="eyebrow">ПРИЧИНЫ, А НЕ ДЕКОРАЦИИ · НОВЫЙ РЕЖИМ</span><h2 id="local-title">Лаборатория <em>живых процессов.</em></h2></div><div class="local-actions"><label>Сценарий <select id="local-scenario" aria-label="Сценарий локального эксперимента"></select></label><button class="primary" id="local-start">Начать опыт ↗</button><button class="outline" id="local-exit" hidden>← Обзор сообщества</button></div></div>
+ <p id="local-summary"></p><p class="local-notice">Условные штаммы, 3D-сетка и ускоренные учебные времена. Не данные пациента. Во время опыта общая агрегированная модель остановлена — локальные события не считаются в ней повторно.</p>
+ <div class="local-load-row"><label class="outline">Загрузить запись JSON <input id="local-load" type="file" accept=".json,application/json"></label><span id="local-progress" role="status"></span></div>
+ <div id="local-controls" hidden><div class="local-columns"><div>
+  <h3>Вмешательства в выбранной точке</h3><p class="local-notice">Выберите агента кликом или через событие; без выбора точка (0, 3, 0). Начальные близкие пары в сценариях подготовлены для наблюдения, события вычисляются.</p>
+  <div class="local-actions"><button data-local-action="feed">+ Субстрат</button><button data-local-action="antibiotic">Антибиотический импульс</button><button data-local-action="breach">Открыть барьер</button><button data-local-action="repair">Закрыть барьер</button><button data-local-action="induce">Индуцировать профаг</button><button data-local-action="germinate">Сигнал прорастания</button><button data-local-action="hypha">Сигнал гифальной формы</button></div>
+  <p class="local-notice">Жёлтый — pDemoR; розовый — заражение; белый — фагоцит; охристый — спора. Цвет не означает «полезный» или «вредный».</p><h3>Поле в срезе</h3><div class="local-actions"><label>Вещество <select id="local-field"><option value="food">Субстрат</option><option value="acetate">Ацетат</option><option value="butyrate">Бутират</option><option value="oxygen">Кислород</option><option value="signal">Сигнал из ткани</option><option value="drug">Антибиотик</option><option value="detritus">Остатки клеток</option></select></label><label>Высота y <select id="local-slice"><option value="-1">−1 · ткань</option><option value="1">1 · над барьером</option><option value="3" selected>3 · просвет</option><option value="5">5 · верхний срез</option></select></label></div>
+ </div><div><h3>Последние причинные события</h3><div id="local-events" aria-label="Журнал локальных событий"></div></div></div>
+ <div class="local-replay"><div class="local-actions"><button id="local-pause">Ⅱ Пауза</button><button id="local-step">Шаг +0,1</button><button id="local-history">Генеалогия и журнал ↗</button><button id="local-save">Сохранить опыт ↓</button><button id="local-fork">Продолжить отсюда</button><span id="local-cursor"></span></div><label for="local-seek">Воспроизведение до выбранного шага · при перемотке включается пауза</label><input id="local-seek" type="range" min="0" max="0" step="1" value="0"></div></div>
+</section>
+<section class="laboratory"><div class="lab-main"><div class="section-title"><h2>Измените среду. <em>Увидьте связи.</em></h2><button id="restart">↺ Новый опыт</button></div><div id="experiments"></div><div class="explanation"><span>✧</span><div><b id="explain-title">Начните с погружения.</b><p id="explain-copy">Нажмите «Погрузиться внутрь» или приближайтесь колёсиком. В микромире можно внести пищу в выбранное место и последовать за клеткой.</p></div><button id="explain-more" aria-label="Объяснить подробнее">↗</button></div><div id="residents" aria-label="Выбор вида микробов"></div><div id="layer-buttons" role="group" aria-label="Слои ткани или части клетки"></div></div><aside class="telemetry"><div class="telemetry-head"><h3><i></i> Пульс микромира</h3><button id="pause" aria-label="Пауза">Ⅱ</button><select id="speed" aria-label="Скорость модели"><option value="1">1×</option><option value="4">4×</option></select></div><div id="readouts"></div><div id="local-readouts" hidden></div><div class="telemetry-bottom"><button id="compare">Контрольный опыт ↗</button><button id="journal">Журнал ↗</button><span id="sim-time">t = 0</span></div><p>Учебная модель · не медицинские показатели</p></aside></section>
+<footer><span><i></i> Большой мир начинается с любопытства.</span><button id="limits">Условности, масштаб и границы модели ↗</button><span>10+ <b>/</b> PROCESS EDITION · 0.5</span></footer>
 </main><dialog id="dialog"><div class="dialog-top"><span class="eyebrow" id="dialog-kicker">МИКРОКОСМОС</span><button id="close-dialog" aria-label="Закрыть">×</button></div><div id="dialog-content"></div></dialog><div class="sr-only" id="announcement" role="status" aria-live="polite"></div><noscript>Для путешествия нужен JavaScript. Документация находится в docs/PROJECT_SPEC.md.</noscript><script>
 "use strict";
 const __modules = Object.create(null);
@@ -2427,6 +2440,284 @@ class GPU{
 
 return {STRIDE,VS,FS,colorOf,writeInstance,GPU};
 })();
+__modules["src/local/chemistry.js"] = (() => {
+// Finite-volume amounts on a uniform 3D grid. Every internal face flux is paired.
+const CHEMICALS=['food','acetate','butyrate','detritus','waste','oxygen','signal','drug'];
+const CARBON=['food','acetate','butyrate','detritus','waste'];
+class ChemicalGrid {
+ constructor(n=12){
+  this.n=n;this.ny=8;this.dx=24/n;this.dy=1;this.length=n*n*this.ny;
+  this.values=Object.fromEntries(CHEMICALS.map(k=>[k,new Float64Array(this.length)]));
+  this.next=Object.fromEntries(CHEMICALS.map(k=>[k,new Float64Array(this.length)]));
+  this.faces=[];
+  for(let y=0;y<this.ny;y++)for(let z=0;z<n;z++)for(let x=0;x<n;x++){
+   const i=this.index(x,y,z);
+   if(x+1<n)this.faces.push([i,i+1,1/(this.dx*this.dx),false]);
+   if(z+1<n)this.faces.push([i,i+n,1/(this.dx*this.dx),false]);
+   if(y+1<this.ny)this.faces.push([i,i+n*n,1,y===1]); // interface y=0
+  }
+ }
+ index(x,y,z){return(y*this.n+z)*this.n+x;}
+ voxel(pos){const bound=(v,max)=>Math.max(0,Math.min(max-1,Math.floor(v)));return this.index(bound((pos[0]+12)/this.dx,this.n),bound(pos[1]+2,this.ny),bound((pos[2]+12)/this.dx,this.n));}
+ sample(kind,pos){return this.values[kind][this.voxel(pos)];}
+ add(kind,pos,amount){if(!Number.isFinite(amount)||amount<0)throw new Error('Invalid chemical source');this.values[kind][this.voxel(pos)]+=amount;}
+ take(kind,pos,amount){const a=this.values[kind],i=this.voxel(pos),used=Math.min(a[i],Math.max(0,amount));a[i]-=used;return used;}
+ total(kind){let sum=0;for(const x of this.values[kind])sum+=x;return sum;}
+ carbon(){return CARBON.reduce((s,k)=>s+this.total(k),0);}
+ diffuse(dt,barrier=1){
+  if(!Number.isFinite(dt)||dt<0||dt>1)throw new Error('Invalid diffusion step');
+  const diffusion={food:.35,acetate:.65,butyrate:.45,detritus:.06,waste:.5,oxygen:.8,signal:.6,drug:.5};
+  const substeps=Math.max(1,Math.ceil(dt*.8*(2/this.dx**2+1)/.45)),h=dt/substeps;
+  for(let step=0;step<substeps;step++)for(const k of CHEMICALS){
+   const a=this.values[k],b=this.next[k];b.set(a);
+   for(const [i,j,inv,wall] of this.faces){
+    const permeability=wall?(k==='oxygen'?.4:k==='signal'?.25:.03)+.6*(1-barrier):1;
+    const flux=(a[i]-a[j])*diffusion[k]*h*inv*permeability;b[i]-=flux;b[j]+=flux;
+   }
+   this.values[k]=b;this.next[k]=a;
+  }
+ }
+ snapshot(){return Object.fromEntries(CHEMICALS.map(k=>[k,Array.from(this.values[k])]));}
+}
+
+return {CHEMICALS,CARBON,ChemicalGrid};
+})();
+__modules["src/local/traits.js"] = (() => {
+const {byId} = __modules["src/data.js"];
+const LOCAL_SPECIES={...byId,immune:{id:'immune',name:'Фагоцит',latin:'Учебная клетка врождённого иммунитета',group:'Клетки хозяина',shape:'protist',color:'#e5f3ff',size:'Условный масштаб клетки хозяина',role:'Распознаёт и поглощает доступные микробы в тканевом отсеке',food:'Здесь не моделируется как микробная трофическая группа',fact:'Хемотаксис, поглощение и переваривание — упрощённые состояния. Не модель всего иммунитета.',refs:[]}};
+const LOCAL_VERSION='local-0.5.0';
+const LOCAL_DT=.1;
+const LOCAL_LIMITS={alive:192,ids:4096,ticks:6000,commands:256,events:12000};
+const LOCAL_SCENARIOS={community:'Связанное сообщество',hgt:'Конъюгация и наследование',t6:'T6SS: контакт и иммунность',phage:'Фаг: литический / умеренный',immune:'Барьер и фагоцитоз',cycles:'Деление, почкование, споры'};
+const EVENT_NAMES={birth:'Появление',division:'Деление',bud:'Почкование',branch:'Рост ветви гифы',death:'Гибель',conjugation:'Контакт для конъюгации',transfer:'Копия плазмиды передана',contact_lost:'Контакт прерван',t6:'T6SS: контактный удар',adsorption:'Адсорбция фага',injection:'Введение генома',eclipse:'Синтез компонентов',assembly:'Сборка потомства',lysis:'Лизис и выход фагов',lysogeny:'Лизогения',induction:'Индукция профага',sporulating:'Начало споруляции',spore:'Спора',germinating:'Прорастание',vegetative:'Вегетативная клетка',hypha:'Переход к гифальной форме',recruit:'Хемотаксис фагоцита',engulf:'Поглощение',digest:'Переваривание',command:'Вмешательство',limit:'Достигнут лимит'};
+// These are invented experimental variants, NOT measured traits of every named taxon.
+function traits(species,variant='base'){
+ const s=LOCAL_SPECIES[species];if(!s)throw new Error('Unknown local species');
+ return {bacterium:s.group==='Бактерии',fungus:s.group==='Грибы',virus:species==='phage',immune:species==='immune',
+  donor:species==='coli'&&variant==='donor',compatibility:species==='coli'?'F-demo':null,
+  receptor:species==='coli'&&variant!=='receptor-negative'?'R-demo':null,
+  t6:species==='bact'&&variant==='t6'?'E-demo':null,immunity:variant==='t6'||variant==='immune-E'?'E-demo':null,
+  phageType:variant==='temperate'?'temperate':'lytic',spore:species==='cdiff',motile:!!s.flagellum};
+}
+const LOCAL_ACTION_NAMES={feed:'субстрат',antibiotic:'антибиотический импульс',breach:'открытие барьера',repair:'закрытие барьера',induce:'индукция профага',germinate:'сигнал прорастания',hypha:'сигнал гифальной формы'};
+const LOCAL_VARIANT_NAMES={base:'исходный',donor:'донор pDemoR',t6:'аппарат T6SS / E-demo','immune-E':'защита от E-demo','receptor-negative':'нет рецептора R-demo',temperate:'умеренный фаг',lytic:'литический фаг'};
+const LOCAL_STATE_NAMES={vegetative:'активная клетка',free:'свободный фаг',dead:'погибла',divided:'разделилась',adsorbed:'связался с хозяином',spore:'спора',sporulating:'споруляция',germinating:'прорастание',budding:'почкование',hypha:'гифальная форма',resting:'покой',recruited:'хемотаксис',engulfing:'поглощение',digesting:'переваривание'};
+const LOCAL_CAUSE_NAMES={antibiotic:'антибиотический импульс',starvation:'истощение',T6SS:'T6SS','phage-lysis':'лизис фагом',phagocytosis:'фагоцитоз','spore-decay':'утрата жизнеспособности споры','virion-decay':'распад вирусной частицы'};
+
+return {LOCAL_SPECIES,LOCAL_VERSION,LOCAL_DT,LOCAL_LIMITS,LOCAL_SCENARIOS,EVENT_NAMES,traits,LOCAL_ACTION_NAMES,LOCAL_VARIANT_NAMES,LOCAL_STATE_NAMES,LOCAL_CAUSE_NAMES};
+})();
+__modules["src/local/engine.js"] = (() => {
+const {ChemicalGrid} = __modules["src/local/chemistry.js"];
+const {traits,LOCAL_DT,LOCAL_LIMITS,LOCAL_VERSION,LOCAL_SCENARIOS} = __modules["src/local/traits.js"];
+const copy=v=>JSON.parse(JSON.stringify(v));
+const distance=(a,b)=>Math.hypot(...a.pos.map((v,i)=>v-b.pos[i]));
+const living=e=>e.alive&&e.state!=='spore'&&e.state!=='sporulating';
+class SpatialIndex {
+ constructor(entities,size=2){this.size=size;this.buckets=new Map();for(const e of entities)if(e.alive){const k=this.key(...e.pos.map(v=>Math.floor(v/size)));if(!this.buckets.has(k))this.buckets.set(k,[]);this.buckets.get(k).push(e);}}
+ key(x,y,z){return`${x},${y},${z}`;}
+ near(e,radius){const c=e.pos.map(v=>Math.floor(v/this.size)),n=Math.ceil(radius/this.size),out=[];for(let x=-n;x<=n;x++)for(let y=-n;y<=n;y++)for(let z=-n;z<=n;z++)for(const b of this.buckets.get(this.key(c[0]+x,c[1]+y,c[2]+z))||[])if(b!==e&&distance(e,b)<=radius)out.push(b);return out.sort((a,b)=>distance(e,a)-distance(e,b)||a.id-b.id);}
+}
+class LocalSimulation {
+ constructor({seed=85,scenario='community'}={}){
+  if(!Number.isInteger(seed)||seed<0||seed>0xffffffff||!Object.hasOwn(LOCAL_SCENARIOS,scenario))throw new Error('Invalid local configuration');
+  this.seed=seed;this.randomState=seed||1;this.scenario=scenario;this.tick=0;this.entities=[];this.events=[];this.sequence=0;this.counts={};this.commands=[];this.jobs=[];this.barrier=1;this.cues={germinate:0,hypha:0};this.stopped=false;this.capacityHits=0;this.chemistry=new ChemicalGrid();this.inputCarbon=0;
+  this.chemistry.values.food.fill(scenario==='cycles'?.0001:.035);
+  this.chemistry.values.oxygen.fill(.02);
+  this.seedScenario();this.initialCarbon=this.carbon();
+ }
+ get time(){return this.tick*LOCAL_DT;}
+ random(){let x=this.randomState;x^=x<<13;x^=x>>>17;x^=x<<5;this.randomState=x>>>0;return this.randomState/4294967296;}
+ get(id){return this.entities[id-1];}
+ emit(kind,actors=[],extra={}){
+  this.counts[kind]=(this.counts[kind]||0)+1;const event={seq:++this.sequence,tick:this.tick,kind,actors:[...actors],...extra};this.events.push(event);
+  if(this.events.length>LOCAL_LIMITS.events)this.events.shift();return event;
+ }
+ create(species,pos,variant='base',parents=[],mass=null){
+  if(this.entities.length>=LOCAL_LIMITS.ids||this.entities.filter(e=>e.alive).length>=LOCAL_LIMITS.alive){this.capacityHits++;return null;}
+  const t=traits(species,variant),e={id:this.entities.length+1,species,variant,traits:t,pos:[...pos],parents:[...parents],host:null,born:this.tick,died:null,alive:true,state:t.virus?'free':t.immune?'resting':'vegetative',timer:0,age:0,mass:mass??(t.virus?.025:t.immune?2:1),gut:0,hp:1,plasmids:t.donor?['pDemoR']:[],infection:null,cooldown:0,starved:0,target:null};
+  this.entities.push(e);this.emit('birth',[e.id,...parents]);return e;
+ }
+ seedScenario(){
+  const add=(sp,x,y,z,v='base',m=null)=>this.create(sp,[x,y,z],v,[],m);
+  if(this.scenario==='community'){
+   const groups=['bact','bif','faec','coli','meth','cand','blast','cdiff'];
+   for(let i=0;i<32;i++){const sp=groups[i%groups.length];add(sp,(this.random()-.5)*16,2+this.random()*2,(this.random()-.5)*16,sp==='bact'&&i===0?'t6':sp==='coli'&&i===3?'donor':'base');}
+   add('coli',-1,3,0,'donor');add('coli',0,3,0);add('phage',4,3,0);add('coli',4.3,3,0);add('immune',0,-1,0);
+  }else if(this.scenario==='hgt'){
+   add('coli',-.5,3,0,'donor');add('coli',.5,3,0);add('bact',0,3,2);this.chemistry.add('food',[0,3,0],3);
+  }else if(this.scenario==='t6'){
+   add('bact',0,3,0,'t6');add('coli',.8,3,0);add('coli',-.8,3,0,'immune-E');add('coli',6,3,0);
+  }else if(this.scenario==='phage'){
+   add('coli',-3,3,0);add('phage',-3,3,.3);add('coli',3,3,0);add('phage',3,3,.3,'temperate');add('coli',0,3,5,'receptor-negative');
+  }else if(this.scenario==='immune'){
+   add('immune',0,-1,0);add('coli',1,-1,0);add('coli',0,3,0);add('cand',-3,-1,0);
+  }else{
+   add('coli',-4,3,0,'donor',1.7);add('cand',0,3,0,'base',1.7);add('cdiff',4,3,0);
+   this.chemistry.add('food',[-4,3,0],1);this.chemistry.add('food',[0,3,0],1);
+  }
+ }
+ carbon(){return this.chemistry.carbon()+this.entities.reduce((sum,e)=>sum+(e.alive?e.mass+e.gut:0),0);}
+ command(kind,pos=[0,3,0]){
+  if(!['feed','antibiotic','breach','repair','induce','germinate','hypha'].includes(kind)||!Array.isArray(pos)||pos.length!==3||pos.some(v=>!Number.isFinite(v))||Math.abs(pos[0])>12||Math.abs(pos[2])>12||pos[1]<-2||pos[1]>6)throw new Error('Invalid intervention');
+  if(this.commands.length>=LOCAL_LIMITS.commands||this.stopped)throw new Error('Session limit reached; start a new experiment');
+  this.commands.push({tick:this.tick,kind,pos:[...pos]});this.emit('command',[],{action:kind,pos:[...pos]});
+  if(kind==='feed'){this.chemistry.add('food',pos,6);this.inputCarbon+=6;}
+  if(kind==='antibiotic')this.chemistry.add('drug',pos,2);
+  if(kind==='breach')this.barrier=.1;
+  if(kind==='repair')this.barrier=1;
+  if(kind==='germinate')this.cues.germinate=150;
+  if(kind==='hypha')this.cues.hypha=300;
+  if(kind==='induce')for(const e of this.entities)if(e.alive&&e.infection?.stage==='lysogen'){
+   e.infection.stage='eclipse';e.infection.remaining=40;this.emit('induction',[e.id]);
+  }
+ }
+ kill(e,cause,release=true){if(!e.alive)return;e.alive=false;e.died=this.tick;e.state='dead';e.cause=cause;
+  if(release)this.chemistry.add('detritus',e.pos,e.mass+e.gut);e.mass=0;e.gut=0;this.emit('death',[e.id],{cause});
+ }
+ grow(e){
+  const f=this.chemistry,t=e.traits,dt=LOCAL_DT;
+  if(e.state==='spore'){
+   if(this.cues.germinate>0&&f.sample('food',e.pos)>.008){e.state='germinating';e.timer=30;this.emit('germinating',[e.id]);}
+   if(this.random()<.00002)this.kill(e,'spore-decay');return;
+  }
+  if(e.state==='sporulating'||e.state==='germinating'){
+   if(--e.timer<=0){e.state=e.state==='sporulating'?'spore':'vegetative';e.starved=0;this.emit(e.state,[e.id]);}return;
+  }
+  const source=e.species==='faec'?'acetate':'food';
+  // Methanogen/protist metabolism is not guessed: these are non-growing controls here.
+  const oxygen=f.sample('oxygen',e.pos),rate=dt*.09*(e.species==='faec'?1/(1+oxygen*15):1);
+  const available=(t.bacterium||t.fungus)?f.take(source,e.pos,Math.min(rate,Math.max(0,(1.7-e.mass)*2))):0;
+  if(e.species==='coli'||t.fungus)f.take('oxygen',e.pos,available*.15);
+  if(available){const yieldMass=available*.5;e.mass+=yieldMass;
+   f.add(['bact','bif'].includes(e.species)?'acetate':e.species==='faec'?'butyrate':'waste',e.pos,available-yieldMass);
+  }
+  const maintenance=Math.min(e.mass,dt*.0015);e.mass-=maintenance;f.add('waste',e.pos,maintenance);
+  if(f.sample('food',e.pos)<.002)e.starved++;else e.starved=0;
+  if(t.spore&&e.starved>50&&!e.infection){e.state='sporulating';e.timer=25;this.emit('sporulating',[e.id]);return;}
+  if(t.bacterium){const drug=f.sample('drug',e.pos);e.hp-=dt*drug*(e.plasmids.includes('pDemoR')?.025:.6);}
+  if(e.mass<.08||e.hp<=0){this.kill(e,e.hp<=0?'antibiotic':'starvation');return;}
+  if(e.infection&&e.infection.stage!=='lysogen')return;
+  if(e.species==='cand'&&this.cues.hypha>0&&e.state==='vegetative'){e.state='hypha';this.emit('hypha',[e.id]);}
+  if(e.mass>=1.6&&t.fungus&&e.state==='vegetative'){e.state='budding';e.timer=30;this.emit('bud',[e.id]);}
+  if(e.state==='budding'&&--e.timer<=0)this.divide(e,'bud');
+  else if(e.mass>=1.6&&t.bacterium)this.divide(e,'division');
+  else if(e.mass>=1.6&&e.state==='hypha')this.divide(e,'branch');
+ }
+ divide(e,kind){
+  const needed=kind==='division'?2:1,alive=this.entities.filter(c=>c.alive).length;
+  if(this.entities.length+needed>LOCAL_LIMITS.ids||alive+needed>LOCAL_LIMITS.alive){this.capacityHits++;if(e.state==='budding')e.timer=30;return;}
+  const children=[],amount=e.mass/2;
+  for(let i=0;i<needed;i++){
+   const sign=i===0?1:-1,pos=[Math.max(-11.5,Math.min(11.5,e.pos[0]+sign*.65)),e.pos[1],e.pos[2]+(kind==='branch'?.5:0)];pos[2]=Math.max(-11.5,Math.min(11.5,pos[2]));
+   const child=this.create(e.species,pos,e.variant,[e.id],amount);child.plasmids=[...e.plasmids];child.infection=e.infection?copy(e.infection):null;
+   if(kind==='branch')child.state='hypha';children.push(child.id);
+  }
+  if(kind==='division'){e.alive=false;e.died=this.tick;e.state='divided';e.mass=0;}else{e.mass=amount;e.state=kind==='branch'?'hypha':'vegetative';}
+  this.emit(kind==='bud'?'division':kind,[e.id,...children],{mode:kind});
+ }
+ step(){
+  if(this.stopped)return;
+  if(this.tick>=LOCAL_LIMITS.ticks){this.stopped=true;this.emit('limit');return;}
+  this.tick++;for(let i=0;i<this.chemistry.n*this.chemistry.n*2;i++){const f=this.chemistry.values,used=f.butyrate[i]*.002;f.butyrate[i]-=used;f.waste[i]+=used;f.oxygen[i]+=(.08/(1+f.butyrate[i]*10)-f.oxygen[i])*.004;}for(const k in this.cues)this.cues[k]=Math.max(0,this.cues[k]-1);
+  this.chemistry.diffuse(LOCAL_DT,this.barrier);
+  for(const k of ['drug','signal'])for(let i=0;i<this.chemistry.length;i++)this.chemistry.values[k][i]*=Math.exp(-LOCAL_DT*(k==='drug'?.015:.08));
+  const active=this.entities.filter(e=>e.alive);
+  for(const e of active){e.age++;e.cooldown=Math.max(0,e.cooldown-1);
+   if(e.traits.virus){if(e.age>800)this.kill(e,'virion-decay');continue;}
+   if(e.traits.immune)continue;
+   this.grow(e);
+   if(e.alive&&e.pos[1]<0)this.chemistry.add('signal',e.pos,LOCAL_DT*.04);
+  }
+  // Sequential, deterministic updates; only living, compatible neighbours participate.
+  const index=new SpatialIndex(this.entities);
+  this.transfer(index);this.attack(index);this.phages(index);this.immune(index);
+  for(const e of this.entities)if(e.alive&&!e.traits.immune&&e.state!=='sporulating'&&e.state!=='hypha'){
+   // No decorative clock in biological contacts. Motion is deliberately slow and bounded.
+   const speed=e.traits.virus?.025:.012;
+   e.pos[0]=Math.max(-11.8,Math.min(11.8,e.pos[0]+(this.random()-.5)*speed));
+   e.pos[2]=Math.max(-11.8,Math.min(11.8,e.pos[2]+(this.random()-.5)*speed));
+   if(this.barrier<.3&&!e.traits.virus&&e.pos[1]>-.8)e.pos[1]-=.012;
+  }
+  if(this.tick>=LOCAL_LIMITS.ticks){this.stopped=true;this.emit('limit');}
+ }
+ transfer(index){
+  for(const job of [...this.jobs]){
+   const a=this.get(job.from),b=this.get(job.to);
+   if(!living(a)||!living(b)||a.infection&&a.infection.stage!=='lysogen'||b.infection&&b.infection.stage!=='lysogen'||distance(a,b)>1.5){this.jobs.splice(this.jobs.indexOf(job),1);this.emit('contact_lost',[a.id,b.id]);continue;}
+   if(--job.remaining<=0){if(!b.plasmids.includes('pDemoR')){b.plasmids.push('pDemoR');this.emit('transfer',[a.id,b.id],{plasmid:'pDemoR',donorRetains:true});}a.cooldown=40;this.jobs.splice(this.jobs.indexOf(job),1);}
+  }
+  for(const a of this.entities)if(living(a)&&a.traits.compatibility&&a.plasmids.includes('pDemoR')&&!a.cooldown&&!a.infection){
+   const b=index.near(a,1.5).find(b=>living(b)&&b.traits.compatibility===a.traits.compatibility&&!b.plasmids.includes('pDemoR')&&!b.infection&&!this.jobs.some(j=>j.from===a.id||j.to===b.id));
+   if(b){this.jobs.push({from:a.id,to:b.id,remaining:30});this.emit('conjugation',[a.id,b.id]);}
+  }
+ }
+ attack(index){for(const a of this.entities)if(living(a)&&a.traits.t6&&!a.cooldown){const b=index.near(a,1.3).find(b=>living(b)&&b.traits.bacterium&&b.traits.immunity!==a.traits.t6);if(b){a.cooldown=20;b.hp-=.55;this.emit('t6',[a.id,b.id],{effector:a.traits.t6});if(b.hp<=0)this.kill(b,'T6SS');}}}
+ phages(index){
+  for(const p of this.entities)if(p.alive&&p.traits.virus){
+   const h=index.near(p,1.2).find(h=>living(h)&&h.traits.receptor==='R-demo'&&!h.infection);
+   if(h){h.infection={stage:'adsorbed',remaining:10,type:p.traits.phageType,founder:p.id};h.mass+=p.mass;p.mass=0;p.alive=false;p.state='adsorbed';p.died=this.tick;this.emit('adsorption',[p.id,h.id]);}
+  }
+  for(const h of [...this.entities])if(h.alive&&h.infection&&h.infection.stage!=='lysogen'){
+   const inf=h.infection;if(--inf.remaining>0)continue;
+   if(inf.stage==='adsorbed'){inf.stage='injected';inf.remaining=10;this.emit('injection',[inf.founder,h.id]);}
+   else if(inf.stage==='injected'){
+    if(inf.type==='temperate'){inf.stage='lysogen';this.emit('lysogeny',[h.id,inf.founder]);}
+    else{inf.stage='eclipse';inf.remaining=40;this.emit('eclipse',[h.id]);}
+   }else if(inf.stage==='eclipse'){inf.stage='assembly';inf.remaining=40;this.emit('assembly',[h.id]);}
+   else{
+    const wanted=Math.min(8,Math.floor(h.mass/.025)),children=[];
+    for(let i=0;i<wanted;i++){
+     const angle=i*Math.PI*2/8,pos=[Math.max(-11.8,Math.min(11.8,h.pos[0]+Math.cos(angle)*.8)),h.pos[1],Math.max(-11.8,Math.min(11.8,h.pos[2]+Math.sin(angle)*.8))];
+     const child=this.create('phage',pos,inf.type,[inf.founder],.025);if(!child)break;child.host=h.id;h.mass-=.025;children.push(child.id);
+    }
+    this.emit('lysis',[h.id,...children],{founder:inf.founder,burst:children.length,limited:children.length<wanted});this.kill(h,'phage-lysis');
+   }
+  }
+ }
+ immune(index){for(const e of this.entities)if(e.alive&&e.traits.immune){
+  if(e.state==='digesting'){
+   if(--e.timer<=0){this.chemistry.add('waste',e.pos,e.gut*.7);e.mass+=e.gut*.3;e.gut=0;e.state='resting';this.emit('digest',[e.id]);}continue;
+  }
+  if(e.state==='engulfing'){
+   const t=this.get(e.target);if(!t?.alive||t.pos[1]>=0||distance(e,t)>1.5){e.state='resting';e.target=null;continue;}
+   if(--e.timer<=0){e.gut+=t.mass+t.gut;this.kill(t,'phagocytosis',false);e.state='digesting';e.timer=35;this.emit('engulf',[e.id,t.id]);}continue;
+  }
+  const target=index.near(e,5).find(t=>living(t)&&!t.traits.immune&&!t.traits.virus&&t.pos[1]<0);
+  if(target&&distance(e,target)<1.1){e.state='engulfing';e.timer=15;e.target=target.id;continue;}
+  // Climb the diffusing signal; intact luminal commensals are not targets.
+  const f=this.chemistry,gradient=[0,1,2].map(k=>{const a=[...e.pos],b=[...e.pos];a[k]+=.7;b[k]-=.7;return f.sample('signal',a)-f.sample('signal',b);}),length=Math.hypot(...gradient);
+  if(length>1e-8){if(e.state!=='recruited')this.emit('recruit',[e.id]);e.state='recruited';e.pos=e.pos.map((v,k)=>v+gradient[k]/length*.065);e.pos[0]=Math.max(-11.8,Math.min(11.8,e.pos[0]));e.pos[2]=Math.max(-11.8,Math.min(11.8,e.pos[2]));e.pos[1]=Math.max(-1.8,Math.min(-.1,e.pos[1]));}
+ }}
+ lineage(id){const entity=this.get(id);if(!entity)return null;const ancestors=[],seen=new Set(),visit=id=>{if(seen.has(id))return;seen.add(id);const a=this.get(id);if(!a)return;ancestors.push(a.id);a.parents.forEach(visit);};entity.parents.forEach(visit);return {entity:copy(entity),ancestors,children:this.entities.filter(e=>e.parents.includes(id)).map(e=>e.id),events:this.events.filter(e=>e.actors.includes(id)).map(copy)};}
+ summary(){const active=this.entities.filter(e=>e.alive);return {tick:this.tick,time:this.time,alive:active.length,cells:active.filter(e=>!e.traits.virus&&!e.traits.immune).length,phages:active.filter(e=>e.traits.virus).length,immune:active.filter(e=>e.traits.immune).length,plasmids:active.filter(e=>e.plasmids.includes('pDemoR')).length,infected:active.filter(e=>e.infection&&e.infection.stage!=='lysogen').length,lysogens:active.filter(e=>e.infection?.stage==='lysogen').length,spores:active.filter(e=>e.state==='spore').length,barrier:this.barrier,food:this.chemistry.total('food'),acetate:this.chemistry.total('acetate'),butyrate:this.chemistry.total('butyrate'),carbonError:this.carbon()-this.initialCarbon-this.inputCarbon,counts:{...this.counts},capacityHits:this.capacityHits,stopped:this.stopped};}
+ snapshot(){return {engine:LOCAL_VERSION,seed:this.seed,scenario:this.scenario,tick:this.tick,randomState:this.randomState,entities:copy(this.entities),chemistry:this.chemistry.snapshot(),events:copy(this.events),sequence:this.sequence,counts:{...this.counts},jobs:copy(this.jobs),barrier:this.barrier,cues:{...this.cues},commands:copy(this.commands),initialCarbon:this.initialCarbon,inputCarbon:this.inputCarbon,capacityHits:this.capacityHits,stopped:this.stopped};}
+}
+
+return {SpatialIndex,LocalSimulation};
+})();
+__modules["src/local/replay.js"] = (() => {
+const {LocalSimulation} = __modules["src/local/engine.js"];
+const {LOCAL_VERSION,LOCAL_LIMITS,LOCAL_SCENARIOS} = __modules["src/local/traits.js"];
+function checksum(value){const text=JSON.stringify(value);let h=2166136261;for(let i=0;i<text.length;i++)h=Math.imul(h^text.charCodeAt(i),16777619);return(h>>>0).toString(16).padStart(8,'0');}
+function exportReplay(sim){return {format:'microcosmos-local-replay',version:1,engine:LOCAL_VERSION,seed:sim.seed,scenario:sim.scenario,endTick:sim.tick,commands:sim.commands.map(c=>({...c,pos:[...c.pos]})),checksum:checksum(sim.snapshot()),notice:'Uncalibrated local experiment; not clinical data. Fixed 0.1 teaching-time step.'};}
+function validateReplay(data){
+ if(!data||data.format!=='microcosmos-local-replay'||data.version!==1||data.engine!==LOCAL_VERSION)throw new Error('Несовместимая версия записи');
+ if(!Number.isInteger(data.seed)||data.seed<0||data.seed>0xffffffff||!Object.hasOwn(LOCAL_SCENARIOS,data.scenario)||!Number.isInteger(data.endTick)||data.endTick<0||data.endTick>LOCAL_LIMITS.ticks||!Array.isArray(data.commands)||data.commands.length>LOCAL_LIMITS.commands||typeof data.checksum!=='string'||!(/^[0-9a-f]{8}$/).test(data.checksum))throw new Error('Некорректные параметры записи');
+ let previous=0;const commands=data.commands.map(c=>{
+  if(!c||!Number.isInteger(c.tick)||c.tick<previous||c.tick>data.endTick||c.tick>=LOCAL_LIMITS.ticks||!['feed','antibiotic','breach','repair','induce','germinate','hypha'].includes(c.kind)||!Array.isArray(c.pos)||c.pos.length!==3||c.pos.some(v=>!Number.isFinite(v))||Math.abs(c.pos[0])>12||Math.abs(c.pos[2])>12||c.pos[1]<-2||c.pos[1]>6)throw new Error('Некорректное вмешательство');
+  previous=c.tick;return {tick:c.tick,kind:c.kind,pos:[...c.pos]};
+ });
+ return {format:data.format,version:1,engine:LOCAL_VERSION,seed:data.seed,scenario:data.scenario,endTick:data.endTick,commands,checksum:data.checksum};
+}
+class ReplayRunner {
+ constructor(record,target=record.endTick){this.record=validateReplay(record);if(!Number.isInteger(target)||target<0||target>this.record.endTick)throw new Error('Некорректная позиция воспроизведения');this.target=target;this.sim=new LocalSimulation(this.record);this.cursor=0;this.apply();}
+ apply(){while(this.cursor<this.record.commands.length&&this.record.commands[this.cursor].tick===this.sim.tick){const c=this.record.commands[this.cursor++];this.sim.command(c.kind,c.pos);}}
+ run(budget=100){for(let n=0;n<budget&&this.sim.tick<this.target;n++){this.sim.step();this.apply();}const done=this.sim.tick===this.target;if(done&&this.target===this.record.endTick&&checksum(this.sim.snapshot())!==this.record.checksum)throw new Error('Состояние не совпало с контрольной суммой. Запись повреждена или вычислительная среда отличается.');return done;}
+}
+function replay(record,target=record.endTick){const runner=new ReplayRunner(record,target);while(!runner.run(200)){}return runner.sim;}
+
+return {checksum,exportReplay,validateReplay,ReplayRunner,replay};
+})();
 __modules["src/webgl2/cloud.js"] = (() => {
 const {rng,clamp} = __modules["src/model.js"];
 const {byId} = __modules["src/data.js"];
@@ -2755,12 +3046,113 @@ function cellBlueprint(id){
 
 return {cellBlueprint};
 })();
+__modules["src/local/cloud-adapter.js"] = (() => {
+const {LOCAL_SPECIES,EVENT_NAMES} = __modules["src/local/traits.js"];
+const {liveColor} = __modules["src/webgl2/living.js"];
+const STATES={vegetative:'Вегетативная клетка',free:'Свободный фаг',dead:'Погибла',divided:'Разделилась на потомков',adsorbed:'Связался с хозяином',spore:'Спора',sporulating:'Формирует спору',germinating:'Прорастает',budding:'Образует почку',hypha:'Гифальная форма',resting:'Фагоцит: наблюдение',recruited:'Движение по сигналу',engulfing:'Поглощение',digesting:'Переваривание'};
+class LocalCloud {
+ constructor(sim,model){this.sim=sim;this.model=model;this.capacity=8000;this.requested=192;this.ids=Object.keys(LOCAL_SPECIES);for(const k of ['x','y','z','size','angle','phase','activity'])this[k]=new Float32Array(this.capacity);this.species=new Uint8Array(this.capacity);this.alive=new Uint8Array(this.capacity);this.events=[];this.deposits=[];this.fieldPixels=new Float32Array(20*20*3);this.fieldKind='food';this.slice=3;this.lastTick=-1;this.sync();}
+ sync(){const sim=this.sim;if(this.lastTick===sim.tick&&this.lastCommands===sim.commands.length&&this.count===sim.entities.length)return;this.lastCommands=sim.commands.length;this.count=sim.entities.length;this.visualTime=sim.time;for(const e of sim.entities){const i=e.id-1;this.x[i]=e.pos[0]*2;this.y[i]=e.pos[1]*2;this.z[i]=e.pos[2]*2;this.alive[i]=+e.alive;this.species[i]=this.ids.indexOf(e.species);this.size[i]=(e.traits.immune?.95:e.traits.virus?.24:.4)*Math.cbrt(Math.max(.1,e.mass)/(e.traits.virus?.025:1));this.phase[i]=e.id*2.4;this.angle[i]=e.id;this.activity[i]=Math.min(1,sim.chemistry.sample('food',e.pos)*4);}
+  this.updateField();this.lastTick=sim.tick;
+ }
+ updateField(){for(let z=0;z<20;z++)for(let x=0;x<20;x++){const p=[((x+.5)/20*64-32)/2,this.slice,((z+.5)/20*64-32)/2],inside=Math.abs(p[0])<12&&Math.abs(p[2])<12,value=inside?Math.min(1,this.sim.chemistry.sample(this.fieldKind,p)*8):0,k=(z*20+x)*3;this.fieldPixels[k]=this.fieldKind==='drug'?0:value;this.fieldPixels[k+1]=this.fieldKind==='oxygen'?value:0;this.fieldPixels[k+2]=this.fieldKind==='signal'||this.fieldKind==='drug'?value:0;}}
+ advance(){this.sync();}
+ update(){this.sync();}
+ reset(){this.sync();}
+ position(i){return[this.x[i],this.y[i],this.z[i]];}
+ shape(i){const e=this.sim.entities[i];return e.state==='spore'?'oval':e.state==='hypha'?'rod':e.traits.fungus?(e.state==='budding'?'yeast':'oval'):LOCAL_SPECIES[e.species].shape;}
+ color(i){const e=this.sim.entities[i];return e.traits.immune?'#eef8ff':e.state==='spore'?'#c6a77b':e.infection?'#f299d9':e.plasmids.includes('pDemoR')?'#ffe879':liveColor(e.species);}
+ thought(i){const e=this.sim.entities[i];if(!e)return '';const phase={adsorbed:'адсорбция',injected:'геном введён',eclipse:'синтез',assembly:'сборка',lysogen:'профаг'},inf=e.infection?` · фаг: ${phase[e.infection.stage]||e.infection.stage}`:'';return `#${e.id} ${STATES[e.state]||e.state}${inf}${e.plasmids.length?' · pDemoR':''}`;}
+ history(i){return this.sim.lineage(i+1);}
+}
+
+return {LocalCloud};
+})();
+__modules["src/local/ui.js"] = (() => {
+const {LocalSimulation} = __modules["src/local/engine.js"];
+const {exportReplay,ReplayRunner} = __modules["src/local/replay.js"];
+const {LOCAL_SCENARIOS,EVENT_NAMES,LOCAL_LIMITS,LOCAL_SPECIES,LOCAL_ACTION_NAMES,LOCAL_STATE_NAMES,LOCAL_CAUSE_NAMES} = __modules["src/local/traits.js"];
+const $=id=>document.getElementById(id);
+const escape=text=>String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+class LocalController {
+ constructor({world,navigate,selectAgent,dialog,explain,getPaused,setPaused,onChange}){
+  Object.assign(this,{world,navigate,selectAgent,dialog,explain,getPaused,setPaused,onChange});this.control=null;this.substep=0;this.record=null;this.request=0;this.busy=false;this.lastHUD=-1;
+  $('local-scenario').innerHTML=Object.entries(LOCAL_SCENARIOS).map(([id,name])=>`<option value="${id}">${name}</option>`).join('');
+  $('local-open').onclick=()=>$('local-lab').scrollIntoView({block:'start',behavior:world.calm?'auto':'smooth'});
+  $('local-start').onclick=()=>this.start($('local-scenario').value);
+  $('local-exit').onclick=()=>this.exit();
+  document.querySelectorAll('[data-local-action]').forEach(b=>b.onclick=()=>{
+   if(!this.world.local||this.busy)return;
+   this.record=null;const e=this.world.local.get(this.world.selected+1),pos=e?.alive?e.pos:[0,3,0];
+   try{this.world.local.command(b.dataset.localAction,pos);this.world.cloud.sync();this.refresh(true);}catch(error){this.explain('Вмешательство не выполнено',error.message);}
+  });
+  $('local-pause').onclick=()=>{if(!this.busy){this.setPaused(!this.getPaused());this.refresh(true);}};
+  $('local-step').onclick=()=>{if(!world.local||this.busy)return;this.setPaused(true);this.record=null;this.step();};
+  $('local-save').onclick=()=>{if(!world.local||this.busy)return;const blob=new Blob([JSON.stringify(exportReplay(world.local),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='microcosmos-local-replay.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+  $('local-load').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>200000)throw new Error('Файл слишком большой (лимит 200 КБ)');const record=JSON.parse(await file.text());await this.restore(record,record.endTick);}catch(error){this.explain('Запись не загружена',error.message);}finally{e.target.value='';}};
+  $('local-seek').onchange=()=>{if(!world.local||this.busy)return;const record=this.record||exportReplay(world.local);this.restore(record,+$('local-seek').value).catch(error=>this.explain('Воспроизведение остановлено',error.message));};
+  $('local-fork').onclick=()=>{this.record=null;this.setPaused(false);this.refresh(true);};
+  $('local-history').onclick=()=>this.history();
+  for(const id of ['local-field','local-slice'])$(id).onchange=()=>{if(!world.local)return;world.cloud.fieldKind=$('local-field').value;world.cloud.slice=+$('local-slice').value;world.cloud.updateField();};
+  this.refresh(true);
+ }
+ start(scenario){
+  if(this.world.model.site.id!=='colon'){this.explain('Локальный эксперимент доступен для толстой кишки','Переключитесь на толстую кишку. Эти учебные параметры не переносятся автоматически на другие биотопы.');return;}
+  this.cancel();this.record=null;this.substep=0;this.control=new LocalSimulation({scenario});this.world.enterLocal(new LocalSimulation({scenario}));this.navigate(2.35);this.setPaused(false);this.onChange();this.refresh(true);
+  this.explain('Запущен локальный эксперимент', 'Каждый видимый агент имеет собственное состояние. Учебные штаммы и скорости условны; это не образец пациента. Агрегированная модель на время опыта остановлена.');
+ }
+ cancel(){this.request++;this.busy=false;$('local-progress').textContent='';}
+ exit(){this.cancel();this.record=null;this.control=null;this.world.leaveLocal();this.onChange();this.refresh(true);}
+ tick(){if(!this.world.local||this.busy)return;if(++this.substep===3){this.substep=0;this.step();}}
+ step(){if(!this.world.local||this.busy)return;this.record=null;this.world.local.step();this.control.step();this.world.cloud.sync();if(this.world.local.stopped)this.setPaused(true);this.refresh();}
+ async restore(record,target){
+  const runner=new ReplayRunner(record,target);if(this.world.model.site.id!=='colon')throw new Error('Откройте толстую кишку перед загрузкой локального опыта');
+  this.cancel();const token=this.request;this.busy=true;this.setPaused(true);this.refresh(true);
+  const baseline=new LocalSimulation({seed:runner.record.seed,scenario:runner.record.scenario});
+  try{let done=false;while(!done){if(token!==this.request)return;done=runner.run(50);while(baseline.tick<runner.sim.tick)baseline.step();$('local-progress').textContent=`Воспроизведение: ${runner.sim.tick} / ${target}`;await new Promise(resolve=>setTimeout(resolve,0));}
+   if(token!==this.request)return;
+   this.world.enterLocal(runner.sim);$('local-scenario').value=runner.sim.scenario;this.control=baseline;this.record=runner.record;this.substep=0;this.navigate(2.35);this.onChange();
+  }finally{if(token===this.request){this.busy=false;$('local-progress').textContent='';this.refresh(true);}}
+ }
+ refresh(force=false){
+  const active=!!this.world.local; $('local-controls').hidden=!active;$('local-exit').hidden=!active;$('local-start').disabled=this.busy||this.world.model.site.id!=='colon';
+  $('local-scenario').disabled=this.busy;$('local-load').disabled=this.busy;
+  for(const id of ['density','life-rate','feed-nearby','explode','connections','pick-layers'])$(id).disabled=(active&&!(id==='explode'&&this.world.inspect))||(id==='feed-nearby'&&!['colon','mouth','small'].includes(this.world.model.site.id));
+  document.querySelectorAll('[data-exp]').forEach(b=>{if(active)b.disabled=true;});
+  document.querySelectorAll('[data-field]').forEach(b=>b.disabled=active);
+  $('pause').disabled=this.busy;$('local-pause').textContent=this.getPaused()?'▷ Продолжить':'Ⅱ Пауза';
+  for(const id of ['local-step','local-save','local-fork','local-pause'])$(id).disabled=this.busy;
+  document.querySelectorAll('[data-local-action]').forEach(b=>b.disabled=this.busy||!!this.world.local?.stopped);
+  $('readouts').hidden=active;$('local-readouts').hidden=!active;
+  if(!active){$('local-summary').textContent='Новый режим: численные агенты, причинные события, химия и воспроизведение. Работает в локальном участке толстой кишки.';return;}
+  if(!force&&this.lastHUD===this.world.local.tick)return;this.lastHUD=this.world.local.tick;
+  const s=this.world.local.summary();$('local-summary').textContent=`${LOCAL_SCENARIOS[this.world.local.scenario]} · t=${s.time.toFixed(1)} уч. ед. · живых ${s.alive} · генеалогических записей ${this.world.local.entities.length}. ${s.stopped?'Достигнут предел времени. ':''}${s.capacityHits?'Лимит агентов ограничивает новые рождения. ':''}Не клиническая модель.`;
+  $('local-readouts').innerHTML=[['Клетки',s.cells],['Фаги',s.phages],['pDemoR',s.plasmids],['Инфицированы',s.infected],['Лизогены',s.lysogens],['Споры',s.spores],['Фагоциты',s.immune],['Бутират · у.е.',s.butyrate.toFixed(3)]].map(([k,v])=>`<div class="readout"><small>${k}</small><b>${v}</b></div>`).join('');
+  $('local-seek').max=this.record?.endTick??s.tick;$('local-seek').value=s.tick;$('local-seek').disabled=this.busy;$('local-cursor').textContent=`Шаг ${s.tick} / ${$('local-seek').max}`;
+  $('local-field').value=this.world.cloud.fieldKind;$('local-slice').value=String(this.world.cloud.slice);
+  const events=this.world.local.events.filter(e=>e.kind!=='birth').slice(-7).reverse();
+  $('local-events').replaceChildren(...events.map(event=>{const b=document.createElement('button');b.textContent=`${(event.tick*.1).toFixed(1)} · ${EVENT_NAMES[event.kind]||event.kind}${event.action?' · '+LOCAL_ACTION_NAMES[event.action]:''} · ${event.actors.map(id=>'#'+id).join(' → ')}`;b.disabled=!event.actors.length;b.onclick=()=>{const id=event.actors.find(id=>this.world.local.get(id)?.alive)||event.actors[0];this.selectAgent(id-1);this.world.focusAgent(id-1);};return b;}));
+ }
+ history(){
+  const sim=this.world.local;if(!sim)return;const id=this.world.selected+1,h=sim.lineage(id);
+  const heading=h?`#${id} · ${LOCAL_SPECIES[h.entity.species].name}`:'Выберите агента в сцене или журнале';
+  const lineage=h?`<p>Состояние: ${escape(LOCAL_STATE_NAMES[h.entity.state]||h.entity.state)}. Родители: ${h.entity.parents.join(', ')||'начальная клетка'}. Потомки: ${h.children.join(', ')||'пока нет'}. ${h.entity.host?'Хозяин происхождения фага: #'+h.entity.host:''}</p><p>Плазмиды: ${h.entity.plasmids.join(', ')||'нет'}. Причина завершения: ${escape(LOCAL_CAUSE_NAMES[h.entity.cause]||LOCAL_STATE_NAMES[h.entity.state]||h.entity.state)}.</p>`:'';
+  const events=h?h.events:sim.events.slice(-100);
+  this.dialog('ПРИЧИННЫЙ ЖУРНАЛ И ГЕНЕАЛОГИЯ',`<h2>${heading}</h2>${lineage}<p>pDemoR — условная совместимая плазмида с учебным признаком устойчивости; это не свойство всех плазмид. ID сохраняются после гибели. Хозяин фага — контекст происхождения, не генетический родитель.</p><div class="notice">Лимиты: ${LOCAL_LIMITS.alive} живых агентов, ${LOCAL_LIMITS.ids} ID, ${LOCAL_LIMITS.ticks} шагов. Сохраняется до ${LOCAL_LIMITS.events} последних событий. Полное состояние восстанавливается из начальных условий и команд той же версии.</div>${events.slice(-100).reverse().map(e=>`<article class="timeline-item"><b>${(e.tick*.1).toFixed(1)} · ${EVENT_NAMES[e.kind]||e.kind}</b><p>${e.actors.map(id=>'#'+id).join(' → ')} ${e.cause?escape(LOCAL_CAUSE_NAMES[e.cause]||e.cause):''} ${e.burst!==undefined?' · потомство: '+e.burst:''}</p></article>`).join('')}`);
+ }
+ compare(){const a=this.control.summary(),b=this.world.local.summary();const col=(s,title)=>`<div><h3>${title}</h3><p>Живых: ${s.alive}<br>pDemoR: ${s.plasmids}<br>Фагов: ${s.phages}<br>Лизогенов: ${s.lysogens}<br>Бутират: ${s.butyrate.toFixed(3)} у.е.<br>Поглощений: ${s.counts.engulf||0}<br>Погрешность углеродного баланса: ${s.carbonError.toExponential(2)}</p></div>`;this.dialog('ЛОКАЛЬНЫЙ КОНТРОЛЬ',`<h2>Одинаковый старт, шаг ${b.tick}</h2><div class="comparison">${col(a,'Без ваших вмешательств')}${col(b,'Ваш опыт')}</div><p>Оба расчёта начинают с одного seed и сценария. Меняется вмешательство, не графическая плотность. Условные количества — не анализ микробиома пациента.</p>`);}
+}
+
+return {LocalController};
+})();
 __modules["src/webgl2/world.js"] = (() => {
 const {GPU,STRIDE,writeInstance,colorOf} = __modules["src/webgl2/gpu.js"];
 const {sphere,capsule,revolve,combine,tube,catmull,torus,segment,surface,heightAt,microbeGeometry,lightMicrobeGeometry,mediumMicrobeGeometry,octahedron,splitPlane} = __modules["src/webgl2/geometry.js"];
 const {perspective,lookAt,multiply,project,rayFromCamera,quatFromY,mix,mix3,unit,vsub} = __modules["src/webgl2/math.js"];
 const {settle,smooth,burst} = __modules["gl.mjs"];
-const {byId,SITES} = __modules["src/data.js"];
+const {SITES} = __modules["src/data.js"];
+const {LOCAL_SPECIES: byId} = __modules["src/local/traits.js"];
+const {LocalCloud} = __modules["src/local/cloud-adapter.js"];
 const {rng,clamp} = __modules["src/model.js"];
 const {LivingCloud,liveColor} = __modules["src/webgl2/living.js"];
 const {humanGeometry} = __modules["src/webgl2/human.js"];
@@ -2800,7 +3192,12 @@ class World{
  const stars=[],rand=rng(531);for(let i=0;i<170;i++)stars.push(instance([(rand()-.5)*18,(rand()-.5)*12,-4-rand()*6],[.007,.007,.007],'#8ea99f',undefined,.45,.5));add(this.particle,stars,'stars');
  }
  setSite(){for(const m of this.resources)this.gpu.release(m);this.resources=[];this.cloud.model=this.model;this.cloud.reset(this.cloud.requested);this.selected=-1;this.follow=false;this.inspect=false;this.pan=[0,0,0];this.layerHover=-1;this.pickTargets=[];this.bubbleSlots=[];this.bubbleHits=[];this.buildTissue();}
- buildTissue(){const site=this.model.site.id,rand=rng(28),g=this.gpu;const own=mesh=>{const m=g.mesh(mesh);this.resources.push(m);return m;};this.tissueGroups=[];
+ enterLocal(sim){this.layerMode=false;if(!this.local)this.ambientCloud=this.cloud;this.local=sim;this.cloud=new LocalCloud(sim,this.model);this.setSite();this.setExploded(false);this.lifts.forEach(l=>{l.x=0;l.v=0;});this.goal=2.35;}
+ leaveLocal(){if(!this.local)return;this.local=null;this.cloud=this.ambientCloud;this.ambientCloud=null;this.setSite();}
+ buildTissue(){if(this.local){const own=data=>{const mesh=this.gpu.mesh(data);this.resources.push(mesh);return mesh;};
+  this.tissueGroups=[this.group(own(surface(()=>-4,32,8)),[instance([0,0,0],[1,1,1],'#654c60')],{layer:0})];
+  this.capillaryGroup=this.group(this.rod,[],{layer:0});this.gel=own(surface(()=>0,32,12));this.gelBuffers=Array.from({length:5},()=>new Float32Array(STRIDE));return;
+ }const site=this.model.site.id,rand=rng(28),g=this.gpu;const own=mesh=>{const m=g.mesh(mesh);this.resources.push(m);return m;};this.tissueGroups=[];
  const color=site==='mouth'?'#cfbea4':site==='skin'?'#c69080':site==='lung'||site==='nose'?'#b888ae':'#c2859b';
  this.tissueGroups.push(this.group(own(surface((x,z)=>heightAt(site,x,z),32,36)),[instance([0,0,0],[1,1,1],color)],{layer:0}));
  const cells=[];for(let x=-29;x<=29;x+=3.1)for(let z=-29;z<=29;z+=3.1){const y=heightAt(site,x,z)-.28,c=(Math.round(x+z)*3)%11===0?'#699c93':color;cells.push(instance([x,y,z],[1.48,.45,1.48],c,undefined,1));}this.tissueGroups.push(this.group(this.tissueCell,cells,{layer:0}));
@@ -2813,7 +3210,7 @@ class World{
  this.capillary=own(tube(catmull([[-30,-3,8],[-12,-4,3],[0,-3,9],[15,-3,-1],[30,-4,-6]],10),.7,10));this.capillaryGroup=this.group(this.capillary,[instance([0,0,0],[1,1,1],'#a66468')],{layer:0});
  }
  get microLayer(){return layerLayout(this.model.site).micro;}
- get microShift(){return this.lifts[this.microLayer].x*this.microLayer*3.8;}
+ get microShift(){if(this.local)return 0;return this.lifts[this.microLayer].x*this.microLayer*3.8;}
  highlight(layer){return this.layerHover===layer?1:0;}
  recordGroup(group,data,alpha){
   for(let i=0;i<group.count;i++)this.pickTargets.push({geometry:group.mesh.geometry,data,offset:i*STRIDE,kind:group.transparent?'fluid':'tissue',layer:group.layer??0,opacity:alpha*data[i*STRIDE+13]});
@@ -2824,7 +3221,7 @@ class World{
  camera(target,distance,yaw,pitch,fog){const eye=[target[0]+Math.sin(yaw)*Math.cos(pitch)*distance,target[1]+Math.sin(pitch)*distance,target[2]+Math.cos(yaw)*Math.cos(pitch)*distance],vp=multiply(perspective(.72,this.w/this.h,Math.max(.001,distance/2000),Math.max(100,distance*20)),lookAt(eye,target));this.gpu.camera(vp,eye,fog);this.cameraState={target,eye,vp,near:Math.max(.001,distance/2000),far:Math.max(100,distance*20)};return this.cameraState;}
  drawGroup(group,alpha=1,material=0,dy=0,pickable=false){let data=group.data;if(dy){data=group.data.slice();for(let i=0;i<group.count;i++)data[i*STRIDE+1]+=dy;}this.gpu.upload(group.mesh,data,group.count);this.gpu.draw(group.mesh,group.count,alpha,material,!group.transparent&&alpha>.9,pickable?this.highlight(group.layer??0):0);if(pickable)this.recordGroup(group,data,alpha);}
  render(){this.w=this.canvas.clientWidth;this.h=this.canvas.clientHeight;const ratio=Math.min(devicePixelRatio||1,1.5);if(this.overlay.width!==Math.round(this.w*ratio)||this.overlay.height!==Math.round(this.h*ratio)){this.overlay.width=Math.round(this.w*ratio);this.overlay.height=Math.round(this.h*ratio);}const c=this.ctx;c.setTransform(ratio,0,0,ratio,0,0);c.clearRect(0,0,this.w,this.h);if(this.lost){c.fillStyle='#d1dcc6';c.font='16px system-ui';c.fillText('Графический контекст потерян. Ожидаем восстановления…',30,80);return;}
- const q=this.travel.x,blend=smooth(1.32,1.88,q);this.gpu.begin(this.model.time,q<1.5?Math.max(1,this.ratio):this.ratio);this.gpu.fields(this.model.fields,this.field);this.bodyLabels=[];this.pickTargets=[];this.bubbleHits=[];
+ const q=this.travel.x,blend=smooth(1.32,1.88,q);this.gpu.begin(this.model.time,q<1.5?Math.max(1,this.ratio):this.ratio);this.gpu.fields(this.local?this.cloud.fieldPixels:this.model.fields,this.local?0:this.field);this.bodyLabels=[];this.pickTargets=[];this.bubbleHits=[];
  if(this.inspect){this.renderCell();return;}
  if(blend<.998){const target=mix3([0,-.32,0],ORGAN_POINTS[this.model.site.id],smooth(0,1,q)),distance=q<1?mix(9.7,2.6,smooth(0,1,q)):2.6*Math.exp(-(q-1)*3.8);const cam=this.camera(target,distance*(this.w<650?2.3:1),this.yaw.x,this.pitch.x,.022);
   for(const group of this.bodyGroups){const isSelected=group.site===this.model.site.id;const a=group.site==='stars'?(1-smooth(0,.8,q)):(group.site==='floor'?1-smooth(.3,.9,q):1-(isSelected?0:smooth(.6,1.5,q)*.76));this.drawGroup(group,(1-blend)*a);}
@@ -2836,16 +3233,16 @@ class World{
   const distance=q<2?mix(110,51,smooth(1.32,2,q)):mix(51,8,smooth(2,3,q));const pitch=clamp(this.pitch.x+.44,.06,1.35);this.camera(target,distance,this.yaw.x,pitch,.014);
   this.drawGroup(this.capillaryGroup,blend,0,0,true);
   for(const group of this.tissueGroups.filter(g=>!g.transparent))this.drawGroup(group,blend,0,this.lifts[group.layer||0].x*(group.layer||0)*3.8,true);
-  this.renderCloud(blend);this.renderParticles(blend);this.renderLifeEvents(blend);
-  if(this.showConnections)this.connections(blend);
+  this.renderCloud(blend);if(this.local)this.renderLocalEvents(blend);else{this.renderParticles(blend);this.renderLifeEvents(blend);}
+  if(this.showConnections&&!this.local)this.connections(blend);
   for(const group of this.tissueGroups.filter(g=>g.transparent))this.drawGroup(group,blend,0,this.lifts[group.layer||0].x*(group.layer||0)*3.8,true);
-  const fluids=layerLayout(this.model.site).fluid;
+  const fluids=this.local?[1]:layerLayout(this.model.site).fluid;
   for(const i of fluids){
    if(this.autoLow&&i!==fluids[0]&&!this.exploded&&this.layerHover!==i&& !this.layerMode)continue;
-   const z=i*1.4+this.lifts[i].x*i*3.8,data=this.gelBuffers[i];
-   writeInstance(data,0,[0,z,0],[1,1,1],LAYER_COLORS[i],undefined,.14);
+   const z=this.local?this.cloud.slice*2:i*1.4+this.lifts[i].x*i*3.8,data=this.gelBuffers[i];
+   writeInstance(data,0,[0,z,0],[1,1,1],LAYER_COLORS[i],undefined,this.local?.7:.14);
    this.gpu.upload(this.gel,data,1);this.gpu.draw(this.gel,1,blend,2,false,this.highlight(i));
-   this.pickTargets.push({geometry:this.gel.geometry,data,offset:0,kind:'fluid',layer:i,opacity:.14*blend});
+   this.pickTargets.push({geometry:this.gel.geometry,data,offset:0,kind:'fluid',layer:i,opacity:(this.local?.7:.14)*blend});
   }
   this.drawMicroLabels();
  }
@@ -2855,22 +3252,23 @@ class World{
  const budget=this.quality==='detail'?420:this.quality==='eco'||this.autoLow?36:120;
  for(const key in this.speciesBuffers){high[key]=0;low[key]=0;mid[key]=0;}
  for(let i=0;i<cloud.count;i++){
-  const id=cloud.ids[cloud.species[i]],s=byId[id],type=s.shape,vp=this.cameraState.vp,x=cloud.x[i],y=cloud.y[i]+this.microShift,z=cloud.z[i];
+  if(cloud.alive&&!cloud.alive[i])continue;
+  const id=cloud.ids[cloud.species[i]],s=byId[id],type=cloud.shape?cloud.shape(i):s.shape,vp=this.cameraState.vp,x=cloud.x[i],y=cloud.y[i]+this.microShift,z=cloud.z[i];
   const cw=vp[3]*x+vp[7]*y+vp[11]*z+vp[15],cx=vp[0]*x+vp[4]*y+vp[8]*z+vp[12],cy=vp[1]*x+vp[5]*y+vp[9]*z+vp[13];
   if(cw<.01||Math.abs(cx)>cw+2||Math.abs(cy)>cw+2)continue;
-  const mass=this.model.pop[id]/this.model.initial[id],size=cloud.size[i]*clamp(Math.sqrt(mass),.24,1.5),radius=size*this.h/(.75*cw);
+  const mass=this.local?1:this.model.pop[id]/this.model.initial[id],size=cloud.size[i]*clamp(Math.sqrt(mass),.24,1.5),radius=size*this.h/(.75*cw);
   this.visibleAgents.push({id:i,x:(cx/cw*.5+.5)*this.w,y:(.5-cy/cw*.5)*this.h,radius,depth:cw,size});
  }
  this.visibleAgents.sort((a,b)=>(b.id===this.selected?1:0)-(a.id===this.selected?1:0)||b.radius-a.radius);
  for(const item of this.visibleAgents){
-  const i=item.id,id=cloud.ids[cloud.species[i]],s=byId[id],type=s.shape,size=item.size,phase=cloud.phase[i],angle=cloud.angle[i];
+  const i=item.id,id=cloud.ids[cloud.species[i]],s=byId[id],type=cloud.shape?cloud.shape(i):s.shape,size=item.size,phase=cloud.phase[i],angle=cloud.angle[i];
   const detailed=i===this.selected||(item.radius>7&&details<budget),medium=!detailed&&item.radius>3&&middle<(this.quality==='detail'?400:180);
   if(detailed)details++;if(medium)middle++;
   const buf=detailed?this.speciesBuffers[type]:medium?this.mediumBuffers[type]:this.lightBuffers[type],counts=detailed?high:medium?mid:low;
-  const mass=this.model.pop[id]/this.model.initial[id],a=clamp(mass,.06,1)*(this.selectedSpecies&&this.selectedSpecies!==id?.25:1);
+  const mass=this.local?1:this.model.pop[id]/this.model.initial[id],a=clamp(mass,.06,1)*(this.selectedSpecies&&this.selectedSpecies!==id?.25:1);
   const q=quatFromY([Math.cos(angle),Math.sin(phase+t*.55)*.16,Math.sin(angle)]),pulse=this.calm?1:1+cloud.activity[i]*.07*Math.sin(t*5+phase);
   const slot=counts[type]++;item.kind='agent';item.agent=i;item.layer=this.microLayer;item.data=buf;item.offset=slot*STRIDE;item.opacity=a*alpha;item.geometry=(detailed?this.microMeshes[type]:medium?this.mediumMeshes[type]:this.lightMeshes[type]).geometry;this.pickTargets.push(item);
-  writeInstance(buf,slot,[cloud.x[i],cloud.y[i]+this.microShift,cloud.z[i]],[size*pulse,size,size*pulse],liveColor(id),q,a,cloud.activity[i]*.45,phase);
+  writeInstance(buf,slot,[cloud.x[i],cloud.y[i]+this.microShift,cloud.z[i]],[size*pulse,size,size*pulse],cloud.color?cloud.color(i):liveColor(id),q,a,cloud.activity[i]*.45,phase);
  }
  for(const[type,count]of Object.entries(mid))if(count){this.gpu.upload(this.mediumMeshes[type],this.mediumBuffers[type],count);this.gpu.draw(this.mediumMeshes[type],count,alpha,0,true,this.highlight(this.microLayer));}
  for(const[type,count]of Object.entries(low))if(count){this.gpu.upload(this.lightMeshes[type],this.lightBuffers[type],count);this.gpu.draw(this.lightMeshes[type],count,alpha,0,true,this.highlight(this.microLayer));}
@@ -2884,6 +3282,19 @@ class World{
  }
  this.gpu.upload(this.tissueCell,this.miscBuffer,n);this.gpu.draw(this.tissueCell,n,alpha);
  if(this.selected>=0){const p=cloud.position(this.selected);p[1]+=this.microShift;writeInstance(this.one,0,p,[.9,.9,.9],'#fff2a3',undefined,1,.5);this.gpu.upload(this.ring,this.one,1);this.gpu.draw(this.ring,1,alpha);}
+ }
+ renderLocalEvents(alpha){
+  const sim=this.local;let n=0;
+  writeInstance(this.one,0,[0,0,0],[.75,1,.75],sim.barrier>.5?'#75d6bd':'#e68b75',undefined,.04+sim.barrier*.16);this.gpu.upload(this.gel,this.one,1);this.gpu.draw(this.gel,1,alpha,0,false);
+  for(const job of sim.jobs){const a=this.cloud.position(job.from-1),b=this.cloud.position(job.to-1),seg=segment(a,b,.045);writeInstance(this.miscBuffer,n++,seg.pos,seg.scale,'#ffdf6c',seg.q,1,.5);}
+  for(const e of sim.entities)if(e.alive&&e.state==='hypha'&&e.parents.length){const parent=sim.get(e.parents[0]);if(parent?.alive){const seg=segment(this.cloud.position(e.id-1),this.cloud.position(parent.id-1),.12);writeInstance(this.miscBuffer,n++,seg.pos,seg.scale,'#ed80e7',seg.q);}}
+  for(const event of sim.events.slice(-60)){if(sim.tick-event.tick>20||event.actors.length<2)continue;
+   if(!['transfer','t6','adsorption','engulf'].includes(event.kind))continue;
+   const a=this.cloud.position(event.actors[0]-1),b=this.cloud.position(event.actors[1]-1),seg=segment(a,b,.065);
+   writeInstance(this.miscBuffer,n++,seg.pos,seg.scale,event.kind==='t6'?'#ff716b':event.kind==='engulf'?'#e9faff':'#ffe879',seg.q,1,.4);
+  }
+  this.gpu.upload(this.rod,this.miscBuffer,n);this.gpu.draw(this.rod,n,alpha);
+  this.label('Локальный срез: ткань y < 0 · просвет y > 0',[-12,-1,0],'#d6c4ee');
  }
  renderLifeEvents(alpha){
  let n=0;const cloud=this.cloud,t=cloud.visualTime;
@@ -2956,7 +3367,7 @@ class World{
 
  label(text,pos,color='#c4dba0'){const p=project(pos,this.cameraState.vp,this.w,this.h);if(!p||p.z>1)return;const c=this.ctx;c.font='11px system-ui';const width=c.measureText(text).width+20,x=clamp(p.x+24,8,this.w-width-8),y=p.y;c.strokeStyle=color+'88';c.lineWidth=.8;c.beginPath();c.moveTo(p.x,p.y);c.lineTo(x,y-14);c.stroke();c.fillStyle='#102526ec';c.beginPath();c.roundRect(x,y-30,width,25,5);c.fill();c.fillStyle=color;c.fillText(text,x+10,y-13);}
  drawBodyLabels(q){if(q>.9)return;const c=this.ctx;for(const p of this.bodyLabels){const selected=p.id===this.model.site.id;if(!selected&&['mouth','nose'].includes(p.id))continue;c.fillStyle=selected?'#d7e7a1':'#abc8bb';c.beginPath();c.arc(p.x,p.y,selected?5:2.4,0,6.28);c.fill();if(selected){c.strokeStyle='#d7e7a16b';c.beginPath();c.arc(p.x,p.y,12,0,6.28);c.stroke();const side=p.x<this.w/2?-1:1;const tx=p.x+side*80;c.strokeStyle='#c1d4aa70';c.beginPath();c.moveTo(p.x+side*14,p.y);c.lineTo(tx,p.y-19);c.stroke();c.font='12px system-ui';c.textAlign=side<0?'right':'left';c.fillStyle='#d8e0c8';c.fillText(p.name,tx,p.y-28);c.textAlign='left';}}}
- drawMicroLabels(){if(this.exploded){this.model.site.layers.forEach((l,i)=>this.label(l,[-20,i*1.4+this.lifts[i].x*i*3.8,5],this.layerHover===i?'#fff296':LAYER_COLORS[i]));}if(this.selected>=0){const pos=this.cloud.position(this.selected);pos[1]+=this.microShift;const s=byId[this.cloud.ids[this.cloud.species[this.selected]]];if(!this.thoughts)this.label(s.name+' · #'+this.selected,pos,liveColor(s.id));}this.drawThoughts();}
+ drawMicroLabels(){if(this.exploded){this.model.site.layers.forEach((l,i)=>this.label(l,[-20,i*1.4+this.lifts[i].x*i*3.8,5],this.layerHover===i?'#fff296':LAYER_COLORS[i]));}if(this.selected>=0){const pos=this.cloud.position(this.selected);pos[1]+=this.microShift;const s=byId[this.cloud.ids[this.cloud.species[this.selected]]];if(!this.thoughts)this.label(s.name+' · #'+(this.local?this.selected+1:this.selected),pos,liveColor(s.id));}this.drawThoughts();}
  drawThoughts(){
  this.bubbleHits=[];if(!this.thoughts||this.inspect||this.exploded||this.travel.x<1.9)return;
  const cloud=this.cloud,c=this.ctx,t=cloud.visualTime,epoch=Math.floor(t/7),mobile=this.w<650;
@@ -2978,7 +3389,7 @@ class World{
   const alpha=this.calm||id===this.selected?1:Math.min(1,(t%7)/.25,(7-t%7)/.4);if(alpha<.02)continue;c.globalAlpha=alpha;
   c.strokeStyle=liveColor(s.id);c.lineWidth=1.4;c.fillStyle='#122940f5';c.beginPath();c.roundRect(x,y,width,height,10);c.fill();c.stroke();
   c.beginPath();c.moveTo(clamp(p.x,x+10,x+width-10),y+height);c.lineTo(p.x,p.y-p.radius-3);c.stroke();
-  c.fillStyle=liveColor(s.id);c.font='10px system-ui';c.fillText(s.name+' · #'+id,x+11,y+16);c.fillStyle='#fff9e8';c.font='600 12px system-ui';
+  c.fillStyle=liveColor(s.id);c.font='10px system-ui';c.fillText(s.name+' · #'+(this.local?id+1:id),x+11,y+16);c.fillStyle='#fff9e8';c.font='600 12px system-ui';
   lines.forEach((line,j)=>c.fillText(line,x+11,y+34+j*16));c.globalAlpha=1;boxes.push(box);
  }
  this.bubbleHits=boxes;
@@ -3010,12 +3421,16 @@ const {layerDescription,LAYER_COLORS} = __modules["src/webgl2/layers.js"];
 const {cellBlueprint} = __modules["src/webgl2/cell-blueprints.js"];
 const {liveColor} = __modules["src/webgl2/living.js"];
 const {Model,clamp} = __modules["src/model.js"];
-const {SITES,SPECIES,byId,SOURCES,EXPERIMENTS,LESSONS} = __modules["src/data.js"];
+const {SITES,SPECIES,SOURCES,EXPERIMENTS,LESSONS} = __modules["src/data.js"];
+const {LOCAL_SPECIES: byId,LOCAL_VARIANT_NAMES} = __modules["src/local/traits.js"];
+const {LocalController} = __modules["src/local/ui.js"];
+const {exportReplay} = __modules["src/local/replay.js"];
 const $=id=>document.getElementById(id);
 const model=new Model();let world;
 try{world=new World($('universe'),$('labels'),model);}catch(error){$('gpu-error').hidden=false;$('run-status').textContent='WEBGL2 НЕДОСТУПЕН';$('dive').disabled=true;console.warn('3D unavailable:',error.message);window.microcosmos2={available:false};}
 if(world)initialize();
 function initialize(){
+ let localUI=null;
  let control=new Model(),paused=false,speed=1,lens='simple',chosen='faec',drop=null,prediction=null,journal=[],seenPredictions=new Set(),accumulator=0,last=performance.now(),lastHUD=0,frames=0,fpsAt=last,frameSamples=[],tour=false,tourIndex=0,tourAt=0,lastInput=last,run=0,contextGeneration=0,updateCost=0,renderCost=0;
  const motion=matchMedia('(prefers-reduced-motion: reduce)');world.calm=motion.matches;$('calm').setAttribute('aria-pressed',world.calm);
  const links=ids=>`<div class="source-links">${ids.map(id=>{const s=SOURCES.find(s=>s.id===id);return s?`<a href="${s.url}" target="_blank" rel="noopener noreferrer">${s.year||'Механизм'} · ${s.level} ↗</a>`:'';}).join('')}</div>`;
@@ -3025,17 +3440,17 @@ function initialize(){
  function close(){$('dialog').close();lastInput=performance.now();}
  $('close-dialog').onclick=close;$('dialog').addEventListener('close',()=>{lastInput=performance.now();});$('dialog').addEventListener('click',e=>{if(e.target===$('dialog')){const r=$('dialog').getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)close();}});
  function navigate(depth){world.goal=clamp(depth,0,3);world.inspect=false;world.mechanism=null;if(depth<1.8){world.follow=false;world.pan=[0,0,0];world.selected=-1;world.selectedSpecies=null;showSiteCard();}if(depth>1.5&&world.travel.x<1){world.targetYaw=.2;world.targetPitch=.02;}$('depth').value=world.goal;updateLayers();updateHUD();}
- function resetSite(id){for(const entry of journal)if(entry.run===run&&!entry.after){entry.after=model.snapshot();entry.interrupted=true;}run++;model.reset(id);control=new Model(id);accumulator=0;world.setSite();world.setExploded(false);$('explode').setAttribute('aria-pressed','false');chosen=model.site.species[0];drop=null;$('drop-hint').hidden=true;populate();showSiteCard();$('crumb-organ').textContent=model.site.name;explain(model.site.subtitle,model.site.fact);updateLayers();updateHUD();}
+ function resetSite(id){if(world.local||localUI?.busy)localUI.exit();for(const entry of journal)if(entry.run===run&&!entry.after){entry.after=model.snapshot();entry.interrupted=true;}run++;model.reset(id);control=new Model(id);accumulator=0;world.setSite();world.setExploded(false);$('explode').setAttribute('aria-pressed','false');chosen=model.site.species[0];drop=null;$('drop-hint').hidden=true;populate();showSiteCard();$('crumb-organ').textContent=model.site.name;explain(model.site.subtitle,model.site.fact);updateLayers();updateHUD();}
  function chooseSite(id){const entering=world.goal>1.3;resetSite(id);world.goal=entering?1:0;world.targetYaw=.12;world.targetPitch=.06;}
  function populate(){
  $('feed-nearby').disabled=!['colon','mouth','small'].includes(model.site.id);$('feed-nearby').title=$('feed-nearby').disabled?'Пищевой опыт для этой среды пока не моделируется':'Выберите корм, затем место в микромире';
  $('habitats').innerHTML=SITES.map(s=>`<button class="habitat ${s.id===model.site.id?'active':''}" data-site="${s.id}" aria-pressed="${s.id===model.site.id}"><span class="icon">${s.icon}</span>${s.name}<span class="arrow">↗</span></button>`).join('');document.querySelectorAll('[data-site]').forEach(b=>b.onclick=()=>chooseSite(b.dataset.site));
  $('experiments').innerHTML=EXPERIMENTS.map(e=>`<button class="experiment" data-exp="${e.id}" ${e.sites.includes(model.site.id)?'':'disabled'} title="${e.sites.includes(model.site.id)?e.sub:'Не моделируется для этой среды'}"><span class="icon">${e.icon}</span><span><b>${e.name}</b><small>${e.sub}</small></span></button>`).join('');document.querySelectorAll('[data-exp]').forEach(b=>b.onclick=()=>requestExperiment(b.dataset.exp));
- $('residents').innerHTML=model.site.species.map(id=>`<button class="resident" data-species="${id}"><i style="background:${liveColor(id)}"></i>${byId[id].name}</button>`).join('');document.querySelectorAll('[data-species]').forEach(b=>b.onclick=()=>{const index=world.cloud.ids.indexOf(b.dataset.species);let found=-1;for(let i=0;i<world.cloud.count;i++)if(world.cloud.species[i]===index){found=i;break;}if(found>=0)selectAgent(found);});
+ $('residents').innerHTML=model.site.species.map(id=>`<button class="resident" data-species="${id}"><i style="background:${liveColor(id)}"></i>${byId[id].name}</button>`).join('');document.querySelectorAll('[data-species]').forEach(b=>b.onclick=()=>{const index=world.cloud.ids.indexOf(b.dataset.species);let found=-1;for(let i=0;i<world.cloud.count;i++)if(world.cloud.species[i]===index&&(!world.cloud.alive||world.cloud.alive[i])){found=i;break;}if(found>=0)selectAgent(found);});
  }
- function showSiteCard(){const site=model.site;$('card-kicker').innerHTML='ВАША СЛЕДУЮЩАЯ ОСТАНОВКА <span>↗</span>';$('biome-glyph').textContent=site.icon;$('biome-glyph').style.color='';$('card-tag').textContent=site.sparse?'НИЗКАЯ БИОМАССА':site.id==='colon'?'АНАЭРОБНАЯ ЭКОСИСТЕМА':'ЖИВОЕ СООБЩЕСТВО';$('card-title').textContent=site.name;$('card-latin').textContent=site.subtitle;$('card-copy').textContent=site.id==='colon'?'Здесь соседи превращают остатки пищи в вещества, которыми пользуются другие микробы и клетки человека.':site.fact;$('card-stats').hidden=false;$('lens-tabs').hidden=true;$('agent-live').hidden=true;$('agent-actions').hidden=true;$('card-note').innerHTML='Сначала орган. Затем ткань.<br>Потом — целый мир в капле.';$('dive').innerHTML='Погрузиться внутрь <span>↘</span>';$('dive').onclick=()=>{navigate(2.55);explain('Добро пожаловать в микромир.','Потяните сцену, чтобы осмотреться. Нажмите на жителя или выберите его в списке. Клетчатку можно внести в выбранную точку.');};}
+ function showSiteCard(){if(world.local){$('card-kicker').textContent='ЛОКАЛЬНЫЙ ЭКСПЕРИМЕНТ';$('card-title').textContent='У каждой клетки — история';$('card-latin').textContent='Контакт → событие → изменение состояния';$('card-copy').textContent='Выберите агента в сцене или нажмите на событие под ней. Проследите перенос плазмиды, заражение, деление и судьбу потомков.';$('card-tag').textContent='УЧЕБНЫЕ ШТАММЫ';$('biome-glyph').textContent='⌁';$('biome-glyph').style.color='';for(const id of ['card-stats','lens-tabs','agent-live','agent-actions'])$(id).hidden=true;$('card-note').textContent='Не клиническая модель. Общий расчёт организма остановлен.';$('dive').textContent='Выбрать живого агента ↗';$('dive').onclick=()=>{const i=world.local.entities.findIndex(e=>e.alive);if(i>=0)selectAgent(i);};return;}const site=model.site;$('card-kicker').innerHTML='ВАША СЛЕДУЮЩАЯ ОСТАНОВКА <span>↗</span>';$('biome-glyph').textContent=site.icon;$('biome-glyph').style.color='';$('card-tag').textContent=site.sparse?'НИЗКАЯ БИОМАССА':site.id==='colon'?'АНАЭРОБНАЯ ЭКОСИСТЕМА':'ЖИВОЕ СООБЩЕСТВО';$('card-title').textContent=site.name;$('card-latin').textContent=site.subtitle;$('card-copy').textContent=site.id==='colon'?'Здесь соседи превращают остатки пищи в вещества, которыми пользуются другие микробы и клетки человека.':site.fact;$('card-stats').hidden=false;$('lens-tabs').hidden=true;$('agent-live').hidden=true;$('agent-actions').hidden=true;$('card-note').innerHTML='Сначала орган. Затем ткань.<br>Потом — целый мир в капле.';$('dive').innerHTML='Погрузиться внутрь <span>↘</span>';$('dive').onclick=()=>{navigate(2.55);explain('Добро пожаловать в микромир.','Потяните сцену, чтобы осмотреться. Нажмите на жителя или выберите его в списке. Клетчатку можно внести в выбранную точку.');};}
  function selectAgent(index){if(world.inspect){world.inspect=false;world.mechanism=null;world.setExploded(false);$('explode').setAttribute('aria-pressed','false');}world.selected=index;world.selectedSpecies=null;chosen=world.cloud.ids[world.cloud.species[index]];if(world.goal<1.8)navigate(2.35);showAgentCard();document.querySelectorAll('[data-species]').forEach(b=>b.classList.toggle('active',b.dataset.species===chosen));announce(byId[chosen].name+'. '+byId[chosen].role);updateLayers();}
- function showAgentCard(){const s=byId[chosen];$('card-kicker').textContent=world.inspect?'АНАТОМИЯ · ОБОБЩЁННЫЙ РАЗРЕЗ':'ВЫБРАННЫЙ ПРЕДСТАВИТЕЛЬ · #'+Math.max(0,world.selected);$('biome-glyph').textContent=({rod:'⌁',oval:'◉',cocci:'∴',branch:'Y',yeast:'∞',phage:'⟡',spiral:'∿',protist:'◉'})[s.shape];$('biome-glyph').style.color=liveColor(s.id);$('card-tag').textContent=s.group.toUpperCase();$('card-title').textContent=s.name;$('card-latin').textContent=s.latin;$('card-copy').textContent=lens==='simple'?(s.quote||s.role)+' Питается: '+s.food+'.':s.fact;$('card-stats').hidden=true;$('lens-tabs').hidden=false;$('agent-live').hidden=world.inspect;$('agent-actions').hidden=world.inspect;$('card-note').textContent=s.size+' · цвет и движение условны';$('dive').innerHTML='Приблизиться к клетке <span>↗</span>';$('dive').onclick=()=>{world.inspect=false;world.mechanism=null;world.focusAgent(world.selected);explain('Теперь вы рядом.',s.role+'. Для слежения включена привязка камеры к выбранному представителю.');};$('follow').textContent=world.follow?'Отпустить камеру':'Следить за клеткой';$('follow').classList.toggle('active',world.follow);if(world.inspect){$('dive').innerHTML='← Вернуться в сообщество';$('dive').onclick=()=>{world.inspect=false;world.setExploded(false);$('explode').setAttribute('aria-pressed','false');navigate(2.4);showSiteCard();updateLayers();};}}
+ function showAgentCard(){const s=byId[chosen];$('anatomy').disabled=chosen==='immune';$('card-kicker').textContent=world.inspect?'АНАТОМИЯ · ОБОБЩЁННЫЙ РАЗРЕЗ':'ВЫБРАННЫЙ ПРЕДСТАВИТЕЛЬ · #'+(world.local?world.selected+1:Math.max(0,world.selected));$('biome-glyph').textContent=({rod:'⌁',oval:'◉',cocci:'∴',branch:'Y',yeast:'∞',phage:'⟡',spiral:'∿',protist:'◉'})[s.shape];$('biome-glyph').style.color=liveColor(s.id);$('card-tag').textContent=s.group.toUpperCase();$('card-title').textContent=s.name;$('card-latin').textContent=s.latin;$('card-copy').textContent=lens==='simple'?(s.quote||s.role)+' Питается: '+s.food+'.':s.fact;$('card-stats').hidden=true;$('lens-tabs').hidden=false;$('agent-live').hidden=world.inspect;$('agent-actions').hidden=world.inspect;$('card-note').textContent=world.local&&!world.inspect&&world.selected>=0?'Учебный вариант: '+LOCAL_VARIANT_NAMES[world.local.get(world.selected+1)?.variant]+' · не измеренные свойства штамма':s.size+' · цвет и движение условны';$('dive').innerHTML='Приблизиться к клетке <span>↗</span>';$('dive').onclick=()=>{world.inspect=false;world.mechanism=null;world.focusAgent(world.selected);explain('Теперь вы рядом.',s.role+'. Для слежения включена привязка камеры к выбранному представителю.');};$('follow').textContent=world.follow?'Отпустить камеру':'Следить за клеткой';$('follow').classList.toggle('active',world.follow);if(world.inspect){$('dive').innerHTML='← Вернуться в сообщество';$('dive').onclick=()=>{world.inspect=false;world.setExploded(false);$('explode').setAttribute('aria-pressed','false');navigate(2.4);showSiteCard();updateLayers();};}}
  document.querySelectorAll('[data-lens]').forEach(b=>b.onclick=()=>{lens=b.dataset.lens;document.querySelectorAll('[data-lens]').forEach(t=>t.classList.toggle('active',t===b));showAgentCard();});
  $('follow').onclick=()=>{if(world.follow)world.follow=false;else{world.focusAgent(world.selected);world.goal=2.75;}showAgentCard();};
  $('anatomy').onclick=()=>openCell(chosen);
@@ -3044,7 +3459,7 @@ function initialize(){
  document.querySelectorAll('[data-depth]').forEach(b=>b.onclick=()=>navigate(+b.dataset.depth));$('depth').oninput=e=>navigate(+e.target.value);
  $('closer').onclick=()=>navigate(world.goal+.27);$('farther').onclick=()=>navigate(world.goal-.27);$('reset-camera').onclick=()=>{world.targetYaw=.12;world.targetPitch=.06;world.pan=[0,0,0];world.follow=false;};
  $('calm').onclick=()=>{world.calm=!world.calm;$('calm').setAttribute('aria-pressed',world.calm);if(world.calm){tour=false;$('tour').classList.remove('active');}};motion.addEventListener('change',e=>{world.calm=e.matches;$('calm').setAttribute('aria-pressed',world.calm);if(world.calm)tour=false;});
- $('explode').onclick=()=>{if(!world.inspect&&world.goal<1.9)navigate(2.25);world.setExploded(!world.exploded);$('explode').setAttribute('aria-pressed',world.exploded);updateLayers();};
+ $('explode').onclick=()=>{if(world.local&&!world.inspect)return;if(!world.inspect&&world.goal<1.9)navigate(2.25);world.setExploded(!world.exploded);$('explode').setAttribute('aria-pressed',world.exploded);updateLayers();};
  function showLayer(i){world.layerHover=i;explain(model.site.layers[i],layerDescription(model.site,i)+' Раздвинутые расстояния условны.');}
  function updateLayers(){
   world.layerHover=-1;
@@ -3067,10 +3482,10 @@ function initialize(){
  $('life-rate').onchange=e=>{world.lifeRate=+e.target.value;explain('Темп видимой жизни изменён.','Это ускоренная учебная анимация, не реальные секунды микроба. Скорость физиологической модели и контрольный опыт не изменены.');};
  $('quality').onchange=e=>{world.quality=e.target.value;world.autoLow=world.quality==='eco';world.ratio=world.quality==='eco'?.65:1.2;};
  $('density').onchange=e=>{world.cloud.reset(+e.target.value);world.selected=-1;world.follow=false;world.selectedSpecies=null;showSiteCard();explain('Больше представителей, та же модель.','Количество объёмных экземпляров изменилось. Состав, ресурсы и траектория учебной модели от графического качества не меняются. В низкобиомассных средах количество намеренно ограничено.');};
- function requestExperiment(id){if(!EXPERIMENTS.find(e=>e.id===id)?.sites.includes(model.site.id))return;if(!seenPredictions.has(id)){
+ function requestExperiment(id){if(world.local)return;if(!EXPERIMENTS.find(e=>e.id===id)?.sites.includes(model.site.id))return;if(!seenPredictions.has(id)){
  const antibiotic=id==='antibiotic',question=antibiotic?'Антибиотик одинаково уничтожит всех жителей?':id==='fiber'?'Кто первым воспользуется сложными углеводами?':'Сможет ли один опыт предсказать здоровье человека?';const answers=antibiotic?['Нет. Важны мишень и чувствительность.','Да. Все микробы одинаковы.']:id==='fiber'?['Деградаторы; их продуктами воспользуются соседи.','Все виды питаются одним и тем же.']:['Нет. Это упрощённая учебная модель.','Да. По ней можно выбирать лечение.'];dialog('ПРЕДСКАЖИТЕ → ПРОВЕРЬТЕ',`<h2>${question}</h2><p>Не экзамен, а повод присмотреться. Запишем ваше предположение в журнал.</p><div class="prediction">${answers.map((s,i)=>`<button data-predict="${i}">${s}</button>`).join('')}</div><div class="notice">Результат зависит от выбранного биотопа. Прогнозы приложения не являются медицинскими рекомендациями.</div>`);document.querySelectorAll('[data-predict]').forEach(b=>b.onclick=()=>{prediction={question,answer:answers[+b.dataset.predict]};seenPredictions.add(id);close();beginExperiment(id);});}else beginExperiment(id);}
  function beginExperiment(id){if(['fiber','sugar'].includes(id)){navigate(2.4);drop=id;$('drop-hint').hidden=false;explain('Выберите место для пищи.','Нажмите на участок микромира. Частицы появятся там, где вы внесли субстрат; активность соседних представителей изменится. Общая метаболическая модель остаётся агрегированной.');}else applyExperiment(id,[0,5,0]);}
- function applyExperiment(id,pos){const e=EXPERIMENTS.find(e=>e.id===id),before=model.snapshot();model.act(id);world.cloud.deposit(id,pos);world.cloud.update();journal.push({run,site:model.site.id,action:id,name:e.name,position:pos,time:before.time,before,after:null,prediction});journal=journal.slice(-80);prediction=null;drop=null;$('drop-hint').hidden=true;document.querySelectorAll('[data-exp]').forEach(b=>b.classList.toggle('active',b.dataset.exp===id));explain(e.name+(paused?' · модель на паузе':''),e.text);updateHUD();}
+ function applyExperiment(id,pos){if(world.local)return;const e=EXPERIMENTS.find(e=>e.id===id),before=model.snapshot();model.act(id);world.cloud.deposit(id,pos);world.cloud.update();journal.push({run,site:model.site.id,action:id,name:e.name,position:pos,time:before.time,before,after:null,prediction});journal=journal.slice(-80);prediction=null;drop=null;$('drop-hint').hidden=true;document.querySelectorAll('[data-exp]').forEach(b=>b.classList.toggle('active',b.dataset.exp===id));explain(e.name+(paused?' · модель на паузе':''),e.text);updateHUD();}
  $('cancel-drop').onclick=()=>{drop=null;$('drop-hint').hidden=true;};
  const view=$('viewport');let drag=null,pointers=new Map(),pinch=0,hoverAt=0;view.addEventListener('pointerleave',()=>{world.layerHover=-1;});
  function coordinates(e){const r=$('universe').getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top];}
@@ -3079,9 +3494,9 @@ function initialize(){
  view.addEventListener('pointerup',e=>{pointers.delete(e.pointerId);if(drag&&!drag.moved){const[x,y]=coordinates(e);if(drop&&world.travel.x>1.8)applyExperiment(drop,world.floorPoint(x,y));else{const hit=world.pick(x,y);if(hit?.site)chooseSite(hit.site);else if(hit?.agent!==undefined)selectAgent(hit.agent);else if(world.layerMode&&hit?.layer!==undefined)showLayer(hit.layer);}}drag=null;});view.addEventListener('pointercancel',e=>{pointers.delete(e.pointerId);drag=null;});view.addEventListener('contextmenu',e=>e.preventDefault());view.addEventListener('wheel',e=>{e.preventDefault();world.follow=false;navigate(world.goal-e.deltaY*.0018);},{passive:false});
  view.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' ','w','s','a','d','W','S','A','D','+','-','=','Escape'].includes(e.key))e.preventDefault();switch(e.key.toLowerCase()){case'arrowleft':world.targetYaw-=.13;break;case'arrowright':world.targetYaw+=.13;break;case'arrowup':world.targetPitch-=.09;break;case'arrowdown':world.targetPitch+=.09;break;case'w':case'+':case'=':navigate(world.goal+.13);break;case's':case'-':navigate(world.goal-.13);break;case'a':world.pan[0]-=1.3;world.follow=false;break;case'd':world.pan[0]+=1.3;world.follow=false;break;case' ':if(!e.repeat)$('explode').click();break;case'escape':drop=null;$('drop-hint').hidden=true;world.inspect=false;world.mechanism=null;world.follow=false;updateLayers();showSiteCard();break;}});
  $('pause').onclick=()=>{paused=!paused;accumulator=0;$('pause').textContent=paused?'▷':'Ⅱ';$('pause').setAttribute('aria-label',paused?'Продолжить':'Пауза');};$('speed').onchange=e=>speed=+e.target.value;$('restart').onclick=()=>resetSite(model.site.id);
- function compare(){const a=control.snapshot(),b=model.snapshot();const column=(s,title)=>`<div><h3>${title}</h3><dl><dt>Бутират · условные единицы</dt><dd>${model.site.id==='colon'?(s.butyrate*100).toFixed(1):'—'}</dd><dt>pH учебной среды</dt><dd>${s.pH.toFixed(2)}</dd><dt>Разнообразие H′</dt><dd>${s.diversity.toFixed(2)}</dd><dt>Устойчивый вариант · % модели</dt><dd>${(s.resistance*100).toFixed(1)}</dd></dl></div>`;dialog('ОДИН СТАРТ · РАЗНЫЕ ВМЕШАТЕЛЬСТВА',`<h2>А если ничего не менять?</h2><p>Одинаковые биотоп, зерно и модельное время t = ${b.time.toFixed(1)}. Слева — независимый контроль без ваших вмешательств, справа — ваш опыт. Это значения учебной модели, не опубликованные клинические данные.</p><div class="comparison">${column(a,'Контроль · без вмешательства')}${column(b,'Ваш эксперимент')}</div><div class="notice">Меняется только вмешательство. Несколько ваших действий могут накладываться. Менять графическую плотность можно — она не влияет на результат.</div><div class="action-row"><button class="primary" id="refresh-compare">Обновить снимки</button></div>`);$('refresh-compare').onclick=compare;}
+ function compare(){if(world.local){localUI.compare();return;}const a=control.snapshot(),b=model.snapshot();const column=(s,title)=>`<div><h3>${title}</h3><dl><dt>Бутират · условные единицы</dt><dd>${model.site.id==='colon'?(s.butyrate*100).toFixed(1):'—'}</dd><dt>pH учебной среды</dt><dd>${s.pH.toFixed(2)}</dd><dt>Разнообразие H′</dt><dd>${s.diversity.toFixed(2)}</dd><dt>Устойчивый вариант · % модели</dt><dd>${(s.resistance*100).toFixed(1)}</dd></dl></div>`;dialog('ОДИН СТАРТ · РАЗНЫЕ ВМЕШАТЕЛЬСТВА',`<h2>А если ничего не менять?</h2><p>Одинаковые биотоп, зерно и модельное время t = ${b.time.toFixed(1)}. Слева — независимый контроль без ваших вмешательств, справа — ваш опыт. Это значения учебной модели, не опубликованные клинические данные.</p><div class="comparison">${column(a,'Контроль · без вмешательства')}${column(b,'Ваш эксперимент')}</div><div class="notice">Меняется только вмешательство. Несколько ваших действий могут накладываться. Менять графическую плотность можно — она не влияет на результат.</div><div class="action-row"><button class="primary" id="refresh-compare">Обновить снимки</button></div>`);$('refresh-compare').onclick=compare;}
  $('compare').onclick=compare;
- function showJournal(){dialog('ЖУРНАЛ ЭКСПЕДИЦИИ',`<h2>От любопытства к наблюдению.</h2><p>Снимки через 8 секунд модельного времени. При смене среды опыт отмечается как прерванный. Не доказательство клинической причинности.</p>${journal.length?journal.map(r=>`<article class="timeline-item"><b>${r.name} · ${SITES.find(s=>s.id===r.site).name} · t=${r.time.toFixed(1)}</b><p>${r.prediction?'Предположение: '+r.prediction.answer+'<br>':''}${r.after?`H′: ${r.before.diversity.toFixed(2)} → ${r.after.diversity.toFixed(2)} · ${r.interrupted?'Прервано сменой/сбросом':'Снимок завершён'}`:'Наблюдение продолжается'}<br>Точка внесения: ${r.position.map(v=>v.toFixed(1)).join(', ')} (локальные координаты)</p></article>`).reverse().join(''):'<div class="notice">Пока нет вмешательств. Войдите в микромир и попробуйте внести пищу.</div>'}<div class="action-row"><button id="export" class="primary">Скачать наблюдения JSON ↓</button></div>`);$('export').onclick=()=>{const blob=new Blob([JSON.stringify({version:'0.4-webgl2',seed:model.seed,disclaimer:'Educational, uncalibrated model; not medical advice',records:journal,experiment:model.snapshot(),control:control.snapshot()},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='microcosmos-webgl2-observations.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};}
+ function showJournal(){if(world.local){localUI.history();return;}dialog('ЖУРНАЛ ЭКСПЕДИЦИИ',`<h2>От любопытства к наблюдению.</h2><p>Снимки через 8 секунд модельного времени. При смене среды опыт отмечается как прерванный. Не доказательство клинической причинности.</p>${journal.length?journal.map(r=>`<article class="timeline-item"><b>${r.name} · ${SITES.find(s=>s.id===r.site).name} · t=${r.time.toFixed(1)}</b><p>${r.prediction?'Предположение: '+r.prediction.answer+'<br>':''}${r.after?`H′: ${r.before.diversity.toFixed(2)} → ${r.after.diversity.toFixed(2)} · ${r.interrupted?'Прервано сменой/сбросом':'Снимок завершён'}`:'Наблюдение продолжается'}<br>Точка внесения: ${r.position.map(v=>v.toFixed(1)).join(', ')} (локальные координаты)</p></article>`).reverse().join(''):'<div class="notice">Пока нет вмешательств. Войдите в микромир и попробуйте внести пищу.</div>'}<div class="action-row"><button id="export" class="primary">Скачать наблюдения JSON ↓</button></div>`);$('export').onclick=()=>{const blob=new Blob([JSON.stringify({version:'0.5-webgl2',seed:model.seed,disclaimer:'Educational, uncalibrated model; not medical advice',records:journal,experiment:model.snapshot(),control:control.snapshot()},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='microcosmos-webgl2-observations.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};}
  $('journal').onclick=showJournal;
  function atlas(){dialog('АТЛАС ЖИТЕЛЕЙ · ПЯТЬ ГРУПП',`<h2>Разные формы. Общая жизнь.</h2><p>16 представителей, не все известные виды. Бактерии и археи — разные домены; грибы и протисты — эукариоты; вирусы — не клеточные организмы.</p><div class="filter-row"><input id="search" placeholder="Русское название, род или пища…" aria-label="Поиск жителей"><select id="group" aria-label="Группа"><option value="">Все группы</option>${['Бактерии','Археи','Грибы','Вирусы','Протисты'].map(s=>`<option>${s}</option>`).join('')}</select></div><div class="atlas-grid" id="atlas-grid"></div>`);const filter=()=>{const q=$('search').value.trim().toLowerCase(),group=$('group').value,found=SPECIES.filter(s=>(!group||s.group===group)&&[s.name,s.latin,s.food,s.taxonomy].join(' ').toLowerCase().includes(q));$('atlas-grid').innerHTML=found.length?found.map(s=>`<button class="atlas-card" data-card="${s.id}"><span class="tag" style="color:${liveColor(s.id)}">${s.group}</span><h3>${s.name}</h3><span class="latin">${s.latin}</span><p>${s.role}</p></button>`).join(''):'<p>Такого представителя пока нет в атласе.</p>';document.querySelectorAll('[data-card]').forEach(b=>b.onclick=()=>speciesCard(b.dataset.card));};$('search').oninput=filter;$('group').onchange=filter;filter();}
  function speciesCard(id){const s=byId[id];dialog(s.group.toUpperCase(),`<span class="tag">${s.size}</span><h2>${s.name}</h2><p><i>${s.latin}</i></p><h3>Простыми словами</h3><p>${s.quote||s.role}</p><h3>Научный факт</h3><p>${s.fact}</p><div class="steps"><span><b>Питается</b><br>${s.food}</span><span><b>Производит</b><br>${s.product}</span></div><p>${s.taxonomy}</p>${links(s.refs)}<div class="action-row"><button class="primary" id="inspect-from-atlas">Устройство в 3D ↗</button><button class="outline" id="atlas-back">← Атлас</button></div>`);$('inspect-from-atlas').onclick=()=>{close();openCell(id);};$('atlas-back').onclick=atlas;}
@@ -3090,23 +3505,25 @@ function initialize(){
  function guide(){dialog('ПУТЕВОДИТЕЛЬ · ПОНЯТЬ СВЯЗИ',`<h2>Важен не один микроб, а целая сеть.</h2><p>Откройте историю и проверьте идею собственным опытом.</p>${LESSONS.map((l,i)=>`<details class="lesson" ${i===0?'open':''}><summary>${String(i+1).padStart(2,'0')} / ${l.title}</summary><p>${l.text}</p><div class="steps">${l.steps.map(s=>`<span>${s}</span>`).join('')}</div>${links(l.refs)}</details>`).join('')}<h3>Молекулярная мастерская · настоящий 3D</h3><p>Отдельные объяснительные схемы, не механизмы каждого представителя и не полный расчёт популяционной динамики.</p><div class="action-row"><button class="outline" data-mechanism="conj">Конъюгация</button><button class="outline" data-mechanism="t6">T6SS</button><button class="outline" data-mechanism="phage">Фаг и хозяин</button></div><h3>Как мы это узнаём?</h3><p>Микроскопия/FISH показывает расположение клеток; 16S и метагеномика — состав и возможные функции; культура и эксперименты — механизмы. Найденный ген не доказывает его работу, опыт на мыши не равен эффекту у человека, а в пробах с малой биомассой важна контаминация.</p><div class="notice">«Добрый» или «злой» — не постоянное свойство вида. Высокий индекс Шеннона не универсальная оценка здоровья. Микробы не являются пультом управления мыслями.</div>`);document.querySelectorAll('[data-mechanism]').forEach(b=>b.onclick=()=>{close();openMechanism(b.dataset.mechanism);});}
  function openMechanism(kind){world.inspect=true;world.mechanism=kind;world.mechanismAt=world.clock;updateLayers();world.targetPitch=.05;world.targetYaw=.1;const texts={conj:['Копия инструкции, а не потерянное кольцо.','Донор сохраняет плазмиду. Передаётся цепь ДНК, которую клетки достраивают. Плазмида не обязательно несёт устойчивость.'],t6:['Контактный аппарат T6SS.','Белковая оболочка сокращается и приводит в движение трубку с эффекторами. Пружина — метафора, не металлическая деталь. Аппарат есть только у определённых бактерий и штаммов.'],phage:['Фаг узнаёт подходящего хозяина.','Схема литического эпизода. Не любой фаг заражает любую бактерию; лизис не гарантирует восстановление разнообразия.']}[kind];$('card-title').textContent=kind==='conj'?'Конъюгация':kind==='t6'?'Молекулярный гарпун':'Фаг и хозяин';$('card-copy').textContent=texts[1];$('card-kicker').textContent='МОЛЕКУЛЯРНАЯ МАСТЕРСКАЯ';$('card-tag').textContent='УЧЕБНАЯ СХЕМА';$('card-latin').textContent='Отдельно от популяционного расчёта';$('card-stats').hidden=true;$('agent-live').hidden=true;$('agent-actions').hidden=true;$('lens-tabs').hidden=true;$('dive').innerHTML='Повторить механизм ↻';$('dive').onclick=()=>world.mechanismAt=world.clock;explain(...texts);}
  $('guide').onclick=guide;$('explain-more').onclick=()=>dialog('ЧТО ПРОИСХОДИТ В ЭТОЙ СРЕДЕ',`<h2>${model.site.name}</h2><p>${model.site.fact}</p><div class="steps">${model.site.layers.map(l=>`<span>${l}</span>`).join('')}</div>${links(model.site.refs)}<div class="notice">Смена биотопа открывает независимый пример с новым начальным состоянием. Перенос всех клеток через организм не рассчитывается.</div>`);
- $('limits').onclick=()=>dialog('ЧЕСТНО О МОДЕЛИ',`<h2>Настоящий 3D. Условная физиология.</h2><p>Тело, органы, ткани и клетки — объёмные треугольные меши WebGL2 с перспективой и буфером глубины. Они стилизованы и не являются медицинской анатомической сегментацией. Общая карта объединяет разные варианты анатомии человека для навигации.</p><h3>Путешествие между масштабами</h3><p>Мир тела и микросреда используют разные координатные пространства. Между ними — плавный визуальный переход. Фаги и внутренние структуры увеличены для объяснения; масштабные подписи — ориентиры, а не единая линейка для всех объектов.</p><h3>Тысячи видимых жителей — не триллионы рассчитанных клеток</h3><p>Экземпляры представляют группы. Число экземпляров можно менять без изменения популяционной модели. В низкобиомассных средах их меньше. Активность около внесённой пищи — учебный локальный индекс, не измерение ATP.</p><h3>Живая история, не видеозапись микроскопа</h3><p>Движение намеренно ускорено и имеет собственные часы. У немотильных видов показан перенос средой, у отмеченных жгутиковых — также собственное движение. «Мысли» — подписи рассказчика, не сознание клетки. Светящиеся посылки между соседями иллюстрируют обмен, но не рассчитывают каждую молекулу и не изменяют численные показатели модели.</p><h3>Научные границы</h3><p>Чувствительность к антибиотику, скорости роста, pH и барьер не калиброваны по человеку. Метаболизм агрегирован. Полный T6SS, перенос генов, иммунитет, споруляция и нервная система не решены как связанные популяционные системы. Молекулярная мастерская — отдельные объяснительные схемы.</p><div class="notice">Это не инструмент диагностики и выбора лечения. Антибиотики, пробиотики, фаготерапию и FMT обсуждают с врачом. Экспертная научная валидация приложения ещё необходима.</div><div class="action-row"><a class="outline" href="docs/PROJECT_SPEC.md" target="_blank">Полная спецификация ↗</a></div>`);
+ $('limits').onclick=()=>dialog('ЧЕСТНО О МОДЕЛИ',`<h2>Настоящий 3D. Условная физиология.</h2><p>Тело, органы, ткани и клетки — объёмные треугольные меши WebGL2 с перспективой и буфером глубины. Они стилизованы и не являются медицинской анатомической сегментацией. Общая карта объединяет разные варианты анатомии человека для навигации.</p><h3>Путешествие между масштабами</h3><p>Мир тела и микросреда используют разные координатные пространства. Между ними — плавный визуальный переход. Фаги и внутренние структуры увеличены для объяснения; масштабные подписи — ориентиры, а не единая линейка для всех объектов.</p><h3>Тысячи видимых жителей — не триллионы рассчитанных клеток</h3><p>Экземпляры представляют группы. Число экземпляров можно менять без изменения популяционной модели. В низкобиомассных средах их меньше. Активность около внесённой пищи — учебный локальный индекс, не измерение ATP.</p><h3>Живая история, не видеозапись микроскопа</h3><p>Движение намеренно ускорено и имеет собственные часы. У немотильных видов показан перенос средой, у отмеченных жгутиковых — также собственное движение. «Мысли» — подписи рассказчика, не сознание клетки. Светящиеся посылки между соседями иллюстрируют обмен, но не рассчитывают каждую молекулу и не изменяют численные показатели модели.</p><h3>Научные границы</h3><p>Чувствительность к антибиотику, скорости роста, pH и барьер не калиброваны по человеку. Метаболизм агрегирован. В локальном режиме реализованы учебные контактные процессы, фаговые состояния, фагоцитоз и жизненные переходы; они не переносятся в агрегированные показатели организма. Полный иммунитет и нервная система не моделируются. Молекулярная мастерская — отдельные объяснительные схемы.</p><div class="notice">Это не инструмент диагностики и выбора лечения. Антибиотики, пробиотики, фаготерапию и FMT обсуждают с врачом. Экспертная научная валидация приложения ещё необходима.</div><div class="action-row"><a class="outline" href="docs/PROJECT_SPEC.md" target="_blank">Полная спецификация ↗</a></div>`);
  $('tour').onclick=()=>{if(world.calm){explain('Спокойный режим.','Для автоматического тура отключите уменьшение движения. Все остановки доступны вручную.');return;}tour=!tour;tourAt=performance.now()+1400;tourIndex=0;$('tour').classList.toggle('active',tour);$('tour').textContent=tour?'Ⅱ Остановить экскурсию':'▷ Экскурсия с гидом';};
  for(const name of['pointerdown','pointermove','wheel','keydown','focusin'])document.addEventListener(name,()=>{lastInput=performance.now();},{passive:true});
  const labels=[['pH','pH среды',s=>s.pH.toFixed(2),''],['oxygen','Кислород',s=>(s.oxygen*100).toFixed(1),'у.е.'],['butyrate','Бутират',s=>model.site.id==='colon'?(s.butyrate*100).toFixed(1):'—','у.е.'],['barrier','Барьер',s=>(s.barrier*100).toFixed(1),'% мод.'],['diversity','Шеннон H′',s=>s.diversity.toFixed(2),''],['resistance','Устойчивые',s=>(s.resistance*100).toFixed(1),'% мод.']];$('readouts').innerHTML=labels.map(([id,name,,unit])=>`<div class="readout" title="Учебное значение, не анализ организма. H′ по представленным группам — не оценка здоровья."><small>${name}</small><b><span id="read-${id}" style="font:inherit;color:inherit"></span> <span>${unit}</span></b></div>`).join('');
- function updateHUD(){const q=world.travel.x,micro=q>1.7||world.inspect;document.body.classList.toggle('micro',micro);$('micro-tools').hidden=!micro||world.inspect;const depth=world.inspect?3:q,step=depth<.5?0:depth<1.55?1:depth<2.5?2:3;document.querySelectorAll('[data-depth]').forEach((b,i)=>b.classList.toggle('active',i===step));$('current-scale').textContent=world.inspect?'Устройство / механизм':['Обзор организма','Внутри органа','Ландшафт ткани','Живое сообщество'][step];$('instance-count').textContent=world.inspect?'УЧЕБНАЯ СХЕМА':micro?`${world.cloud.count.toLocaleString('ru-RU')} ПРЕДСТАВИТЕЛЕЙ`:`0${step+1} / ${['ЧЕЛОВЕК','ОРГАН','ТКАНЬ','МИКРОМИР'][step]}`;
- $('hero-title').innerHTML=world.inspect?'Как это<br><em>устроено?</em>':micro?'Жизнь<br><em>внутри жизни.</em>':'Вы — целая<br><em>вселенная.</em>';$('hero-copy').innerHTML=world.inspect?'Поверните объёмную схему.<br>Выберите часть под сценой.<br>Пробел — собрать или разобрать.':micro?'Нажмите на жителя или его «мысль».<br>Добавьте корм — что изменится?<br>Цветные искры объясняют обмен.':'Триллионы невидимых соседей.<br>Один удивительный организм.<br>Приблизьтесь. Жизнь — внутри.';
- $('scale-value').textContent=world.inspect?(world.mechanism?'Схема · не в масштабе':byId[world.inspectedSpecies||'faec'].size):['Человек · ~1,7 м','Орган · сантиметры','Ткань · микроокружение','Бактерии · ~1–5 мкм'][step];$('scale-note').textContent=world.inspect?'Структуры и расстояния увеличены для объяснения':micro?(model.site.sparse?'Низкая биомасса · объекты увеличены':'Масштаб и численность репрезентативны'):'Обобщённая анатомическая модель';$('scene-hint').innerHTML=world.inspect?'↔ Вращайте · Пробел: собрать / разобрать · Части — под сценой':micro?'↔ Вращайте · Shift: перемещение · Нажмите на жителя':'↔ Поверните человека · Колесо — путешествие внутрь';
- $('motion-note').textContent=world.calm?'Спокойный режим · включить движение: ≈':'Движение ускорено · мысли — подсказки рассказчика';$('run-status').textContent=world.lost?'КОНТЕКСТ ПОТЕРЯН':paused?'СИМУЛЯЦИЯ НА ПАУЗЕ':tour?'ЭКСКУРСИЯ С ГИДОМ':'ЖИВАЯ ЭКОСИСТЕМА';const s=model.snapshot();for(const[id,,format]of labels)$('read-'+id).textContent=format(s);$('sim-time').textContent='t = '+Math.floor(s.time);if(world.selected>=0){const a=world.cloud.activity[world.selected],sp=byId[chosen];$('agent-live').innerHTML=`<b>${world.cloud.thought(world.selected)}</b><br>${sp.flagellum?'Плывёт с помощью жгутиков':'Перенос потоком / жизнь у поверхности'}<br>Локальная активность: ${(a*100).toFixed(0)}% <span title="Не ATP, а относительный визуальный индекс модели">мод.</span> · ID ${world.selected}`;}
+ function updateHUD(){const q=world.travel.x,micro=q>1.7||world.inspect;document.body.classList.toggle('micro',micro);$('micro-tools').hidden=!micro||world.inspect;const depth=world.inspect?3:q,step=depth<.5?0:depth<1.55?1:depth<2.5?2:3;document.querySelectorAll('[data-depth]').forEach((b,i)=>b.classList.toggle('active',i===step));$('current-scale').textContent=world.inspect?'Устройство / механизм':world.local?'Локальный эксперимент':['Обзор организма','Внутри органа','Ландшафт ткани','Живое сообщество'][step];$('instance-count').textContent=world.inspect?'УЧЕБНАЯ СХЕМА':world.local?`${world.local.entities.filter(e=>e.alive).length} ЖИВЫХ АГЕНТОВ`:micro?`${world.cloud.count.toLocaleString('ru-RU')} ПРЕДСТАВИТЕЛЕЙ`:`0${step+1} / ${['ЧЕЛОВЕК','ОРГАН','ТКАНЬ','МИКРОМИР'][step]}`;
+ $('hero-title').innerHTML=world.inspect?'Как это<br><em>устроено?</em>':micro?'Жизнь<br><em>внутри жизни.</em>':'Вы — целая<br><em>вселенная.</em>';$('hero-copy').innerHTML=world.inspect?'Поверните объёмную схему.<br>Выберите часть под сценой.<br>Пробел — собрать или разобрать.':world.local?'Выберите агента — проследите судьбу.<br>Контакты меняют состояние клеток.<br>Журнал и перемотка — под сценой.':micro?'Нажмите на жителя или его «мысль».<br>Добавьте корм — что изменится?<br>Цветные искры объясняют обмен.':'Триллионы невидимых соседей.<br>Один удивительный организм.<br>Приблизьтесь. Жизнь — внутри.';
+ $('scale-value').textContent=world.inspect?(world.mechanism?'Схема · не в масштабе':byId[world.inspectedSpecies||'faec'].size):world.local?'Агенты · учебный масштаб':['Человек · ~1,7 м','Орган · сантиметры','Ткань · микроокружение','Бактерии · ~1–5 мкм'][step];$('scale-note').textContent=world.inspect?'Структуры и расстояния увеличены для объяснения':world.local?'Размеры и дальность контакта условны':micro?(model.site.sparse?'Низкая биомасса · объекты увеличены':'Масштаб и численность репрезентативны'):'Обобщённая анатомическая модель';$('scene-hint').innerHTML=world.inspect?'↔ Вращайте · Пробел: собрать / разобрать · Части — под сценой':micro?'↔ Вращайте · Shift: перемещение · Нажмите на жителя':'↔ Поверните человека · Колесо — путешествие внутрь';
+ $('motion-note').textContent=world.local?'Реальные состояния учебной модели · события — под сценой':world.calm?'Спокойный режим · включить движение: ≈':'Движение ускорено · мысли — подсказки рассказчика';$('run-status').textContent=world.lost?'КОНТЕКСТ ПОТЕРЯН':paused?'СИМУЛЯЦИЯ НА ПАУЗЕ':tour?'ЭКСКУРСИЯ С ГИДОМ':'ЖИВАЯ ЭКОСИСТЕМА';const s=model.snapshot();for(const[id,,format]of labels)$('read-'+id).textContent=format(s);$('sim-time').textContent=world.local?'Локальное t = '+world.local.time.toFixed(1):'t = '+Math.floor(s.time);localUI?.refresh();if(world.selected>=0){const a=world.cloud.activity[world.selected],sp=byId[chosen];$('agent-live').innerHTML=world.local?`<b>${world.cloud.thought(world.selected)}</b><br>Биомасса: ${world.local.get(world.selected+1).mass.toFixed(3)} у.е.<br>Родители: ${world.local.get(world.selected+1).parents.join(', ')||'начальный агент'}<br>Причинные события и потомки — в «Генеалогии».`:`<b>${world.cloud.thought(world.selected)}</b><br>${sp.flagellum?'Плывёт с помощью жгутиков':'Перенос потоком / жизнь у поверхности'}<br>Локальная активность: ${(a*100).toFixed(0)}% <span title="Не ATP, а относительный визуальный индекс модели">мод.</span> · ID ${world.selected}`;}
  }
  document.addEventListener('visibilitychange',()=>{last=performance.now();accumulator=0;lastInput=last;});
- populate();showSiteCard();updateHUD();
- function frame(now){requestAnimationFrame(frame);if(document.hidden){last=now;return;}const elapsed=Math.min(.8,(now-last)/1000),dt=Math.min(.05,elapsed);last=now;if(!paused){accumulator+=dt*speed;let steps=0;while(accumulator>=1/30&&steps<8){model.tick(1/30);control.tick(1/30);accumulator-=1/30;steps++;}}const updateAt=performance.now();world.update(elapsed,paused);updateCost=performance.now()-updateAt;const renderAt=performance.now();world.render();renderCost=performance.now()-renderAt;if(world.contextGeneration!==contextGeneration){contextGeneration=world.contextGeneration;showSiteCard();explain('3D-сцена восстановлена.','Графические ресурсы пересозданы после потери контекста. Модель и её время сохранены; выбор отдельного представителя сброшен.');}for(const r of journal)if(!r.after&&r.run===run&&model.time-r.time>=8)r.after=model.snapshot();
+ populate();showSiteCard();
+ localUI=new LocalController({world,navigate,selectAgent,dialog,explain,getPaused:()=>paused,setPaused:value=>{paused=value;accumulator=0;$('pause').textContent=paused?'▷':'Ⅱ';$('pause').setAttribute('aria-label',paused?'Продолжить':'Пауза');},onChange:()=>{$('pick-layers').setAttribute('aria-pressed',world.layerMode);drop=null;prediction=null;$('drop-hint').hidden=true;populate();showSiteCard();updateLayers();updateHUD();}});
+ updateHUD();
+ function frame(now){requestAnimationFrame(frame);if(document.hidden){last=now;return;}const elapsed=Math.min(.8,(now-last)/1000),dt=Math.min(.05,elapsed);last=now;if(!paused){accumulator+=dt*speed;let steps=0;while(accumulator>=1/30&&steps<8){if(world.local)localUI.tick();else{model.tick(1/30);control.tick(1/30);}accumulator-=1/30;steps++;}}const updateAt=performance.now();world.update(elapsed,paused);updateCost=performance.now()-updateAt;const renderAt=performance.now();world.render();renderCost=performance.now()-renderAt;if(world.contextGeneration!==contextGeneration){contextGeneration=world.contextGeneration;showSiteCard();explain('3D-сцена восстановлена.','Графические ресурсы пересозданы после потери контекста. Модель и её время сохранены; выбор отдельного представителя сброшен.');}for(const r of journal)if(!r.after&&r.run===run&&model.time-r.time>=8)r.after=model.snapshot();
  if(now-lastHUD>220){updateHUD();lastHUD=now;}frames++;if(now-fpsAt>1000){const fps=Math.round(frames*1000/(now-fpsAt));$('fps').textContent=fps+' fps';frameSamples.push(fps);frameSamples=frameSamples.slice(-30);if(world.quality==='auto'&&frameSamples.length>=3&&frameSamples.slice(-3).every(f=>f<28)){world.ratio=fps<18?.5:1;world.autoLow=true;}fpsAt=now;frames=0;}
  const reading=$('dialog').open||document.querySelector('.discovery:hover')||document.activeElement?.closest('.discovery');if(tour&&!paused&&!world.calm&&!reading&&now>tourAt&&now-lastInput>(tourIndex?3600:1400)){const sequence=[0,1,2,2.6,0];navigate(sequence[tourIndex%5]);tourIndex++;tourAt=now+10000;if(tourIndex>=5){tour=false;$('tour').textContent='▷ Экскурсия с гидом';}}
  }
  requestAnimationFrame(frame);
- window.microcosmos2={available:true,snapshot:()=>model.snapshot(),control:()=>control.snapshot(),get depth(){return world.travel.x;},get targetDepth(){return world.goal;},get site(){return model.site.id;},get count(){return world.cloud.count;},get selected(){return world.selected;},get follow(){return world.follow;},get inspect(){return world.inspect;},get paused(){return paused;},get calm(){return world.calm;},get lost(){return world.lost;},get visualTime(){return world.cloud.visualTime;},get bubbles(){return world.bubbleHits.map(b=>({...b}));},get lifeEvents(){return world.cloud.events.map(e=>({...e}));},get quality(){return {profile:world.quality,autoLow:world.autoLow,...world.lodStats};},get stats(){return{updateMs:updateCost,renderMs:renderCost,drawCalls:world.gpu.calls,triangles:world.gpu.triangles,instances:world.gpu.instances,webglVersion:world.gpu.gl.getParameter(world.gpu.gl.VERSION)};},get structure(){return world.inspect&&!world.mechanism?cellBlueprint(world.inspectedSpecies||'faec'):null;},get highlightedPart(){return world.cellPart;},get highlightedLayer(){return world.layerHover;},get layerMode(){return world.layerMode;},get microLayer(){return world.microLayer;},get picking(){return {triangles:true,instances:world.pickTargets.length};},pickAt:(x,y)=>world.pick(x,y),projectAgent:(i=0)=>{const p=world.cloud.position(i);p[1]+=world.microShift;return{position:p,screen:project(p,world.cameraState.vp,world.w,world.h)};}};
+ window.microcosmos2={available:true,snapshot:()=>model.snapshot(),control:()=>control.snapshot(),get depth(){return world.travel.x;},get targetDepth(){return world.goal;},get site(){return model.site.id;},get count(){return world.cloud.count;},get selected(){return world.selected;},get follow(){return world.follow;},get inspect(){return world.inspect;},get paused(){return paused;},get calm(){return world.calm;},get lost(){return world.lost;},get visualTime(){return world.cloud.visualTime;},get bubbles(){return world.bubbleHits.map(b=>({...b}));},get lifeEvents(){return world.cloud.events.map(e=>({...e}));},get quality(){return {profile:world.quality,autoLow:world.autoLow,...world.lodStats};},get stats(){return{updateMs:updateCost,renderMs:renderCost,drawCalls:world.gpu.calls,triangles:world.gpu.triangles,instances:world.gpu.instances,webglVersion:world.gpu.gl.getParameter(world.gpu.gl.VERSION)};},get local(){return world.local?.summary()||null;},get localControl(){return localUI.control?.summary()||null;},get localEvents(){return world.local?.events.map(e=>({...e,actors:[...e.actors]}))||[];},localRecord:()=>world.local?exportReplay(world.local):null,localLineage:id=>world.local?.lineage(id),get replayBusy(){return localUI.busy;},get structure(){return world.inspect&&!world.mechanism?cellBlueprint(world.inspectedSpecies||'faec'):null;},get highlightedPart(){return world.cellPart;},get highlightedLayer(){return world.layerHover;},get layerMode(){return world.layerMode;},get microLayer(){return world.microLayer;},get picking(){return {triangles:true,instances:world.pickTargets.length};},pickAt:(x,y)=>world.pick(x,y),projectAgent:(i=0)=>{const p=world.cloud.position(i);p[1]+=world.microShift;return{position:p,screen:project(p,world.cameraState.vp,world.w,world.h)};}};
 }
 
 return {};
