@@ -1,0 +1,196 @@
+{
+  "testedAt": "2026-10-15T08:20:51.673Z",
+  "browser": "153.0.8010.0",
+  "softwareRenderer": true,
+  "cases": {
+    "inheritance": {
+      "summary": {
+        "tick": 320,
+        "time": 32,
+        "alive": 6,
+        "cells": 6,
+        "phages": 0,
+        "immune": 0,
+        "plasmids": 4,
+        "infected": 0,
+        "lysogens": 0,
+        "spores": 0,
+        "barrier": 1,
+        "food": 43.50591048762163,
+        "acetate": 1.1771410571503977,
+        "butyrate": 0,
+        "carbonError": 9.947598300641403e-13,
+        "counts": {
+          "birth": 9,
+          "command": 1,
+          "conjugation": 1,
+          "transfer": 1,
+          "division": 3
+        },
+        "capacityHits": 0,
+        "stopped": false
+      },
+      "control": {
+        "tick": 320,
+        "time": 32,
+        "alive": 4,
+        "cells": 4,
+        "phages": 0,
+        "immune": 0,
+        "plasmids": 3,
+        "infected": 0,
+        "lysogens": 0,
+        "spores": 0,
+        "barrier": 1,
+        "food": 39.97452700294004,
+        "acetate": 0.49221312534307055,
+        "butyrate": 0,
+        "carbonError": 9.308109838457312e-13,
+        "counts": {
+          "birth": 5,
+          "conjugation": 1,
+          "transfer": 1,
+          "division": 1
+        },
+        "capacityHits": 0,
+        "stopped": false
+      },
+      "samples": 33
+    },
+    "phage": {
+      "summary": {
+        "tick": 180,
+        "time": 18,
+        "alive": 17,
+        "cells": 1,
+        "phages": 16,
+        "immune": 0,
+        "plasmids": 0,
+        "infected": 0,
+        "lysogens": 0,
+        "spores": 0,
+        "barrier": 1,
+        "food": 38.993516324971324,
+        "acetate": 0,
+        "butyrate": 0,
+        "carbonError": 6.039613253960852e-13,
+        "counts": {
+          "birth": 21,
+          "adsorption": 2,
+          "injection": 2,
+          "eclipse": 1,
+          "lysogeny": 1,
+          "command": 1,
+          "induction": 1,
+          "assembly": 2,
+          "lysis": 2,
+          "death": 2
+        },
+        "capacityHits": 0,
+        "stopped": false
+      },
+      "control": {
+        "tick": 180,
+        "time": 18,
+        "alive": 10,
+        "cells": 2,
+        "phages": 8,
+        "immune": 0,
+        "plasmids": 0,
+        "infected": 0,
+        "lysogens": 1,
+        "spores": 0,
+        "barrier": 1,
+        "food": 38.9009477087058,
+        "acetate": 0,
+        "butyrate": 0,
+        "carbonError": 6.608047442568932e-13,
+        "counts": {
+          "birth": 13,
+          "adsorption": 2,
+          "injection": 2,
+          "eclipse": 1,
+          "lysogeny": 1,
+          "assembly": 1,
+          "lysis": 1,
+          "death": 1
+        },
+        "capacityHits": 0,
+        "stopped": false
+      }
+    },
+    "boundary": {
+      "summary": {
+        "tick": 360,
+        "time": 36,
+        "alive": 3,
+        "cells": 2,
+        "phages": 0,
+        "immune": 1,
+        "plasmids": 0,
+        "infected": 0,
+        "lysogens": 0,
+        "spores": 0,
+        "barrier": 0.1,
+        "food": 38.608273432858105,
+        "acetate": 0,
+        "butyrate": 0,
+        "carbonError": 6.181721801112872e-13,
+        "counts": {
+          "birth": 4,
+          "command": 1,
+          "death": 1,
+          "engulf": 1,
+          "digest": 1,
+          "recruit": 1
+        },
+        "capacityHits": 0,
+        "stopped": false
+      },
+      "control": {
+        "tick": 360,
+        "time": 36,
+        "alive": 3,
+        "cells": 2,
+        "phages": 0,
+        "immune": 1,
+        "plasmids": 0,
+        "infected": 0,
+        "lysogens": 0,
+        "spores": 0,
+        "barrier": 1,
+        "food": 38.62272305812977,
+        "acetate": 0,
+        "butyrate": 0,
+        "carbonError": 6.252776074688882e-13,
+        "counts": {
+          "birth": 4,
+          "death": 1,
+          "engulf": 1,
+          "digest": 1,
+          "recruit": 1
+        },
+        "capacityHits": 0,
+        "stopped": false
+      }
+    },
+    "relay": {
+      "flux": {
+        "producerFood": 2.6325613778884014,
+        "acetateMade": 1.3162806889442007,
+        "acetateUsed": 0.13577243695275157,
+        "butyrateMade": 0.06788621847637578,
+        "tissueButyrate": 0.000042065985300729174
+      },
+      "controlFlux": {
+        "producerFood": 2.6325613778884014,
+        "acetateMade": 1.3162806889442007,
+        "acetateUsed": 0.13577243695275157,
+        "butyrateMade": 0.06788621847637578,
+        "tissueButyrate": 0.000042065985300729174
+      },
+      "samples": 15
+    }
+  },
+  "errors": []
+}

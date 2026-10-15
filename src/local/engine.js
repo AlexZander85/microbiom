@@ -12,6 +12,8 @@ export class LocalSimulation {
  constructor({seed=85,scenario='community'}={}){
   if(!Number.isInteger(seed)||seed<0||seed>0xffffffff||!Object.hasOwn(LOCAL_SCENARIOS,scenario))throw new Error('Invalid local configuration');
   this.seed=seed;this.randomState=seed||1;this.scenario=scenario;this.tick=0;this.entities=[];this.events=[];this.sequence=0;this.counts={};this.commands=[];this.jobs=[];this.barrier=1;this.cues={germinate:0,hypha:0};this.stopped=false;this.capacityHits=0;this.chemistry=new ChemicalGrid();this.inputCarbon=0;
+  // Read-only accounting for teaching UI; never used by dynamics or replay checksum.
+  this.flux={producerFood:0,acetateMade:0,acetateUsed:0,butyrateMade:0,tissueButyrate:0};
   this.chemistry.values.food.fill(scenario==='cycles'?.0001:.035);
   this.chemistry.values.oxygen.fill(.02);
   this.seedScenario();this.initialCarbon=this.carbon();
@@ -80,6 +82,8 @@ export class LocalSimulation {
   const available=(t.bacterium||t.fungus)?f.take(source,e.pos,Math.min(rate,Math.max(0,(1.7-e.mass)*2))):0;
   if(e.species==='coli'||t.fungus)f.take('oxygen',e.pos,available*.15);
   if(available){const yieldMass=available*.5;e.mass+=yieldMass;
+   if(['bact','bif'].includes(e.species)){this.flux.producerFood+=available;this.flux.acetateMade+=available-yieldMass;}
+   if(e.species==='faec'){this.flux.acetateUsed+=available;this.flux.butyrateMade+=available-yieldMass;}
    f.add(['bact','bif'].includes(e.species)?'acetate':e.species==='faec'?'butyrate':'waste',e.pos,available-yieldMass);
   }
   const maintenance=Math.min(e.mass,dt*.0015);e.mass-=maintenance;f.add('waste',e.pos,maintenance);
@@ -109,7 +113,7 @@ export class LocalSimulation {
  step(){
   if(this.stopped)return;
   if(this.tick>=LOCAL_LIMITS.ticks){this.stopped=true;this.emit('limit');return;}
-  this.tick++;for(let i=0;i<this.chemistry.n*this.chemistry.n*2;i++){const f=this.chemistry.values,used=f.butyrate[i]*.002;f.butyrate[i]-=used;f.waste[i]+=used;f.oxygen[i]+=(.08/(1+f.butyrate[i]*10)-f.oxygen[i])*.004;}for(const k in this.cues)this.cues[k]=Math.max(0,this.cues[k]-1);
+  this.tick++;for(let i=0;i<this.chemistry.n*this.chemistry.n*2;i++){const f=this.chemistry.values,used=f.butyrate[i]*.002;f.butyrate[i]-=used;f.waste[i]+=used;this.flux.tissueButyrate+=used;f.oxygen[i]+=(.08/(1+f.butyrate[i]*10)-f.oxygen[i])*.004;}for(const k in this.cues)this.cues[k]=Math.max(0,this.cues[k]-1);
   this.chemistry.diffuse(LOCAL_DT,this.barrier);
   for(const k of ['drug','signal'])for(let i=0;i<this.chemistry.length;i++)this.chemistry.values[k][i]*=Math.exp(-LOCAL_DT*(k==='drug'?.015:.08));
   const active=this.entities.filter(e=>e.alive);

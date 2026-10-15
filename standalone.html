@@ -31,6 +31,11 @@ dialog{width:min(850px,calc(100vw - 30px));max-height:90vh;overflow:auto;border:
 
 .local-lab{padding:32px 3%;border-block:1px solid var(--line);background:linear-gradient(125deg,#13282b,#101d24)}.local-heading{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}.local-lab h2{font:30px Georgia,serif;margin:10px 0}.local-lab h2 em{color:#c6d8a9;font-style:normal}.local-lab h3{font-size:13px;color:#d4e1c5;margin:18px 0 10px}.local-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.local-actions button,.local-actions label,.local-load-row label{border:1px solid #a9d5c135;border-radius:6px;padding:9px 11px;font-size:11px}.local-actions .primary{width:auto}.local-actions select{max-width:230px;background:#132c2e;color:#d8e4cc;border:1px solid #a9d5c135;border-radius:4px;margin-left:5px;padding:4px}.local-lab>p{font-size:12px;line-height:1.7;margin:10px 0}.local-notice{color:#9ab5ad;font-size:11px;line-height:1.7}.local-columns{display:grid;grid-template-columns:1.1fr 1fr;gap:36px}.local-load-row{display:flex;align-items:center;gap:12px;margin:12px 0;font-size:11px;color:#b8d0b2}.local-load-row input{max-width:225px;font-size:10px;margin-left:8px}#local-events{display:flex;flex-direction:column;gap:5px;min-height:50px}#local-events button{text-align:left;font:11px/1.5 ui-monospace,monospace;padding:7px 10px;border-left:2px solid #bbd899;background:#0b1b2380;border-radius:4px}#local-events button:disabled{opacity:.7}.local-replay{margin-top:20px;border-top:1px solid var(--line);padding-top:16px}.local-replay>label{display:block;font-size:10px;color:#a4bbae;margin:14px 0 6px}#local-seek{width:100%;accent-color:#c7db9a}#local-cursor{font:11px ui-monospace,monospace;color:#a9bdab}#local-readouts{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}#local-progress{color:#e6df9d}@media(max-width:700px){.local-columns{grid-template-columns:1fr;gap:10px}.local-lab{padding:24px 16px}.local-lab h2{font-size:25px}.local-heading{gap:8px}.local-load-row{flex-wrap:wrap}.local-load-row input{max-width:180px}.local-actions label{max-width:100%}.local-actions select{max-width:190px}}
 
+/* Discovery edition: one learning surface, accessible diagrams, no extra GL pass. */
+.study-intro{margin-top:28px}.study-intro h3{font:24px Georgia,serif;margin:8px 0}.study-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:18px 0 24px}.study-card{padding:20px;border:1px solid #526e655e;border-radius:12px;background:linear-gradient(145deg,#23423f,#172c31);display:flex;flex-direction:column;align-items:flex-start}.study-card h3{font:22px Georgia,serif;margin:14px 0;color:#e8eccf}.study-card p{font-size:12px;line-height:1.8;color:#c2d7ca;margin-bottom:20px}.study-card button{margin-top:auto}.study-card .eyebrow{font-size:9px}.learning-panel{border-top:1px solid #b4d9b848;padding:24px 0}.learning-panel .primary{width:auto}.learning-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:20px;margin:20px 0}.prediction-note{border-left:3px solid #ddc88d;padding:10px 14px;background:#ead3910b;font-size:12px;line-height:1.8;color:#efe1b1}.narrator,.learning-chart-area{min-width:0;padding:20px;border-radius:12px;background:#0c2027;border:1px solid #719f8f40}.narrator h3{font:25px Georgia,serif;margin-top:12px}.narrator p{font-size:13px;line-height:1.8;color:#d6e3d1}.narrator small,.learning-chart-area>small{display:block;font-size:11px;line-height:1.7;color:#a5beb8}.narrator .local-actions{margin-top:14px}#learning-links:empty{display:none}.learning-chart-area>label{display:block;font-size:12px;margin-bottom:8px}.learning-chart-area select{width:100%;max-width:100%;padding:9px;border:1px solid #67988980;border-radius:6px;background:#1c3436;color:#e1ead4}.chart-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px}.chart-legend span:first-child{color:#8ce3ce}.chart-legend span:last-child{color:#ffe18e}#learning-chart svg{width:100%;display:block;overflow:visible}#learning-chart text{fill:#c2d4ca;font:10px ui-monospace,monospace}#chart-values{font:12px/1.7 ui-monospace,monospace;color:#e3e6bf}.relay-details{margin-top:20px;padding:18px;border:1px solid #c6d8a93a;border-radius:12px;background:#b9d57b08}.relay-details summary{font:21px Georgia,serif;color:#e1e7bc;cursor:pointer}.relay-details p{font-size:12px;line-height:1.8}.relay-steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:18px 0}.relay-step{display:flex;flex-direction:column;gap:10px;text-align:left;padding:14px;border:1px solid #a3bd8e55;border-radius:8px;background:#163335}.relay-step[aria-pressed="true"]{border-color:#ffe18e;background:#354b3c}.relay-step strong{font-size:12px;color:#e2e5b6}.relay-step span,.relay-step small{font-size:11px;line-height:1.6;color:#bed2c2}.relay-step b{font:17px ui-monospace,monospace;color:#ffe18e;margin-top:auto}.relay-entry{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:16px 0}.relay-entry small{font-size:11px;color:#a5beb8}.prediction-options{border:0;padding:0;margin:20px 0}.prediction-options legend{font-size:16px;line-height:1.6;margin-bottom:14px}.prediction-options label{display:flex;gap:12px;align-items:center;border:1px solid #719f8f66;padding:13px;border-radius:8px;margin:8px 0;font-size:13px;line-height:1.7}.prediction-options input{accent-color:#d7dca0;flex-shrink:0}#study-reflection{display:block;width:100%;resize:vertical;color:#e3eacf;background:#152f32;border:1px solid #799e85;padding:12px;border-radius:8px;margin-top:10px;font-family:inherit;font-size:14px;line-height:1.7}#reflection-status{font-size:11px}.local-lab button:disabled{opacity:.45;cursor:default}
+@media(max-width:900px){.study-grid{grid-template-columns:1fr}.study-card{padding:16px}.learning-columns{grid-template-columns:1fr}.relay-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:500px){.narrator,.learning-chart-area{padding:14px}.learning-panel .local-actions{align-items:stretch}.learning-panel .local-actions button{white-space:normal;text-align:left}.relay-steps{grid-template-columns:1fr}.relay-step{gap:7px}.study-card h3{font-size:21px}.learning-panel h2{font-size:24px}#learning-bookmarks button{max-width:100%}}
+
 </style><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 50'%3E%3Crect width='50' height='50' rx='12' fill='%230b1d20'/%3E%3Ccircle cx='25' cy='25' r='15' fill='none' stroke='%23cfdea3' stroke-width='3'/%3E%3Ccircle cx='25' cy='25' r='5' fill='%23cfdea3'/%3E%3C/svg%3E"></head>
 <body><a class="skip" href="#viewport">Перейти к 3D-сцене</a>
 <header><a href="#" class="brand" aria-label="Микрокосмос, к человеку"><span class="logomark">◉</span><span>микрокосмос<small>ВНУТРЕННЯЯ ВСЕЛЕННАЯ</small></span></a><nav aria-label="Разделы"><button id="home" class="nav-active">Экспедиция</button><button id="atlas">Атлас жителей <small>16</small></button><button id="guide">Как всё связано ↗</button></nav><div class="engine-badge"><i></i> WEBGL 2 <span>/</span> НАСТОЯЩИЙ 3D</div><button id="sources" class="header-source">Научная основа ↗</button></header>
@@ -53,6 +58,19 @@ dialog{width:min(850px,calc(100vw - 30px));max-height:90vh;overflow:auto;border:
  <div class="local-heading"><div><span class="eyebrow">ПРИЧИНЫ, А НЕ ДЕКОРАЦИИ · НОВЫЙ РЕЖИМ</span><h2 id="local-title">Лаборатория <em>живых процессов.</em></h2></div><div class="local-actions"><label>Сценарий <select id="local-scenario" aria-label="Сценарий локального эксперимента"></select></label><button class="primary" id="local-start">Начать опыт ↗</button><button class="outline" id="local-exit" hidden>← Обзор сообщества</button></div></div>
  <p id="local-summary"></p><p class="local-notice">Условные штаммы, 3D-сетка и ускоренные учебные времена. Не данные пациента. Во время опыта общая агрегированная модель остановлена — локальные события не считаются в ней повторно.</p>
  <div class="local-load-row"><label class="outline">Загрузить запись JSON <input id="local-load" type="file" accept=".json,application/json"></label><span id="local-progress" role="status"></span></div>
+ <div class="study-intro"><span class="eyebrow">ОТ НАБЛЮДЕНИЯ К ОТКРЫТИЮ</span><h3>Сначала предположите. Потом проверьте.</h3><p class="local-notice">Три коротких исследования на готовой модели: прогноз → опыт → контроль → объяснение. Доступны в толстой кишке.</p></div>
+ <div id="study-cards" class="study-grid"></div>
+ <div id="learning-panel" class="learning-panel" hidden>
+  <div class="local-heading"><div><span id="learning-phase" class="eyebrow"></span><h2 id="learning-title"></h2></div><div class="local-actions"><button id="learning-finish" class="outline">Рассчитать до итога →</button><button id="learning-control" class="outline">Сравнить A/B</button><button id="learning-report" class="primary">Мой итог ↗</button></div></div>
+  <p id="learning-setup" class="local-notice"></p><p id="learning-prediction" class="prediction-note"></p>
+  <div class="learning-columns">
+   <article class="narrator"><span id="narrator-time" class="eyebrow"></span><h3 id="narrator-title"></h3><p id="narrator-text"></p><p id="narrator-rule"></p><small id="narrator-limit"></small><div id="learning-links" class="local-actions"></div><div class="local-actions"><button id="learning-rewind">↶ К этому моменту</button><button id="learning-focus">Показать живого участника</button><button id="learning-latest">Последнее событие</button></div></article>
+   <section id="learning-chart-area" class="learning-chart-area" aria-label="Траектории опыта и контроля"><label for="learning-metric">Что сравниваем во времени?</label><select id="learning-metric"></select><p class="chart-legend"><span>┄ A · контроль без вмешательств</span><span>━ B · ваш опыт</span></p><div id="learning-chart"></div><p id="chart-values"></p><p id="chart-command-list" class="local-notice"></p><small>Один старт, одно время. Ось Y подстраивается под данные; штрихи отмечают вмешательства. Точки через 1 учебную единицу и при вмешательствах. Линии могут совпадать.</small></section>
+  </div>
+  <h3>Вернуться к открытию</h3><div id="learning-bookmarks" class="local-actions"></div><p class="local-notice">Перемотка ставит расчёт на паузу и восстанавливает графики до выбранного момента. «Досмотреть запись» вернёт конец; продолжение отсюда создаёт свободную ветку без будущих команд плана.</p>
+  <details id="relay-details" class="relay-details"><summary>Метаболическая эстафета · кто кого накормил?</summary><p>Субстрат → ацетат → сосед → бутират → тканевый отсек. Здесь показаны вычисленные суммарные потоки, а не траектории отдельных молекул.</p><div id="relay-steps" class="relay-steps"></div><p id="relay-explanation" class="local-notice"></p><p class="local-notice">Показания накопительные с начала опыта, не текущая концентрация. Часть субстрата становится биомассой; числа этапов не надо складывать. Ткань — упрощённый сток, не модель энергетики колоноцита. Кислород обновляется по условному правилу, не полной реакции окисления.</p></details>
+ </div>
+ <div class="relay-entry"><button id="relay-start" class="outline">Начать эстафету в связанном сообществе →</button><small>Новый свободный опыт; текущую запись при необходимости сохраните.</small></div>
  <div id="local-controls" hidden><div class="local-columns"><div>
   <h3>Вмешательства в выбранной точке</h3><p class="local-notice">Выберите агента кликом или через событие; без выбора точка (0, 3, 0). Начальные близкие пары в сценариях подготовлены для наблюдения, события вычисляются.</p>
   <div class="local-actions"><button data-local-action="feed">+ Субстрат</button><button data-local-action="antibiotic">Антибиотический импульс</button><button data-local-action="breach">Открыть барьер</button><button data-local-action="repair">Закрыть барьер</button><button data-local-action="induce">Индуцировать профаг</button><button data-local-action="germinate">Сигнал прорастания</button><button data-local-action="hypha">Сигнал гифальной формы</button></div>
@@ -61,7 +79,7 @@ dialog{width:min(850px,calc(100vw - 30px));max-height:90vh;overflow:auto;border:
  <div class="local-replay"><div class="local-actions"><button id="local-pause">Ⅱ Пауза</button><button id="local-step">Шаг +0,1</button><button id="local-history">Генеалогия и журнал ↗</button><button id="local-save">Сохранить опыт ↓</button><button id="local-fork">Продолжить отсюда</button><span id="local-cursor"></span></div><label for="local-seek">Воспроизведение до выбранного шага · при перемотке включается пауза</label><input id="local-seek" type="range" min="0" max="0" step="1" value="0"></div></div>
 </section>
 <section class="laboratory"><div class="lab-main"><div class="section-title"><h2>Измените среду. <em>Увидьте связи.</em></h2><button id="restart">↺ Новый опыт</button></div><div id="experiments"></div><div class="explanation"><span>✧</span><div><b id="explain-title">Начните с погружения.</b><p id="explain-copy">Нажмите «Погрузиться внутрь» или приближайтесь колёсиком. В микромире можно внести пищу в выбранное место и последовать за клеткой.</p></div><button id="explain-more" aria-label="Объяснить подробнее">↗</button></div><div id="residents" aria-label="Выбор вида микробов"></div><div id="layer-buttons" role="group" aria-label="Слои ткани или части клетки"></div></div><aside class="telemetry"><div class="telemetry-head"><h3><i></i> Пульс микромира</h3><button id="pause" aria-label="Пауза">Ⅱ</button><select id="speed" aria-label="Скорость модели"><option value="1">1×</option><option value="4">4×</option></select></div><div id="readouts"></div><div id="local-readouts" hidden></div><div class="telemetry-bottom"><button id="compare">Контрольный опыт ↗</button><button id="journal">Журнал ↗</button><span id="sim-time">t = 0</span></div><p>Учебная модель · не медицинские показатели</p></aside></section>
-<footer><span><i></i> Большой мир начинается с любопытства.</span><button id="limits">Условности, масштаб и границы модели ↗</button><span>10+ <b>/</b> PROCESS EDITION · 0.5</span></footer>
+<footer><span><i></i> Большой мир начинается с любопытства.</span><button id="limits">Условности, масштаб и границы модели ↗</button><span>10+ <b>/</b> DISCOVERY EDITION · 0.6</span></footer>
 </main><dialog id="dialog"><div class="dialog-top"><span class="eyebrow" id="dialog-kicker">МИКРОКОСМОС</span><button id="close-dialog" aria-label="Закрыть">×</button></div><div id="dialog-content"></div></dialog><div class="sr-only" id="announcement" role="status" aria-live="polite"></div><noscript>Для путешествия нужен JavaScript. Документация находится в docs/PROJECT_SPEC.md.</noscript><script>
 "use strict";
 const __modules = Object.create(null);
@@ -2521,6 +2539,8 @@ class LocalSimulation {
  constructor({seed=85,scenario='community'}={}){
   if(!Number.isInteger(seed)||seed<0||seed>0xffffffff||!Object.hasOwn(LOCAL_SCENARIOS,scenario))throw new Error('Invalid local configuration');
   this.seed=seed;this.randomState=seed||1;this.scenario=scenario;this.tick=0;this.entities=[];this.events=[];this.sequence=0;this.counts={};this.commands=[];this.jobs=[];this.barrier=1;this.cues={germinate:0,hypha:0};this.stopped=false;this.capacityHits=0;this.chemistry=new ChemicalGrid();this.inputCarbon=0;
+  // Read-only accounting for teaching UI; never used by dynamics or replay checksum.
+  this.flux={producerFood:0,acetateMade:0,acetateUsed:0,butyrateMade:0,tissueButyrate:0};
   this.chemistry.values.food.fill(scenario==='cycles'?.0001:.035);
   this.chemistry.values.oxygen.fill(.02);
   this.seedScenario();this.initialCarbon=this.carbon();
@@ -2589,6 +2609,8 @@ class LocalSimulation {
   const available=(t.bacterium||t.fungus)?f.take(source,e.pos,Math.min(rate,Math.max(0,(1.7-e.mass)*2))):0;
   if(e.species==='coli'||t.fungus)f.take('oxygen',e.pos,available*.15);
   if(available){const yieldMass=available*.5;e.mass+=yieldMass;
+   if(['bact','bif'].includes(e.species)){this.flux.producerFood+=available;this.flux.acetateMade+=available-yieldMass;}
+   if(e.species==='faec'){this.flux.acetateUsed+=available;this.flux.butyrateMade+=available-yieldMass;}
    f.add(['bact','bif'].includes(e.species)?'acetate':e.species==='faec'?'butyrate':'waste',e.pos,available-yieldMass);
   }
   const maintenance=Math.min(e.mass,dt*.0015);e.mass-=maintenance;f.add('waste',e.pos,maintenance);
@@ -2618,7 +2640,7 @@ class LocalSimulation {
  step(){
   if(this.stopped)return;
   if(this.tick>=LOCAL_LIMITS.ticks){this.stopped=true;this.emit('limit');return;}
-  this.tick++;for(let i=0;i<this.chemistry.n*this.chemistry.n*2;i++){const f=this.chemistry.values,used=f.butyrate[i]*.002;f.butyrate[i]-=used;f.waste[i]+=used;f.oxygen[i]+=(.08/(1+f.butyrate[i]*10)-f.oxygen[i])*.004;}for(const k in this.cues)this.cues[k]=Math.max(0,this.cues[k]-1);
+  this.tick++;for(let i=0;i<this.chemistry.n*this.chemistry.n*2;i++){const f=this.chemistry.values,used=f.butyrate[i]*.002;f.butyrate[i]-=used;f.waste[i]+=used;this.flux.tissueButyrate+=used;f.oxygen[i]+=(.08/(1+f.butyrate[i]*10)-f.oxygen[i])*.004;}for(const k in this.cues)this.cues[k]=Math.max(0,this.cues[k]-1);
   this.chemistry.diffuse(LOCAL_DT,this.barrier);
   for(const k of ['drug','signal'])for(let i=0;i<this.chemistry.length;i++)this.chemistry.values[k][i]*=Math.exp(-LOCAL_DT*(k==='drug'?.015:.08));
   const active=this.entities.filter(e=>e.alive);
@@ -3068,53 +3090,366 @@ class LocalCloud {
 
 return {LocalCloud};
 })();
+__modules["src/local/learning.js"] = (() => {
+const {LOCAL_SPECIES,EVENT_NAMES,LOCAL_CAUSE_NAMES} = __modules["src/local/traits.js"];
+const {exportReplay} = __modules["src/local/replay.js"];
+
+// Teaching plans issue the same public commands as free play. No scripted outcomes.
+const STUDIES={
+ inheritance:{title:'Копия, а не потеря',scenario:'hgt',end:320,metric:'plasmids',
+  question:'Получатель рядом с донором получит дополнительный субстрат. Что произойдёт с pDemoR при контакте и делении?',
+  options:['Донор потеряет свою плазмиду','Получатель получит копию; потомки смогут её унаследовать','Субстрат сам создаст плазмиды у всех'],
+  setup:'Две совместимые клетки уже рядом. В опыте добавляем субстрат у получателя #2; в контроле — нет. Передача возможна в обоих расчётах. Сравниваем рост линии, а не приписываем появление плазмиды пище.',
+  plan:[{tick:0,kind:'feed',pos:[.5,3,0]}],
+  prompt:'Чем передача соседу отличается от наследования дочерьми? Почему передача произошла и в контроле?',
+  takeaway:'Пища поддерживает рост, но не создаёт нужные гены. Совместимый контакт передаёт копию; деление может распространить уже имеющуюся инструкцию.'},
+ phage:{title:'Один вид — разные судьбы',scenario:'phage',end:180,metric:'lysogens',
+  question:'После появления профага подадим сигнал индукции. Все похожие бактерии закончат одинаково?',
+  options:['Да, название вида определяет всё','Нет: важны рецептор и состояние фага','Любой фаг всегда остаётся внутри клетки'],
+  setup:'Есть литическая пара, умеренная пара и вариант без R-demo. На шаге 35 только в опыте подаём сигнал индукции. Контроль с теми же начальными клетками остаётся без сигнала. Незаражение #5 само по себе не доказывает роль рецептора: для заражения нужен ещё контакт.',
+  plan:[{tick:35,kind:'induce',pos:[0,3,0]}],
+  prompt:'Что изменил сигнал у лизогена? Почему отсутствие рецептора — другое объяснение, чем лизогения?',
+  takeaway:'В модели нужен подходящий рецептор. Умеренный фаг может оставаться профагом, а отдельный сигнал переводит его в продуктивный цикл. Одно имя вида не определяет исход.'},
+ boundary:{title:'По разные стороны границы',scenario:'immune',end:360,metric:'tissueCells',
+  question:'Откроем барьер. Что станет возможным для клетки #3, которая начинала в просвете?',
+  options:['Она сможет попасть в тканевый отсек','Все микробы сразу погибнут','Положение барьера ничего не меняет'],
+  setup:'Клетка #2 начинает в ткани, #3 — в просвете. Только в опыте открываем барьер. Сравниваем доступ к ткани; попадание туда не означает мгновенное поглощение.',
+  plan:[{tick:0,kind:'breach',pos:[0,3,0]}],
+  prompt:'Почему не надо уничтожать всех жителей просвета? Достаточно ли попадания в ткань для немедленного поглощения?',
+  takeaway:'В этой модели барьер разделяет отсеки. Фагоцит поглощает доступные близкие цели в ткани, а не всех «плохих» по названию. Движение через открытый барьер условно.'}
+};
+const METRICS={
+ plasmids:{name:'Живые носители pDemoR',unit:'агенты'},
+ lysogens:{name:'Живые лизогены',unit:'агенты'},
+ tissueCells:{name:'Живые микробы в ткани',unit:'агенты'},
+ cells:{name:'Живые микробные клетки',unit:'агенты'},
+ phages:{name:'Свободные фаги',unit:'частицы'},
+ butyrate:{name:'Бутират в среде',unit:'у.е.'},
+ acetate:{name:'Ацетат в среде',unit:'у.е.'},
+ tissueButyrate:{name:'Использовано тканью с начала',unit:'у.е. накопительно'}
+};
+const RELAY=[
+ {key:'producerFood',title:'01 · Разобрать субстрат',text:'Бактероиды и бифидобактерии потребили субстрат.',field:'food',slice:3},
+ {key:'acetateMade',title:'02 · Оставить ацетат',text:'Эти группы выделили ацетат в среду.',field:'acetate',slice:3},
+ {key:'acetateUsed',title:'03 · Накормить соседа',text:'Фекалибактерии потребили ацетат из среды.',field:'acetate',slice:3},
+ {key:'butyrateMade',title:'04 · Выделить бутират',text:'Фекалибактерии выделили бутират.',field:'butyrate',slice:3},
+ {key:'tissueButyrate',title:'05 · Достичь ткани',text:'Тканевый отсек использовал бутират.',field:'butyrate',slice:-1}
+];
+function learningMeta(data,record){
+ if(data===undefined)return {version:1,study:null,prediction:null,reflection:'',guided:false};
+ if(!data||data.version!==1||!(data.study===null||Object.hasOwn(STUDIES,data.study))||typeof data.reflection!=='string'||data.reflection.length>600||typeof data.guided!=='boolean')throw new Error('Некорректная учебная запись');
+ const study=data.study&&STUDIES[data.study];
+ if(study){
+  if(record.scenario!==study.scenario||!Number.isInteger(data.prediction)||data.prediction<0||data.prediction>=study.options.length)throw new Error('Прогноз не соответствует исследованию');
+  if(data.guided){
+   const expected=study.plan.filter(c=>c.tick<=record.endTick);
+   if(record.endTick>study.end||JSON.stringify(record.commands)!==JSON.stringify(expected))throw new Error('Команды не соответствуют учебному плану');
+  }
+ }else if(data.prediction!==null||data.guided)throw new Error('Некорректный свободный опыт');
+ return {version:1,study:data.study,prediction:data.prediction,reflection:data.reflection,guided:data.guided};
+}
+function measure(sim){
+ const s=sim.summary();
+ return {cells:s.cells,plasmids:s.plasmids,lysogens:s.lysogens,phages:s.phages,butyrate:s.butyrate,acetate:s.acetate,
+  tissueCells:sim.entities.filter(e=>e.alive&&!e.traits.immune&&!e.traits.virus&&e.pos[1]<0).length,
+  tissueButyrate:sim.flux.tissueButyrate};
+}
+class LearningSession {
+ constructor(meta={version:1,study:null,prediction:null,reflection:'',guided:false}){this.meta={...meta};this.samples=[];}
+ get study(){return this.meta.study?STUDIES[this.meta.study]:null;}
+ applyPlan(sim){
+  if(!this.meta.guided||!this.study)return;
+  for(const c of this.study.plan)if(c.tick===sim.tick&&!sim.commands.some(x=>x.tick===c.tick&&x.kind===c.kind))sim.command(c.kind,c.pos);
+ }
+ capture(sim,control){
+  if(sim.tick!==control.tick)throw new Error('Несинхронный контроль');
+  if(sim.tick%10&&sim.commands.at(-1)?.tick!==sim.tick)return;
+  const sample={tick:sim.tick,a:measure(control),b:measure(sim)};
+  const last=this.samples.at(-1);
+  if(last?.tick===sim.tick)this.samples[this.samples.length-1]=sample;
+  else {if(last&&last.tick>sim.tick)throw new Error('Историю нужно перестроить при перемотке');this.samples.push(sample);}
+ }
+ points(sim,control){
+  const current={tick:sim.tick,a:measure(control),b:measure(sim)};
+  return this.samples.at(-1)?.tick===sim.tick?this.samples:[...this.samples,current];
+ }
+ fork(){this.meta.guided=false;}
+ export(sim){return {...exportReplay(sim),learning:{...this.meta}};}
+}
+const cell=(sim,id)=>`#${id} (${LOCAL_SPECIES[sim.get(id)?.species]?.name||'агент'})`;
+const prior=(sim,e,kind,actor)=>sim.events.filter(p=>p.seq<e.seq&&p.kind===kind&&p.actors.includes(actor)).at(-1);
+// Templates describe observed transitions and implemented rules, not medical causes.
+function narrate(sim,event){
+ if(!event)return {title:'Сначала наблюдаем',text:'Пока нет выбранного события. Подождите несколько шагов или выберите событие в журнале.',rule:'Начальные пары подготовлены для наблюдения; результат вычисляет модель.',limit:'Учебные параметры, не данные пациента.',links:[],actors:[],tick:0};
+ const e=event,[a,b]=e.actors,who=a?cell(sim,a):'Опыт',links=[];
+ let text='',rule='',limit='Это правило условной локальной модели, не прогноз для человека.';
+ const link=p=>{if(p&&!links.some(x=>x.seq===p.seq))links.push({seq:p.seq,tick:p.tick,label:EVENT_NAMES[p.kind]||p.kind});};
+ switch(e.kind){
+ case 'transfer':
+  text=`${cell(sim,a)} передал копию pDemoR клетке ${cell(sim,b)}. Донор сохранил свою копию.`;
+  rule='Сработали совместимость и непрерывный близкий контакт. Пища не создаёт плазмиду; не каждая плазмида несёт устойчивость.';link(prior(sim,e,'conjugation',a));break;
+ case 'conjugation':text=`${who} начал контакт с ${cell(sim,b)}.`;rule='Для передачи контакт должен продержаться 30 шагов. Само сближение ещё не означает передачу.';break;
+ case 'contact_lost':text='Контакт прервался до завершения передачи.';rule='Расстояние, жизнеспособность и состояние инфекции проверяются на каждом шаге.';link(prior(sim,e,'conjugation',a));break;
+ case 'division':case 'branch':
+  text=`${who}: ${e.mode==='bud'?'отделилась почка':e.kind==='branch'?'выросла ветвь':'образовались дочерние клетки'} ${e.actors.slice(1).map(id=>'#'+id).join(', ')}.`;
+  rule='Биомасса распределяется, а не создаётся из ничего. Имеющиеся плазмиды копируются потомкам. Деление не равно гибели.';link(prior(sim,e,'transfer',a));break;
+ case 'adsorption':text=`Фаг #${a} связался с ${cell(sim,b)}.`;rule='Здесь связывание требует близости, R-demo и отсутствия текущей инфекции. Не любая похожая бактерия подходит.';break;
+ case 'lysogeny':text=`В клетке ${who} возникло состояние профага.`;rule='Умеренный вариант в этой схеме не сразу разрушает хозяина. Профаг может наследоваться при делении.';link(prior(sim,e,'injection',a));break;
+ case 'induction':
+  text=`Профаг в ${who} перешёл к синтезу компонентов.`;rule='На лизоген подействовала команда индукции; далее модель считает сборку и лизис.';
+  link(prior(sim,e,'lysogeny',a));link(sim.events.filter(p=>p.seq<e.seq&&p.kind==='command'&&p.action==='induce').at(-1));break;
+ case 'lysis':
+  text=`${who} лизировалась. Вышло ${e.burst} новых фагов${e.limited?' (выход ограничен ёмкостью модели)':''}.`;
+  rule='Перед этим прошли стадии инфекции и сборки. Потомство ограничено биомассой хозяина и лимитом агентов. Это не гарантия роста разнообразия.';
+  link(prior(sim,e,'assembly',a));link(prior(sim,e,'induction',a));link(prior(sim,e,'adsorption',a));break;
+ case 'recruit':text=`Фагоцит #${a} начал двигаться по градиенту тканевого сигнала.`;rule='Сигнал выделяют микробы в тканевом отсеке. Движение по сигналу ещё не означает контакт или поглощение; барьер и расстояние имеют значение.';break;
+ case 'engulf':text=`Фагоцит #${a} поглотил ${cell(sim,b)}.`;rule='Цель была доступна в тканевом отсеке и достаточно близко. Жители за интактным барьером не являются доступными целями.';limit='Распознавание и движение упрощены. Попадание в ткань само по себе не гарантирует немедленное поглощение.';break;
+ case 'digest':text=`Фагоцит #${a} закончил переваривание.`;rule='Материал поглощённой клетки распределён между биомассой и продуктами обмена; баланс углерода учитывается.';link(prior(sim,e,'engulf',a));break;
+ case 't6':text=`${who} нанёс контактный удар клетке ${cell(sim,b)}.`;rule='Достаточны близость, готовность аппарата и отсутствие подходящего иммунного признака у цели. Это не поведение всех бактерий.';break;
+ case 'death':text=`${who}: причина завершения — ${LOCAL_CAUSE_NAMES[e.cause]||'событие модели'}.`;rule='Это причина, записанная движком, а не вывод из внешнего вида клетки.';
+  if(e.cause==='phage-lysis')link(prior(sim,e,'lysis',a));
+  if(e.cause==='T6SS')link(prior(sim,e,'t6',a));break;
+ case 'command':text='В опыт внесено вмешательство; контроль не получил его.';rule='Изменения могут проявиться с задержкой. Сравнивайте одинаковое модельное время, а не только текущую картинку.';break;
+ default:text=`${who}: ${EVENT_NAMES[e.kind]||'изменение состояния'}.`;rule='Состояние записано движком. Посмотрите участников и соседние стадии; порядок событий сам по себе не доказывает причину.';
+ }
+ return {title:EVENT_NAMES[e.kind]||'Событие',text,rule,limit,links,actors:[...e.actors],tick:e.tick,seq:e.seq};
+}
+function highlights(sim){
+ const kinds=['transfer','division','lysogeny','induction','lysis','engulf','digest','t6'];
+ const result=[];
+ for(const kind of kinds){const e=sim.events.find(e=>e.kind===kind);if(e)result.push(e);}
+ return result.sort((a,b)=>a.seq-b.seq);
+}
+function report(sim,control,session){
+ const a=measure(control),b=measure(sim),study=session.study;
+ const observations=[`Сейчас t = ${sim.time.toFixed(1)} учебных единиц; контроль на том же шаге ${control.tick}.`,
+  `Живых микробных клеток: ${b.cells} в опыте / ${a.cells} в контроле. Носителей pDemoR: ${b.plasmids} / ${a.plasmids}.`,
+  `Лизогенов: ${b.lysogens} / ${a.lysogens}. Микробов в ткани: ${b.tissueCells} / ${a.tissueCells}.`,
+  `Бутирата в среде: ${b.butyrate.toFixed(4)} / ${a.butyrate.toFixed(4)} у.е. Использовано тканью с начала: ${b.tissueButyrate.toFixed(4)} / ${a.tissueButyrate.toFixed(4)} у.е.`];
+ if(study?.scenario==='hgt'){
+  observations.push(`Событий передачи: ${sim.counts.transfer||0} / ${control.counts.transfer||0}. Дочерние клетки получателя #2 в опыте: ${sim.lineage(2)?.children.map(id=>'#'+id).join(', ')||'пока нет'}.`);
+ }
+ if(study?.scenario==='phage'){
+  observations.push(`Индукций: ${sim.counts.induction||0} / ${control.counts.induction||0}. Лизисов: ${sim.counts.lysis||0} / ${control.counts.lysis||0}. Эти счётчики — события, не число живых клеток.`);
+ }
+ if(study?.scenario==='immune'){
+  const e=sim.get(3),c=control.get(3);
+  observations.push(`Начальная клетка #3: ${e?.alive?(e.pos[1]<0?'в ткани':'в просвете'):'линия завершилась'}; в контроле: ${c?.alive?(c.pos[1]<0?'в ткани':'в просвете'):'линия завершилась'}. Поглощений: ${sim.counts.engulf||0} / ${control.counts.engulf||0}.`);
+ }
+ return {title:study?.title||'Мой локальный опыт',prediction:study?study.options[session.meta.prediction]:'Прогноз не записан: свободное исследование.',
+  phase:!study?'Свободный опыт':!session.meta.guided?'Свободная ветка исследования':sim.tick>=study.end?'План завершён':'Промежуточный итог — план ещё не завершён',
+  observations,explanation:study?.takeaway||'Сопоставьте вмешательства, реальные события и контроль. Отсутствие различий — тоже результат; не каждый процесс присутствует в каждом сценарии.',
+  prompt:study?.prompt||'Что изменилось относительно контроля? Какое событие подтверждает ваше объяснение?',
+  limitation:'Это один прогон с условными параметрами и начальной расстановкой, не клинические данные. Контроль проверяет вмешательство внутри модели; не доказывает эффект у человека. Для устойчивого вывода нужны повторения с разными начальными условиями.',
+  truncated:!!sim.capacityHits||sim.events.length>=12000};
+}
+
+return {STUDIES,METRICS,RELAY,learningMeta,measure,LearningSession,narrate,highlights,report};
+})();
+__modules["src/local/learning-view.js"] = (() => {
+const {STUDIES,METRICS,RELAY,narrate,highlights,report} = __modules["src/local/learning.js"];
+const {LOCAL_ACTION_NAMES,EVENT_NAMES} = __modules["src/local/traits.js"];
+const $=id=>document.getElementById(id);
+const esc=text=>String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=v=>v===0?'0':Math.abs(v)<.001?v.toExponential(2):Number.isInteger(v)?String(v):v.toFixed(3);
+function chartMarkup(points,metric,commands=[]){
+ const key=Object.hasOwn(METRICS,metric)?metric:'butyrate',m=METRICS[key];
+ if(!points.length)return '';
+ const max=Math.max(...points.flatMap(p=>[p.a[key],p.b[key]]),.000001),end=Math.max(1,points.at(-1).tick);
+ const x=t=>56+t/end*548,y=v=>170-v/max*138;
+ const path=side=>points.map((p,i)=>i&&m.unit!=='у.е.'&&m.unit!=='у.е. накопительно'?`H${x(p.tick).toFixed(2)}V${y(p[side][key]).toFixed(2)}`:`${i?'L':'M'}${x(p.tick).toFixed(2)},${y(p[side][key]).toFixed(2)}`).join(' ');
+ const last=points.at(-1),title=`${m.name}. Контроль A: ${num(last.a[key])}, опыт B: ${num(last.b[key])}, t = ${(last.tick*.1).toFixed(1)}. ${m.unit}.`;
+ return `<svg viewBox="0 0 640 208" role="img" aria-label="${esc(title)}"><title>${esc(title)}</title>
+ <path d="M56 30V170H604" fill="none" stroke="#72949b"/><path d="M56 101H604M56 32H604" stroke="#72949b" opacity=".22"/>
+ <text x="49" y="36" text-anchor="end">${num(max)}</text><text x="49" y="174" text-anchor="end">0</text><text x="56" y="194">0</text><text x="330" y="194" text-anchor="middle">${(last.tick*.05).toFixed(1)}</text><text x="604" y="194" text-anchor="end">${(last.tick*.1).toFixed(1)} уч. ед.</text>
+ ${commands.filter(c=>c.tick<=last.tick).slice(-12).map(c=>`<path d="M${x(c.tick)} 27V170" stroke="#d0afef" stroke-dasharray="2 5" opacity=".65"><title>${esc(LOCAL_ACTION_NAMES[c.kind])} · t=${(c.tick*.1).toFixed(1)}</title></path>`).join('')}
+ <path d="${path('a')}" fill="none" stroke="#8ce3ce" stroke-width="3.5" stroke-dasharray="7 5"/>
+ <path d="${path('b')}" fill="none" stroke="#ffe18e" stroke-width="2"/>
+ <circle cx="${x(last.tick)}" cy="${y(last.a[key])}" r="4" fill="#8ce3ce"/><rect x="${x(last.tick)-3}" y="${y(last.b[key])-3}" width="6" height="6" fill="#ffe18e"/>
+ </svg>`;
+}
+class LearningView {
+ constructor(controller){
+  this.c=controller;this.eventSeq=null;this.lastDraw=-1;this.lastSession=null;
+  $('study-cards').innerHTML=Object.entries(STUDIES).map(([id,s],i)=>`<article class="study-card"><span class="eyebrow">МИНИ-ИССЛЕДОВАНИЕ 0${i+1}</span><h3>${s.title}</h3><p>${s.question}</p><button class="outline" data-study="${id}">Предсказать и проверить →</button></article>`).join('');
+  $('study-cards').onclick=e=>{const b=e.target.closest('[data-study]');if(b)this.prepare(b.dataset.study);};
+  $('learning-metric').innerHTML=Object.entries(METRICS).map(([id,m])=>`<option value="${id}">${m.name}</option>`).join('');
+  $('learning-metric').onchange=()=>this.refresh(true);
+  $('learning-report').onclick=()=>this.showReport();
+  $('learning-finish').onclick=()=>this.c.finish();
+  $('learning-control').onclick=()=>this.c.compare();
+  $('learning-latest').onclick=()=>{this.eventSeq=null;this.showEvent();};
+  $('learning-rewind').onclick=()=>{const sim=this.c.world.local,e=sim?.events.find(e=>e.seq===this.eventSeq)||this.latest();if(e)this.c.seek(e.tick);};
+  $('learning-focus').onclick=()=>{
+   const sim=this.c.world.local,e=sim?.events.find(e=>e.seq===this.eventSeq)||this.latest();
+   const id=e?.actors.find(id=>sim.get(id)?.alive);
+   if(id){this.c.selectAgent(id-1);this.c.world.focusAgent(id-1);$('expedition').scrollIntoView({block:'start',behavior:'auto'});}
+  };
+  $('learning-links').onclick=e=>{const b=e.target.closest('[data-story-event]');if(b){this.eventSeq=+b.dataset.storyEvent;this.showEvent();}};
+  $('learning-bookmarks').onclick=e=>{const b=e.target.closest('[data-story-tick]');if(b)this.c.seek(+b.dataset.storyTick);};
+  $('relay-start').onclick=()=>{this.c.start('community');$('relay-details').open=true;this.refresh(true);};
+  $('relay-steps').innerHTML=RELAY.map((s,i)=>`<button class="relay-step" data-relay="${i}" aria-pressed="false"><strong>${s.title}</strong><span>${s.text}</span><b id="relay-value-${i}">0 / 0</b><small>опыт / контроль · у.е. с начала</small></button>`).join('');
+  $('relay-steps').onclick=e=>{const b=e.target.closest('[data-relay]');if(b)this.relay(+b.dataset.relay);};
+ }
+ prepare(id){
+  if(this.c.busy||this.c.world.model.site.id!=='colon')return;
+  this.c.setPaused(true);const s=STUDIES[id];
+  this.c.dialog('01 / ПРЕДСКАЖИТЕ · РЕЗУЛЬТАТ ЕЩЁ НЕ ИЗВЕСТЕН',`<h2>${s.title}</h2><p>${s.setup}</p><form id="study-form"><fieldset class="prediction-options"><legend>${s.question}</legend>${s.options.map((o,i)=>`<label><input type="radio" name="prediction" value="${i}" required> ${o}</label>`).join('')}</fieldset><p class="notice">Это предположение, не экзамен. После опыта можно изменить объяснение. Начнётся новый локальный расчёт; текущий при необходимости сохраните заранее.</p><button class="primary" type="submit">Сохранить прогноз и начать →</button></form>`);
+  $('study-form').onsubmit=e=>{
+   e.preventDefault();const answer=new FormData(e.target).get('prediction');if(answer===null)return;const prediction=Number(answer);
+   if(!Number.isInteger(prediction)||prediction<0||prediction>=s.options.length)return;
+   $('dialog').close();this.c.start(s.scenario,{version:1,study:id,prediction,reflection:'',guided:true});
+   $('learning-panel').scrollIntoView({block:'start',behavior:'auto'});
+  };
+ }
+ latest(){const events=this.c.world.local?.events||[];return events.filter(e=>!['birth','death'].includes(e.kind)).at(-1)||events.at(-1);}
+ showEvent(){
+  const sim=this.c.world.local;if(!sim)return;
+  const event=sim.events.find(e=>e.seq===this.eventSeq)||this.latest();
+  $('learning-rewind').disabled=this.c.busy||!event;$('learning-focus').disabled=this.c.busy||!event?.actors.some(id=>sim.get(id)?.alive);
+  const stamp=`${event?.seq}:${this.eventSeq}`;if(this.storyStamp===stamp)return;this.storyStamp=stamp;
+  const n=narrate(sim,event);
+  $('narrator-time').textContent=`СОБЫТИЕ · t = ${(n.tick*.1).toFixed(1)}${this.eventSeq?' · выбранное':' · последнее'}`;
+  $('narrator-title').textContent=n.title;$('narrator-text').textContent=n.text;$('narrator-rule').textContent=n.rule;$('narrator-limit').textContent=n.limit;
+  $('learning-links').innerHTML=n.links.map(p=>`<button class="outline" data-story-event="${p.seq}">← ${esc(p.label)} · t=${(p.tick*.1).toFixed(1)}</button>`).join('');
+  $('learning-rewind').disabled=this.c.busy||!event;$('learning-focus').disabled=this.c.busy||!n.actors.some(id=>sim.get(id)?.alive);
+ }
+ selectEvent(event){this.eventSeq=event.seq;this.showEvent();}
+ relay(i){
+  const sim=this.c.world.local;if(!sim)return;
+  const r=RELAY[i];this.c.world.cloud.fieldKind=r.field;this.c.world.cloud.slice=r.slice;this.c.world.cloud.updateField();
+  $('local-field').value=r.field;$('local-slice').value=String(r.slice);
+  document.querySelectorAll('[data-relay]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.relay===i)));
+  $('relay-explanation').textContent=`${r.text} В опыте ${num(sim.flux[r.key])}, в контроле ${num(this.c.control.flux[r.key])} у.е. с начала. Показан срез поля «${$('local-field').selectedOptions[0].textContent}», y=${r.slice}. Это суммарный поток, не путь молекулы от конкретного донора.`;
+ }
+ refresh(force=false){
+  const c=this.c,sim=c.world.local,session=c.learning,active=!!sim;
+  $('learning-panel').hidden=!active;
+  document.querySelectorAll('[data-study]').forEach(b=>b.disabled=c.busy||c.world.model.site.id!=='colon');
+  $('relay-start').disabled=c.busy||c.world.model.site.id!=='colon';
+  $('learning-finish').disabled=c.busy||(!c.record&&(!session?.meta.guided||sim?.tick>=session.study?.end));
+  for(const id of ['learning-report','learning-control','learning-latest'])$(id).disabled=c.busy;
+  if(!active||!session)return;
+  if(this.lastSession!==session){this.lastSession=session;this.eventSeq=null;this.storyStamp=null;this.lastDraw=-1;$('learning-metric').value=session.study?.metric||'butyrate';document.querySelectorAll('[data-relay]').forEach(b=>b.setAttribute('aria-pressed','false'));$('relay-explanation').textContent='Выберите этап: он покажет соответствующее поле в сцене. Нулевое значение означает, что поток ещё не произошёл или нужных участников нет.';}
+  const study=session.study;
+  $('learning-title').textContent=study?.title||'Что происходит и почему';
+  $('learning-phase').textContent=!study?'СВОБОДНАЯ ЛАБОРАТОРИЯ':!session.meta.guided?'СВОБОДНАЯ ВЕТКА':sim.tick>=study.end?'04 / ИТОГ · ПЛАН ЗАВЕРШЁН':'02 / НАБЛЮДАЕМ · 03 / СРАВНИВАЕМ';
+  $('learning-setup').textContent=study?study.setup:'Выберите событие, сравните траектории и проследите обмен веществ. Ни рассказчик, ни график не изменяют модель.';
+  $('learning-prediction').textContent=study?'Ваш прогноз: '+study.options[session.meta.prediction]:'Прогноз не записан. Для опыта с вопросом выберите мини-исследование выше.';
+  $('learning-finish').textContent=c.record?'Досмотреть запись →':'Рассчитать до итога →';
+  this.showEvent();
+  if(!force&&Math.floor(sim.tick/10)===this.lastDraw)return;
+  this.lastDraw=Math.floor(sim.tick/10);
+  const key=$('learning-metric').value,points=session.points(sim,c.control),last=points.at(-1);
+  $('learning-chart').innerHTML=chartMarkup(points,key,sim.commands);
+  $('chart-values').textContent=`A · контроль: ${num(last.a[key])}   /   B · опыт: ${num(last.b[key])} ${METRICS[key].unit}. t = ${sim.time.toFixed(1)}.`;
+  $('chart-command-list').textContent=sim.commands.length?'Вмешательства только в B: '+sim.commands.slice(-6).map(x=>`${LOCAL_ACTION_NAMES[x.kind]} при t=${(x.tick*.1).toFixed(1)}`).join('; '):'Вмешательств пока нет. Совпадающие линии — тоже результат.';
+  $('learning-bookmarks').innerHTML=highlights(sim).map(e=>`<button class="outline" data-story-tick="${e.tick}" ${c.busy?'disabled':''}>↶ ${esc(EVENT_NAMES[e.kind])} · ${(e.tick*.1).toFixed(1)}</button>`).join('');
+  RELAY.forEach((r,i)=>{$('relay-value-'+i).textContent=`${num(sim.flux[r.key])} / ${num(c.control.flux[r.key])}`;});
+ }
+ showReport(){
+  const c=this.c;if(!c.world.local||c.busy)return;c.setPaused(true);c.learning.capture(c.world.local,c.control);
+  const r=report(c.world.local,c.control,c.learning);
+  c.dialog('04 / ОБЪЯСНИТЕ СВОИМИ СЛОВАМИ',`<h2>${esc(r.title)}</h2><p class="tag">${esc(r.phase)}</p><h3>Ваш прогноз</h3><p>${esc(r.prediction)}</p><h3>Что получилось в расчёте</h3><ul>${r.observations.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><h3>Как это объясняет модель</h3><p>${esc(r.explanation)}</p><p>${esc(r.prompt)}</p><label for="study-reflection">Моё объяснение · сохраняется вместе с записью</label><textarea id="study-reflection" maxlength="600" rows="3" placeholder="Я ожидал… Наблюдал… Теперь думаю…">${esc(c.learning.meta.reflection)}</textarea><p id="reflection-status" role="status">До 600 символов. Это заметка, не оценка.</p><p class="notice">${esc(r.limitation)}${r.truncated?' Достигнут лимит агентов или истории: выводы дополнительно ограничены.':''}</p><div class="action-row"><button class="primary" id="report-save">Сохранить опыт и объяснение ↓</button><button class="outline" id="report-back">Вернуться к событиям</button></div>`);
+  $('study-reflection').oninput=e=>{c.learning.meta.reflection=e.target.value;if(c.record)c.record.learning={...c.learning.meta};$('reflection-status').textContent='Заметка сохранена в текущем опыте. Скачайте JSON, чтобы перенести её.';};
+  $('report-save').onclick=()=>c.save();$('report-back').onclick=()=>$('dialog').close();
+ }
+}
+
+return {chartMarkup,LearningView};
+})();
 __modules["src/local/ui.js"] = (() => {
 const {LocalSimulation} = __modules["src/local/engine.js"];
-const {exportReplay,ReplayRunner} = __modules["src/local/replay.js"];
+const {ReplayRunner} = __modules["src/local/replay.js"];
+const {LearningSession,learningMeta} = __modules["src/local/learning.js"];
+const {LearningView} = __modules["src/local/learning-view.js"];
 const {LOCAL_SCENARIOS,EVENT_NAMES,LOCAL_LIMITS,LOCAL_SPECIES,LOCAL_ACTION_NAMES,LOCAL_STATE_NAMES,LOCAL_CAUSE_NAMES} = __modules["src/local/traits.js"];
 const $=id=>document.getElementById(id);
 const escape=text=>String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 class LocalController {
  constructor({world,navigate,selectAgent,dialog,explain,getPaused,setPaused,onChange}){
-  Object.assign(this,{world,navigate,selectAgent,dialog,explain,getPaused,setPaused,onChange});this.control=null;this.substep=0;this.record=null;this.request=0;this.busy=false;this.lastHUD=-1;
+  Object.assign(this,{world,navigate,selectAgent,dialog,explain,getPaused,setPaused,onChange});this.control=null;this.substep=0;this.record=null;this.request=0;this.busy=false;this.lastHUD=-1;this.learning=null;
   $('local-scenario').innerHTML=Object.entries(LOCAL_SCENARIOS).map(([id,name])=>`<option value="${id}">${name}</option>`).join('');
   $('local-open').onclick=()=>$('local-lab').scrollIntoView({block:'start',behavior:world.calm?'auto':'smooth'});
   $('local-start').onclick=()=>this.start($('local-scenario').value);
   $('local-exit').onclick=()=>this.exit();
   document.querySelectorAll('[data-local-action]').forEach(b=>b.onclick=()=>{
    if(!this.world.local||this.busy)return;
-   this.record=null;const e=this.world.local.get(this.world.selected+1),pos=e?.alive?e.pos:[0,3,0];
-   try{this.world.local.command(b.dataset.localAction,pos);this.world.cloud.sync();this.refresh(true);}catch(error){this.explain('Вмешательство не выполнено',error.message);}
+   const e=this.world.local.get(this.world.selected+1),pos=e?.alive?e.pos:[0,3,0];
+   try{this.world.local.command(b.dataset.localAction,pos);this.record=null;this.learning.fork();this.learning.capture(this.world.local,this.control);this.world.cloud.sync();this.refresh(true);}catch(error){this.explain('Вмешательство не выполнено',error.message);}
   });
   $('local-pause').onclick=()=>{if(!this.busy){this.setPaused(!this.getPaused());this.refresh(true);}};
-  $('local-step').onclick=()=>{if(!world.local||this.busy)return;this.setPaused(true);this.record=null;this.step();};
-  $('local-save').onclick=()=>{if(!world.local||this.busy)return;const blob=new Blob([JSON.stringify(exportReplay(world.local),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='microcosmos-local-replay.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+  $('local-step').onclick=()=>{if(!world.local||this.busy)return;this.setPaused(true);this.step();};
+  $('local-save').onclick=()=>this.save();
   $('local-load').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>200000)throw new Error('Файл слишком большой (лимит 200 КБ)');const record=JSON.parse(await file.text());await this.restore(record,record.endTick);}catch(error){this.explain('Запись не загружена',error.message);}finally{e.target.value='';}};
-  $('local-seek').onchange=()=>{if(!world.local||this.busy)return;const record=this.record||exportReplay(world.local);this.restore(record,+$('local-seek').value).catch(error=>this.explain('Воспроизведение остановлено',error.message));};
-  $('local-fork').onclick=()=>{this.record=null;this.setPaused(false);this.refresh(true);};
+  $('local-seek').onchange=()=>this.seek(+$('local-seek').value);
+  $('local-fork').onclick=()=>{if(this.busy)return;this.record=null;this.learning?.fork();this.setPaused(false);this.refresh(true);};
   $('local-history').onclick=()=>this.history();
   for(const id of ['local-field','local-slice'])$(id).onchange=()=>{if(!world.local)return;world.cloud.fieldKind=$('local-field').value;world.cloud.slice=+$('local-slice').value;world.cloud.updateField();};
-  this.refresh(true);
+  this.learningView=new LearningView(this);this.refresh(true);
  }
- start(scenario){
+ start(scenario,meta){
   if(this.world.model.site.id!=='colon'){this.explain('Локальный эксперимент доступен для толстой кишки','Переключитесь на толстую кишку. Эти учебные параметры не переносятся автоматически на другие биотопы.');return;}
-  this.cancel();this.record=null;this.substep=0;this.control=new LocalSimulation({scenario});this.world.enterLocal(new LocalSimulation({scenario}));this.navigate(2.35);this.setPaused(false);this.onChange();this.refresh(true);
+  this.cancel();this.record=null;this.substep=0;this.control=new LocalSimulation({scenario});this.world.enterLocal(new LocalSimulation({scenario}));this.learning=new LearningSession(meta);this.learning.applyPlan(this.world.local);this.learning.capture(this.world.local,this.control);this.world.cloud.sync();$('local-scenario').value=scenario;this.navigate(2.35);this.setPaused(false);this.onChange();this.refresh(true);
   this.explain('Запущен локальный эксперимент', 'Каждый видимый агент имеет собственное состояние. Учебные штаммы и скорости условны; это не образец пациента. Агрегированная модель на время опыта остановлена.');
  }
  cancel(){this.request++;this.busy=false;$('local-progress').textContent='';}
- exit(){this.cancel();this.record=null;this.control=null;this.world.leaveLocal();this.onChange();this.refresh(true);}
- tick(){if(!this.world.local||this.busy)return;if(++this.substep===3){this.substep=0;this.step();}}
- step(){if(!this.world.local||this.busy)return;this.record=null;this.world.local.step();this.control.step();this.world.cloud.sync();if(this.world.local.stopped)this.setPaused(true);this.refresh();}
- async restore(record,target){
-  const runner=new ReplayRunner(record,target);if(this.world.model.site.id!=='colon')throw new Error('Откройте толстую кишку перед загрузкой локального опыта');
+ exit(){this.cancel();this.record=null;this.control=null;this.learning=null;this.world.leaveLocal();this.onChange();this.refresh(true);}
+ tick(){if(!this.world.local||this.busy||this.getPaused())return;if(++this.substep===3){this.substep=0;this.step();}}
+ advance(){
+  const sim=this.world.local;
+  if(this.record||this.learning.meta.guided&&sim.tick>=this.learning.study.end)this.learning.fork();
+  this.record=null;sim.step();this.control.step();this.learning.applyPlan(sim);this.learning.capture(sim,this.control);
+  if(sim.stopped||this.learning.meta.guided&&sim.tick>=this.learning.study.end){this.learning.capture(sim,this.control);this.setPaused(true);}
+ }
+ step(){if(!this.world.local||this.busy)return;this.advance();this.world.cloud.sync();this.refresh();}
+ exportRecord(){return this.world.local?this.learning.export(this.world.local):null;}
+ save(){
+  if(!this.world.local||this.busy)return;
+  const blob=new Blob([JSON.stringify(this.exportRecord(),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='microcosmos-local-replay.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+ }
+ seek(target){
+  if(!this.world.local||this.busy)return;
+  const record=this.record||this.exportRecord();
+  return this.restore(record,target).catch(error=>this.explain('Воспроизведение остановлено',error.message));
+ }
+ async finish(){
+  if(!this.world.local||this.busy)return;
+  if(this.record){await this.seek(this.record.endTick);return;}
+  if(!this.learning.meta.guided)return;
   this.cancel();const token=this.request;this.busy=true;this.setPaused(true);this.refresh(true);
-  const baseline=new LocalSimulation({seed:runner.record.seed,scenario:runner.record.scenario});
-  try{let done=false;while(!done){if(token!==this.request)return;done=runner.run(50);while(baseline.tick<runner.sim.tick)baseline.step();$('local-progress').textContent=`Воспроизведение: ${runner.sim.tick} / ${target}`;await new Promise(resolve=>setTimeout(resolve,0));}
+  try{
+   while(token===this.request&&this.world.local&&this.world.local.tick<this.learning.study.end){
+    if(token!==this.request)return;
+    for(let i=0;i<30&&this.world.local.tick<this.learning.study.end;i++)this.advance();
+    this.world.cloud.sync();$('local-progress').textContent=`Расчёт: ${this.world.local.tick} / ${this.learning.study.end}`;
+    await new Promise(resolve=>setTimeout(resolve,0));
+   }
+  }catch(error){this.explain('Расчёт остановлен',error.message);}
+  finally{if(token===this.request){this.busy=false;$('local-progress').textContent='';this.refresh(true);}}
+ }
+ async restore(record,target){
+  const runner=new ReplayRunner(record,target),meta=learningMeta(record.learning,runner.record);
+  if(this.world.model.site.id!=='colon')throw new Error('Откройте толстую кишку перед загрузкой локального опыта');
+  this.cancel();const token=this.request;this.busy=true;this.setPaused(true);this.refresh(true);
+  const baseline=new LocalSimulation({seed:runner.record.seed,scenario:runner.record.scenario}),learning=new LearningSession(meta);
+  learning.capture(runner.sim,baseline);
+  try{let done=false;while(!done){
    if(token!==this.request)return;
-   this.world.enterLocal(runner.sim);$('local-scenario').value=runner.sim.scenario;this.control=baseline;this.record=runner.record;this.substep=0;this.navigate(2.35);this.onChange();
+   for(let n=0;n<30&&!done;n++){
+    done=runner.run(1);while(baseline.tick<runner.sim.tick)baseline.step();learning.capture(runner.sim,baseline);
+   }
+   $('local-progress').textContent=`Воспроизведение: ${runner.sim.tick} / ${target}`;await new Promise(resolve=>setTimeout(resolve,0));
+  }
+   if(token!==this.request)return;
+   learning.capture(runner.sim,baseline);
+   this.learning=learning;this.world.enterLocal(runner.sim);$('local-scenario').value=runner.sim.scenario;this.control=baseline;this.record={...runner.record,learning:{...meta}};this.substep=0;this.navigate(2.35);this.onChange();
   }finally{if(token===this.request){this.busy=false;$('local-progress').textContent='';this.refresh(true);}}
  }
+
  refresh(force=false){
+  this.learningView?.refresh(force);
   const active=!!this.world.local; $('local-controls').hidden=!active;$('local-exit').hidden=!active;$('local-start').disabled=this.busy||this.world.model.site.id!=='colon';
   $('local-scenario').disabled=this.busy;$('local-load').disabled=this.busy;
   for(const id of ['density','life-rate','feed-nearby','explode','connections','pick-layers'])$(id).disabled=(active&&!(id==='explode'&&this.world.inspect))||(id==='feed-nearby'&&!['colon','mouth','small'].includes(this.world.model.site.id));
@@ -3131,16 +3466,18 @@ class LocalController {
   $('local-seek').max=this.record?.endTick??s.tick;$('local-seek').value=s.tick;$('local-seek').disabled=this.busy;$('local-cursor').textContent=`Шаг ${s.tick} / ${$('local-seek').max}`;
   $('local-field').value=this.world.cloud.fieldKind;$('local-slice').value=String(this.world.cloud.slice);
   const events=this.world.local.events.filter(e=>e.kind!=='birth').slice(-7).reverse();
-  $('local-events').replaceChildren(...events.map(event=>{const b=document.createElement('button');b.textContent=`${(event.tick*.1).toFixed(1)} · ${EVENT_NAMES[event.kind]||event.kind}${event.action?' · '+LOCAL_ACTION_NAMES[event.action]:''} · ${event.actors.map(id=>'#'+id).join(' → ')}`;b.disabled=!event.actors.length;b.onclick=()=>{const id=event.actors.find(id=>this.world.local.get(id)?.alive)||event.actors[0];this.selectAgent(id-1);this.world.focusAgent(id-1);};return b;}));
+  $('local-events').replaceChildren(...events.map(event=>{const b=document.createElement('button');b.textContent=`${(event.tick*.1).toFixed(1)} · ${EVENT_NAMES[event.kind]||event.kind}${event.action?' · '+LOCAL_ACTION_NAMES[event.action]:''} · ${event.actors.map(id=>'#'+id).join(' → ')}`;b.disabled=this.busy;b.onclick=()=>{this.learningView.selectEvent(event);if(!event.actors.length)return;const id=event.actors.find(id=>this.world.local.get(id)?.alive)||event.actors[0];this.selectAgent(id-1);this.world.focusAgent(id-1);};return b;}));
  }
  history(){
   const sim=this.world.local;if(!sim)return;const id=this.world.selected+1,h=sim.lineage(id);
   const heading=h?`#${id} · ${LOCAL_SPECIES[h.entity.species].name}`:'Выберите агента в сцене или журнале';
   const lineage=h?`<p>Состояние: ${escape(LOCAL_STATE_NAMES[h.entity.state]||h.entity.state)}. Родители: ${h.entity.parents.join(', ')||'начальная клетка'}. Потомки: ${h.children.join(', ')||'пока нет'}. ${h.entity.host?'Хозяин происхождения фага: #'+h.entity.host:''}</p><p>Плазмиды: ${h.entity.plasmids.join(', ')||'нет'}. Причина завершения: ${escape(LOCAL_CAUSE_NAMES[h.entity.cause]||LOCAL_STATE_NAMES[h.entity.state]||h.entity.state)}.</p>`:'';
   const events=h?h.events:sim.events.slice(-100);
-  this.dialog('ПРИЧИННЫЙ ЖУРНАЛ И ГЕНЕАЛОГИЯ',`<h2>${heading}</h2>${lineage}<p>pDemoR — условная совместимая плазмида с учебным признаком устойчивости; это не свойство всех плазмид. ID сохраняются после гибели. Хозяин фага — контекст происхождения, не генетический родитель.</p><div class="notice">Лимиты: ${LOCAL_LIMITS.alive} живых агентов, ${LOCAL_LIMITS.ids} ID, ${LOCAL_LIMITS.ticks} шагов. Сохраняется до ${LOCAL_LIMITS.events} последних событий. Полное состояние восстанавливается из начальных условий и команд той же версии.</div>${events.slice(-100).reverse().map(e=>`<article class="timeline-item"><b>${(e.tick*.1).toFixed(1)} · ${EVENT_NAMES[e.kind]||e.kind}</b><p>${e.actors.map(id=>'#'+id).join(' → ')} ${e.cause?escape(LOCAL_CAUSE_NAMES[e.cause]||e.cause):''} ${e.burst!==undefined?' · потомство: '+e.burst:''}</p></article>`).join('')}`);
+  this.dialog('ПРИЧИННЫЙ ЖУРНАЛ И ГЕНЕАЛОГИЯ',`<h2>${heading}</h2>${lineage}<p>pDemoR — условная совместимая плазмида с учебным признаком устойчивости; это не свойство всех плазмид. ID сохраняются после гибели. Хозяин фага — контекст происхождения, не генетический родитель.</p><div class="notice">Лимиты: ${LOCAL_LIMITS.alive} живых агентов, ${LOCAL_LIMITS.ids} ID, ${LOCAL_LIMITS.ticks} шагов. Сохраняется до ${LOCAL_LIMITS.events} последних событий. Полное состояние восстанавливается из начальных условий и команд той же версии.</div>${events.slice(-100).reverse().map(e=>`<article class="timeline-item"><b>${(e.tick*.1).toFixed(1)} · ${EVENT_NAMES[e.kind]||e.kind}</b><p>${e.actors.map(id=>'#'+id).join(' → ')} ${e.cause?escape(LOCAL_CAUSE_NAMES[e.cause]||e.cause):''} ${e.burst!==undefined?' · потомство: '+e.burst:''}</p><button class="outline" data-history-event="${e.seq}">Почему это произошло? →</button></article>`).join('')}`);
+  document.querySelectorAll('[data-history-event]').forEach(b=>b.onclick=()=>{const event=sim.events.find(e=>e.seq===+b.dataset.historyEvent);if(event){$('dialog').close();this.learningView.selectEvent(event);$('learning-panel').scrollIntoView({block:'start',behavior:'auto'});}});
  }
- compare(){const a=this.control.summary(),b=this.world.local.summary();const col=(s,title)=>`<div><h3>${title}</h3><p>Живых: ${s.alive}<br>pDemoR: ${s.plasmids}<br>Фагов: ${s.phages}<br>Лизогенов: ${s.lysogens}<br>Бутират: ${s.butyrate.toFixed(3)} у.е.<br>Поглощений: ${s.counts.engulf||0}<br>Погрешность углеродного баланса: ${s.carbonError.toExponential(2)}</p></div>`;this.dialog('ЛОКАЛЬНЫЙ КОНТРОЛЬ',`<h2>Одинаковый старт, шаг ${b.tick}</h2><div class="comparison">${col(a,'Без ваших вмешательств')}${col(b,'Ваш опыт')}</div><p>Оба расчёта начинают с одного seed и сценария. Меняется вмешательство, не графическая плотность. Условные количества — не анализ микробиома пациента.</p>`);}
+
+ compare(){const a=this.control.summary(),b=this.world.local.summary();const col=(s,title)=>`<div><h3>${title}</h3><p>Живых: ${s.alive}<br>pDemoR: ${s.plasmids}<br>Фагов: ${s.phages}<br>Лизогенов: ${s.lysogens}<br>Бутират: ${s.butyrate.toFixed(3)} у.е.<br>Поглощений: ${s.counts.engulf||0}<br>Погрешность углеродного баланса: ${s.carbonError.toExponential(2)}</p></div>`;this.dialog('ЛОКАЛЬНЫЙ КОНТРОЛЬ',`<h2>Одинаковый старт, шаг ${b.tick}</h2><div class="comparison">${col(a,'Без ваших вмешательств')}${col(b,'Ваш опыт')}</div><p>Оба расчёта начинают с одного seed и сценария. Меняется вмешательство, не графическая плотность. Условные количества — не анализ микробиома пациента.</p><button class="outline" id="compare-graphs">Траектории A/B во времени →</button>`);$('compare-graphs').onclick=()=>{$('dialog').close();$('learning-chart-area').scrollIntoView({block:'center',behavior:'auto'});};}
 }
 
 return {LocalController};
@@ -3424,7 +3761,6 @@ const {Model,clamp} = __modules["src/model.js"];
 const {SITES,SPECIES,SOURCES,EXPERIMENTS,LESSONS} = __modules["src/data.js"];
 const {LOCAL_SPECIES: byId,LOCAL_VARIANT_NAMES} = __modules["src/local/traits.js"];
 const {LocalController} = __modules["src/local/ui.js"];
-const {exportReplay} = __modules["src/local/replay.js"];
 const $=id=>document.getElementById(id);
 const model=new Model();let world;
 try{world=new World($('universe'),$('labels'),model);}catch(error){$('gpu-error').hidden=false;$('run-status').textContent='WEBGL2 НЕДОСТУПЕН';$('dive').disabled=true;console.warn('3D unavailable:',error.message);window.microcosmos2={available:false};}
@@ -3496,7 +3832,7 @@ function initialize(){
  $('pause').onclick=()=>{paused=!paused;accumulator=0;$('pause').textContent=paused?'▷':'Ⅱ';$('pause').setAttribute('aria-label',paused?'Продолжить':'Пауза');};$('speed').onchange=e=>speed=+e.target.value;$('restart').onclick=()=>resetSite(model.site.id);
  function compare(){if(world.local){localUI.compare();return;}const a=control.snapshot(),b=model.snapshot();const column=(s,title)=>`<div><h3>${title}</h3><dl><dt>Бутират · условные единицы</dt><dd>${model.site.id==='colon'?(s.butyrate*100).toFixed(1):'—'}</dd><dt>pH учебной среды</dt><dd>${s.pH.toFixed(2)}</dd><dt>Разнообразие H′</dt><dd>${s.diversity.toFixed(2)}</dd><dt>Устойчивый вариант · % модели</dt><dd>${(s.resistance*100).toFixed(1)}</dd></dl></div>`;dialog('ОДИН СТАРТ · РАЗНЫЕ ВМЕШАТЕЛЬСТВА',`<h2>А если ничего не менять?</h2><p>Одинаковые биотоп, зерно и модельное время t = ${b.time.toFixed(1)}. Слева — независимый контроль без ваших вмешательств, справа — ваш опыт. Это значения учебной модели, не опубликованные клинические данные.</p><div class="comparison">${column(a,'Контроль · без вмешательства')}${column(b,'Ваш эксперимент')}</div><div class="notice">Меняется только вмешательство. Несколько ваших действий могут накладываться. Менять графическую плотность можно — она не влияет на результат.</div><div class="action-row"><button class="primary" id="refresh-compare">Обновить снимки</button></div>`);$('refresh-compare').onclick=compare;}
  $('compare').onclick=compare;
- function showJournal(){if(world.local){localUI.history();return;}dialog('ЖУРНАЛ ЭКСПЕДИЦИИ',`<h2>От любопытства к наблюдению.</h2><p>Снимки через 8 секунд модельного времени. При смене среды опыт отмечается как прерванный. Не доказательство клинической причинности.</p>${journal.length?journal.map(r=>`<article class="timeline-item"><b>${r.name} · ${SITES.find(s=>s.id===r.site).name} · t=${r.time.toFixed(1)}</b><p>${r.prediction?'Предположение: '+r.prediction.answer+'<br>':''}${r.after?`H′: ${r.before.diversity.toFixed(2)} → ${r.after.diversity.toFixed(2)} · ${r.interrupted?'Прервано сменой/сбросом':'Снимок завершён'}`:'Наблюдение продолжается'}<br>Точка внесения: ${r.position.map(v=>v.toFixed(1)).join(', ')} (локальные координаты)</p></article>`).reverse().join(''):'<div class="notice">Пока нет вмешательств. Войдите в микромир и попробуйте внести пищу.</div>'}<div class="action-row"><button id="export" class="primary">Скачать наблюдения JSON ↓</button></div>`);$('export').onclick=()=>{const blob=new Blob([JSON.stringify({version:'0.5-webgl2',seed:model.seed,disclaimer:'Educational, uncalibrated model; not medical advice',records:journal,experiment:model.snapshot(),control:control.snapshot()},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='microcosmos-webgl2-observations.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};}
+ function showJournal(){if(world.local){localUI.history();return;}dialog('ЖУРНАЛ ЭКСПЕДИЦИИ',`<h2>От любопытства к наблюдению.</h2><p>Снимки через 8 секунд модельного времени. При смене среды опыт отмечается как прерванный. Не доказательство клинической причинности.</p>${journal.length?journal.map(r=>`<article class="timeline-item"><b>${r.name} · ${SITES.find(s=>s.id===r.site).name} · t=${r.time.toFixed(1)}</b><p>${r.prediction?'Предположение: '+r.prediction.answer+'<br>':''}${r.after?`H′: ${r.before.diversity.toFixed(2)} → ${r.after.diversity.toFixed(2)} · ${r.interrupted?'Прервано сменой/сбросом':'Снимок завершён'}`:'Наблюдение продолжается'}<br>Точка внесения: ${r.position.map(v=>v.toFixed(1)).join(', ')} (локальные координаты)</p></article>`).reverse().join(''):'<div class="notice">Пока нет вмешательств. Войдите в микромир и попробуйте внести пищу.</div>'}<div class="action-row"><button id="export" class="primary">Скачать наблюдения JSON ↓</button></div>`);$('export').onclick=()=>{const blob=new Blob([JSON.stringify({version:'0.6-webgl2',seed:model.seed,disclaimer:'Educational, uncalibrated model; not medical advice',records:journal,experiment:model.snapshot(),control:control.snapshot()},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='microcosmos-webgl2-observations.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};}
  $('journal').onclick=showJournal;
  function atlas(){dialog('АТЛАС ЖИТЕЛЕЙ · ПЯТЬ ГРУПП',`<h2>Разные формы. Общая жизнь.</h2><p>16 представителей, не все известные виды. Бактерии и археи — разные домены; грибы и протисты — эукариоты; вирусы — не клеточные организмы.</p><div class="filter-row"><input id="search" placeholder="Русское название, род или пища…" aria-label="Поиск жителей"><select id="group" aria-label="Группа"><option value="">Все группы</option>${['Бактерии','Археи','Грибы','Вирусы','Протисты'].map(s=>`<option>${s}</option>`).join('')}</select></div><div class="atlas-grid" id="atlas-grid"></div>`);const filter=()=>{const q=$('search').value.trim().toLowerCase(),group=$('group').value,found=SPECIES.filter(s=>(!group||s.group===group)&&[s.name,s.latin,s.food,s.taxonomy].join(' ').toLowerCase().includes(q));$('atlas-grid').innerHTML=found.length?found.map(s=>`<button class="atlas-card" data-card="${s.id}"><span class="tag" style="color:${liveColor(s.id)}">${s.group}</span><h3>${s.name}</h3><span class="latin">${s.latin}</span><p>${s.role}</p></button>`).join(''):'<p>Такого представителя пока нет в атласе.</p>';document.querySelectorAll('[data-card]').forEach(b=>b.onclick=()=>speciesCard(b.dataset.card));};$('search').oninput=filter;$('group').onchange=filter;filter();}
  function speciesCard(id){const s=byId[id];dialog(s.group.toUpperCase(),`<span class="tag">${s.size}</span><h2>${s.name}</h2><p><i>${s.latin}</i></p><h3>Простыми словами</h3><p>${s.quote||s.role}</p><h3>Научный факт</h3><p>${s.fact}</p><div class="steps"><span><b>Питается</b><br>${s.food}</span><span><b>Производит</b><br>${s.product}</span></div><p>${s.taxonomy}</p>${links(s.refs)}<div class="action-row"><button class="primary" id="inspect-from-atlas">Устройство в 3D ↗</button><button class="outline" id="atlas-back">← Атлас</button></div>`);$('inspect-from-atlas').onclick=()=>{close();openCell(id);};$('atlas-back').onclick=atlas;}
@@ -3504,7 +3840,7 @@ function initialize(){
  function sources(){dialog('НАУЧНАЯ ОСНОВА · ГРАНИЦЫ УВЕРЕННОСТИ',`<h2>Красивое объяснение должно быть проверяемым.</h2><p>Источники поддерживают качественные механизмы, не точность чисел модели. Полная научная редактура и проверка каждого штаммового признака специалистом ещё необходимы. Реестр не является исчерпывающим обзором литературы 2026 года.</p><div class="sources-list">${SOURCES.map(s=>`<article><span class="tag">${s.level}</span><br><a href="${s.url}" target="_blank" rel="noopener noreferrer">${s.title} · ${s.year||'обзор механизма'} ↗</a><p>${s.note}</p></article>`).join('')}</div>`);}$('sources').onclick=sources;
  function guide(){dialog('ПУТЕВОДИТЕЛЬ · ПОНЯТЬ СВЯЗИ',`<h2>Важен не один микроб, а целая сеть.</h2><p>Откройте историю и проверьте идею собственным опытом.</p>${LESSONS.map((l,i)=>`<details class="lesson" ${i===0?'open':''}><summary>${String(i+1).padStart(2,'0')} / ${l.title}</summary><p>${l.text}</p><div class="steps">${l.steps.map(s=>`<span>${s}</span>`).join('')}</div>${links(l.refs)}</details>`).join('')}<h3>Молекулярная мастерская · настоящий 3D</h3><p>Отдельные объяснительные схемы, не механизмы каждого представителя и не полный расчёт популяционной динамики.</p><div class="action-row"><button class="outline" data-mechanism="conj">Конъюгация</button><button class="outline" data-mechanism="t6">T6SS</button><button class="outline" data-mechanism="phage">Фаг и хозяин</button></div><h3>Как мы это узнаём?</h3><p>Микроскопия/FISH показывает расположение клеток; 16S и метагеномика — состав и возможные функции; культура и эксперименты — механизмы. Найденный ген не доказывает его работу, опыт на мыши не равен эффекту у человека, а в пробах с малой биомассой важна контаминация.</p><div class="notice">«Добрый» или «злой» — не постоянное свойство вида. Высокий индекс Шеннона не универсальная оценка здоровья. Микробы не являются пультом управления мыслями.</div>`);document.querySelectorAll('[data-mechanism]').forEach(b=>b.onclick=()=>{close();openMechanism(b.dataset.mechanism);});}
  function openMechanism(kind){world.inspect=true;world.mechanism=kind;world.mechanismAt=world.clock;updateLayers();world.targetPitch=.05;world.targetYaw=.1;const texts={conj:['Копия инструкции, а не потерянное кольцо.','Донор сохраняет плазмиду. Передаётся цепь ДНК, которую клетки достраивают. Плазмида не обязательно несёт устойчивость.'],t6:['Контактный аппарат T6SS.','Белковая оболочка сокращается и приводит в движение трубку с эффекторами. Пружина — метафора, не металлическая деталь. Аппарат есть только у определённых бактерий и штаммов.'],phage:['Фаг узнаёт подходящего хозяина.','Схема литического эпизода. Не любой фаг заражает любую бактерию; лизис не гарантирует восстановление разнообразия.']}[kind];$('card-title').textContent=kind==='conj'?'Конъюгация':kind==='t6'?'Молекулярный гарпун':'Фаг и хозяин';$('card-copy').textContent=texts[1];$('card-kicker').textContent='МОЛЕКУЛЯРНАЯ МАСТЕРСКАЯ';$('card-tag').textContent='УЧЕБНАЯ СХЕМА';$('card-latin').textContent='Отдельно от популяционного расчёта';$('card-stats').hidden=true;$('agent-live').hidden=true;$('agent-actions').hidden=true;$('lens-tabs').hidden=true;$('dive').innerHTML='Повторить механизм ↻';$('dive').onclick=()=>world.mechanismAt=world.clock;explain(...texts);}
- $('guide').onclick=guide;$('explain-more').onclick=()=>dialog('ЧТО ПРОИСХОДИТ В ЭТОЙ СРЕДЕ',`<h2>${model.site.name}</h2><p>${model.site.fact}</p><div class="steps">${model.site.layers.map(l=>`<span>${l}</span>`).join('')}</div>${links(model.site.refs)}<div class="notice">Смена биотопа открывает независимый пример с новым начальным состоянием. Перенос всех клеток через организм не рассчитывается.</div>`);
+ $('guide').onclick=guide;$('explain-more').onclick=()=>world.local?localUI.learningView.showReport():dialog('ЧТО ПРОИСХОДИТ В ЭТОЙ СРЕДЕ',`<h2>${model.site.name}</h2><p>${model.site.fact}</p><div class="steps">${model.site.layers.map(l=>`<span>${l}</span>`).join('')}</div>${links(model.site.refs)}<div class="notice">Смена биотопа открывает независимый пример с новым начальным состоянием. Перенос всех клеток через организм не рассчитывается.</div>`);
  $('limits').onclick=()=>dialog('ЧЕСТНО О МОДЕЛИ',`<h2>Настоящий 3D. Условная физиология.</h2><p>Тело, органы, ткани и клетки — объёмные треугольные меши WebGL2 с перспективой и буфером глубины. Они стилизованы и не являются медицинской анатомической сегментацией. Общая карта объединяет разные варианты анатомии человека для навигации.</p><h3>Путешествие между масштабами</h3><p>Мир тела и микросреда используют разные координатные пространства. Между ними — плавный визуальный переход. Фаги и внутренние структуры увеличены для объяснения; масштабные подписи — ориентиры, а не единая линейка для всех объектов.</p><h3>Тысячи видимых жителей — не триллионы рассчитанных клеток</h3><p>Экземпляры представляют группы. Число экземпляров можно менять без изменения популяционной модели. В низкобиомассных средах их меньше. Активность около внесённой пищи — учебный локальный индекс, не измерение ATP.</p><h3>Живая история, не видеозапись микроскопа</h3><p>Движение намеренно ускорено и имеет собственные часы. У немотильных видов показан перенос средой, у отмеченных жгутиковых — также собственное движение. «Мысли» — подписи рассказчика, не сознание клетки. Светящиеся посылки между соседями иллюстрируют обмен, но не рассчитывают каждую молекулу и не изменяют численные показатели модели.</p><h3>Научные границы</h3><p>Чувствительность к антибиотику, скорости роста, pH и барьер не калиброваны по человеку. Метаболизм агрегирован. В локальном режиме реализованы учебные контактные процессы, фаговые состояния, фагоцитоз и жизненные переходы; они не переносятся в агрегированные показатели организма. Полный иммунитет и нервная система не моделируются. Молекулярная мастерская — отдельные объяснительные схемы.</p><div class="notice">Это не инструмент диагностики и выбора лечения. Антибиотики, пробиотики, фаготерапию и FMT обсуждают с врачом. Экспертная научная валидация приложения ещё необходима.</div><div class="action-row"><a class="outline" href="docs/PROJECT_SPEC.md" target="_blank">Полная спецификация ↗</a></div>`);
  $('tour').onclick=()=>{if(world.calm){explain('Спокойный режим.','Для автоматического тура отключите уменьшение движения. Все остановки доступны вручную.');return;}tour=!tour;tourAt=performance.now()+1400;tourIndex=0;$('tour').classList.toggle('active',tour);$('tour').textContent=tour?'Ⅱ Остановить экскурсию':'▷ Экскурсия с гидом';};
  for(const name of['pointerdown','pointermove','wheel','keydown','focusin'])document.addEventListener(name,()=>{lastInput=performance.now();},{passive:true});
@@ -3523,7 +3859,7 @@ function initialize(){
  const reading=$('dialog').open||document.querySelector('.discovery:hover')||document.activeElement?.closest('.discovery');if(tour&&!paused&&!world.calm&&!reading&&now>tourAt&&now-lastInput>(tourIndex?3600:1400)){const sequence=[0,1,2,2.6,0];navigate(sequence[tourIndex%5]);tourIndex++;tourAt=now+10000;if(tourIndex>=5){tour=false;$('tour').textContent='▷ Экскурсия с гидом';}}
  }
  requestAnimationFrame(frame);
- window.microcosmos2={available:true,snapshot:()=>model.snapshot(),control:()=>control.snapshot(),get depth(){return world.travel.x;},get targetDepth(){return world.goal;},get site(){return model.site.id;},get count(){return world.cloud.count;},get selected(){return world.selected;},get follow(){return world.follow;},get inspect(){return world.inspect;},get paused(){return paused;},get calm(){return world.calm;},get lost(){return world.lost;},get visualTime(){return world.cloud.visualTime;},get bubbles(){return world.bubbleHits.map(b=>({...b}));},get lifeEvents(){return world.cloud.events.map(e=>({...e}));},get quality(){return {profile:world.quality,autoLow:world.autoLow,...world.lodStats};},get stats(){return{updateMs:updateCost,renderMs:renderCost,drawCalls:world.gpu.calls,triangles:world.gpu.triangles,instances:world.gpu.instances,webglVersion:world.gpu.gl.getParameter(world.gpu.gl.VERSION)};},get local(){return world.local?.summary()||null;},get localControl(){return localUI.control?.summary()||null;},get localEvents(){return world.local?.events.map(e=>({...e,actors:[...e.actors]}))||[];},localRecord:()=>world.local?exportReplay(world.local):null,localLineage:id=>world.local?.lineage(id),get replayBusy(){return localUI.busy;},get structure(){return world.inspect&&!world.mechanism?cellBlueprint(world.inspectedSpecies||'faec'):null;},get highlightedPart(){return world.cellPart;},get highlightedLayer(){return world.layerHover;},get layerMode(){return world.layerMode;},get microLayer(){return world.microLayer;},get picking(){return {triangles:true,instances:world.pickTargets.length};},pickAt:(x,y)=>world.pick(x,y),projectAgent:(i=0)=>{const p=world.cloud.position(i);p[1]+=world.microShift;return{position:p,screen:project(p,world.cameraState.vp,world.w,world.h)};}};
+ window.microcosmos2={available:true,snapshot:()=>model.snapshot(),control:()=>control.snapshot(),get depth(){return world.travel.x;},get targetDepth(){return world.goal;},get site(){return model.site.id;},get count(){return world.cloud.count;},get selected(){return world.selected;},get follow(){return world.follow;},get inspect(){return world.inspect;},get paused(){return paused;},get calm(){return world.calm;},get lost(){return world.lost;},get visualTime(){return world.cloud.visualTime;},get bubbles(){return world.bubbleHits.map(b=>({...b}));},get lifeEvents(){return world.cloud.events.map(e=>({...e}));},get quality(){return {profile:world.quality,autoLow:world.autoLow,...world.lodStats};},get stats(){return{updateMs:updateCost,renderMs:renderCost,drawCalls:world.gpu.calls,triangles:world.gpu.triangles,instances:world.gpu.instances,webglVersion:world.gpu.gl.getParameter(world.gpu.gl.VERSION)};},get local(){return world.local?.summary()||null;},get localControl(){return localUI.control?.summary()||null;},get localEvents(){return world.local?.events.map(e=>({...e,actors:[...e.actors]}))||[];},localRecord:()=>localUI.exportRecord(),get learning(){return localUI.learning?{meta:{...localUI.learning.meta},samples:localUI.learning.samples.map(p=>({...p,a:{...p.a},b:{...p.b}})),flux:{...world.local.flux},controlFlux:{...localUI.control.flux}}:null;},localLineage:id=>world.local?.lineage(id),get replayBusy(){return localUI.busy;},get structure(){return world.inspect&&!world.mechanism?cellBlueprint(world.inspectedSpecies||'faec'):null;},get highlightedPart(){return world.cellPart;},get highlightedLayer(){return world.layerHover;},get layerMode(){return world.layerMode;},get microLayer(){return world.microLayer;},get picking(){return {triangles:true,instances:world.pickTargets.length};},pickAt:(x,y)=>world.pick(x,y),projectAgent:(i=0)=>{const p=world.cloud.position(i);p[1]+=world.microShift;return{position:p,screen:project(p,world.cameraState.vp,world.w,world.h)};}};
 }
 
 return {};
