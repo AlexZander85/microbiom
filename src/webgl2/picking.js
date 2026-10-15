@@ -58,13 +58,13 @@ export class MeshBVH{
  }
 }
 const trees=new WeakMap();
-export function geometryTree(geometry){let tree=trees.get(geometry);if(!tree){tree=new MeshBVH(geometry);trees.set(geometry,tree);}return tree;}
+export function geometryTree(geometry){let tree=trees.get(geometry);if(!tree||tree.revision!==(geometry.revision||0)){tree=new MeshBVH(geometry);tree.revision=geometry.revision||0;trees.set(geometry,tree);}return tree;}
 // Cheap conservative instance bound before inverse rotation or triangle traversal.
 const radii=new WeakMap();
 function geometryRadius(geometry){
- let radius=radii.get(geometry);if(radius!==undefined)return radius;
+ let cached=radii.get(geometry);if(cached&&cached.revision===(geometry.revision||0))return cached.radius;let radius;
  let r2=0;const v=geometry.vertices;for(let i=0;i<v.length;i+=6)r2=Math.max(r2,v[i]**2+v[i+1]**2+v[i+2]**2);
- radius=Math.sqrt(r2);radii.set(geometry,radius);return radius;
+ radius=Math.sqrt(r2);radii.set(geometry,{radius,revision:geometry.revision||0});return radius;
 }
 export function intersectInstance(ray,record,limit=Infinity,minDistance=0){
  const data=record.data,o=record.offset||0,r=geometryRadius(record.geometry)*Math.max(Math.abs(data[o+3]),Math.abs(data[o+4]),Math.abs(data[o+5]))+1e-5;

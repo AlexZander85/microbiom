@@ -1,5 +1,7 @@
 import {STUDIES,METRICS,RELAY,narrate,highlights,report} from './learning.js';
 import {COMPETITION_TRIALS} from './competition.js';
+import {AXIS_TRIALS} from '../physiology/gut-brain.js';
+import {AxisView} from './axis-view.js';
 import {ConnectedView} from './connected-view.js';
 import {ORAL_TRIALS} from './oral.js';
 import {assayCounts} from './persistence.js';
@@ -25,8 +27,8 @@ export function chartMarkup(points,metric,commands=[]){
 }
 export class LearningView {
  constructor(controller){
-  this.c=controller;this.connected=new ConnectedView(controller);this.eventSeq=null;this.lastDraw=-1;this.lastSession=null;
-  $('study-cards').innerHTML=Object.entries(STUDIES).map(([id,s],i)=>`<article class="study-card"><span class="eyebrow">${s.scenario==='transport'?'СВЯЗАННЫЕ ОТСЕКИ':s.scenario==='oral'?'ПОЛОСТЬ РТА':'ТОЛСТАЯ КИШКА'} · 0${i+1}</span><h3>${s.title}</h3><p>${s.question}</p><button class="outline" data-study="${id}">Предсказать и проверить →</button></article>`).join('');
+  this.c=controller;this.connected=new ConnectedView(controller);this.axis=new AxisView(controller);this.eventSeq=null;this.lastDraw=-1;this.lastSession=null;
+  $('study-cards').innerHTML=Object.entries(STUDIES).map(([id,s],i)=>`<article class="study-card"><span class="eyebrow">${s.scenario==='gutbrain'?'НУТРИЕНТНЫЙ НЕРВНЫЙ ПУТЬ':s.scenario==='transport'?'СВЯЗАННЫЕ ОТСЕКИ':s.scenario==='oral'?'ПОЛОСТЬ РТА':'ТОЛСТАЯ КИШКА'} · 0${i+1}</span><h3>${s.title}</h3><p>${s.question}</p><button class="outline" data-study="${id}">Предсказать и проверить →</button></article>`).join('');
   $('study-cards').onclick=e=>{const b=e.target.closest('[data-study]');if(b)this.prepare(b.dataset.study);};
   $('learning-metric').innerHTML=Object.entries(METRICS).map(([id,m])=>`<option value="${id}">${m.name}</option>`).join('');
   $('learning-metric').onchange=()=>this.refresh(true);
@@ -55,11 +57,11 @@ export class LearningView {
  prepare(id){
   if(this.c.busy||this.c.world.model.site.id!==siteForScenario(STUDIES[id].scenario))return;
   this.c.setPaused(true);const s=STUDIES[id];
-  this.c.dialog('01 / ПРЕДСКАЖИТЕ · РЕЗУЛЬТАТ ЕЩЁ НЕ ИЗВЕСТЕН',`<h2>${s.title}</h2><p>${s.setup}</p><form id="study-form">${id==='competition'?`<label for="competition-trial">Что меняем в B?</label><select id="competition-trial" name="competition-trial">${Object.entries(COMPETITION_TRIALS).map(([key,t])=>`<option value="${key}">${t.name}</option>`).join('')}</select><p class="notice">Восстановление R и Q вносит одинаковую биомассу, но разную функцию. A всегда сохраняет исходное сообщество. В варианте «не нарушать» B тоже не получает вмешательств.</p>`:''}${id==='oral'?`<label for="oral-trial">Что получает участок B?</label><select id="oral-trial" name="oral-trial">${Object.entries(ORAL_TRIALS).map(([key,t])=>`<option value="${key}" ${key==='brush_regular'?'selected':''}>${t.name}</option>`).join('')}</select><p class="notice">Контроль A всегда без ухода. Вода и оба ополаскивателя получают одинаковое число вмешательств в одинаковые моменты. Результаты — не рейтинг реальных средств.</p>`:''}<fieldset class="prediction-options"><legend>${s.question}</legend>${s.options.map((o,i)=>`<label><input type="radio" name="prediction" value="${i}" required> ${o}</label>`).join('')}</fieldset><p class="notice">Это предположение, не экзамен. После опыта можно изменить объяснение. Начнётся новый локальный расчёт; текущий при необходимости сохраните заранее.</p><button class="primary" type="submit">Сохранить прогноз и начать →</button></form>`);
+  this.c.dialog('01 / ПРЕДСКАЖИТЕ · РЕЗУЛЬТАТ ЕЩЁ НЕ ИЗВЕСТЕН',`<h2>${s.title}</h2><p>${s.setup}</p><form id="study-form">${id==='gutbrain'?`<label for="axis-trial">Что меняем в B?</label><select id="axis-trial" name="axis-trial">${Object.entries(AXIS_TRIALS).map(([key,t])=>`<option value="${key}">${t.name}</option>`).join('')}</select>`:''}${id==='competition'?`<label for="competition-trial">Что меняем в B?</label><select id="competition-trial" name="competition-trial">${Object.entries(COMPETITION_TRIALS).map(([key,t])=>`<option value="${key}">${t.name}</option>`).join('')}</select><p class="notice">Восстановление R и Q вносит одинаковую биомассу, но разную функцию. A всегда сохраняет исходное сообщество. В варианте «не нарушать» B тоже не получает вмешательств.</p>`:''}${id==='oral'?`<label for="oral-trial">Что получает участок B?</label><select id="oral-trial" name="oral-trial">${Object.entries(ORAL_TRIALS).map(([key,t])=>`<option value="${key}" ${key==='brush_regular'?'selected':''}>${t.name}</option>`).join('')}</select><p class="notice">Контроль A всегда без ухода. Вода и оба ополаскивателя получают одинаковое число вмешательств в одинаковые моменты. Результаты — не рейтинг реальных средств.</p>`:''}<fieldset class="prediction-options"><legend>${s.question}</legend>${s.options.map((o,i)=>`<label><input type="radio" name="prediction" value="${i}" required> ${o}</label>`).join('')}</fieldset><p class="notice">Это предположение, не экзамен. После опыта можно изменить объяснение. Начнётся новый локальный расчёт; текущий при необходимости сохраните заранее.</p><button class="primary" type="submit">Сохранить прогноз и начать →</button></form>`);
   $('study-form').onsubmit=e=>{
    e.preventDefault();const answer=new FormData(e.target).get('prediction');if(answer===null)return;const prediction=Number(answer);
    if(!Number.isInteger(prediction)||prediction<0||prediction>=s.options.length)return;
-   $('dialog').close();this.c.start(s.scenario,{version:1,study:id,prediction,reflection:'',guided:true,...(id==='competition'?{competitionTrial:new FormData(e.target).get('competition-trial')}:{}),...(id==='oral'?{oralTrial:new FormData(e.target).get('oral-trial')}: {})});
+   $('dialog').close();this.c.start(s.scenario,{version:1,study:id,prediction,reflection:'',guided:true,...(id==='gutbrain'?{axisTrial:new FormData(e.target).get('axis-trial')}:{}),...(id==='competition'?{competitionTrial:new FormData(e.target).get('competition-trial')}:{}),...(id==='oral'?{oralTrial:new FormData(e.target).get('oral-trial')}: {})});
    $('learning-panel').scrollIntoView({block:'start',behavior:'auto'});
   };
  }
@@ -85,14 +87,14 @@ export class LearningView {
  }
  refresh(force=false){
   const c=this.c,sim=c.world.local,session=c.learning,active=!!sim;
-  this.connected.refresh();
+  this.connected.refresh();this.axis.refresh();
   $('learning-panel').hidden=!active;
   $('persistence-panel').hidden=!sim?.assay;
   $('mucus-panel').hidden=!sim?.mucus;
   $('oral-panel').hidden=!sim?.oral;
   $('oral-restart').disabled=c.busy;$('oral-scene').disabled=c.busy;
   document.querySelectorAll('[data-oral-stop]').forEach(b=>b.disabled=c.busy||!sim?.oral||(!session?.meta.guided&&!c.record)||(!!c.record&&+b.dataset.oralStop>c.record.endTick));
-  $('relay-details').hidden=!!sim?.mucus||!!sim?.oral||!!sim?.ecology;
+  $('relay-details').hidden=!!sim?.mucus||!!sim?.oral||!!sim?.ecology||!!sim?.axis;
   $('mucus-scene').disabled=c.busy;
   document.querySelectorAll('[data-mucus-stop]').forEach(b=>b.disabled=c.busy||!sim?.mucus||(!session?.meta.guided&&!c.record)||(!!c.record&&+b.dataset.mucusStop>c.record.endTick));
   document.querySelectorAll('[data-assay-stop]').forEach(b=>b.disabled=c.busy||!sim?.assay||(!session?.meta.guided&&!c.record)||(!!c.record&&+b.dataset.assayStop>c.record.endTick));
@@ -101,8 +103,8 @@ export class LearningView {
   $('learning-finish').disabled=c.busy||(!c.record&&(!session?.meta.guided||sim?.tick>=session.study?.end));
   for(const id of ['learning-report','learning-control','learning-latest'])$(id).disabled=c.busy;
   if(!active||!session)return;
-  if(this.lastSession!==session){this.lastSession=session;this.eventSeq=null;this.storyStamp=null;this.lastDraw=-1;$('learning-metric').value=session.study?.metric||(sim.ecology?(sim.scenario==='competition'?'newcomer':'bloodD'):sim.oral?'oralPH':sim.mucus?'mucusMinimum':sim.assay?'persisterLine':'butyrate');document.querySelectorAll('[data-relay]').forEach(b=>b.setAttribute('aria-pressed','false'));$('relay-explanation').textContent='Выберите этап: он покажет соответствующее поле в сцене. Нулевое значение означает, что поток ещё не произошёл или нужных участников нет.';}
-  for(const o of $('learning-metric').options){const relevant=['newcomer','resident','resourceR','bloodD','bloodM','stomach'].includes(o.value);o.hidden=sim.ecology?!relevant:relevant;}
+  if(this.lastSession!==session){this.lastSession=session;this.eventSeq=null;this.storyStamp=null;this.lastDraw=-1;$('learning-metric').value=session.study?.metric||(sim.axis?'axisNTS':sim.ecology?(sim.scenario==='competition'?'newcomer':'bloodD'):sim.oral?'oralPH':sim.mucus?'mucusMinimum':sim.assay?'persisterLine':'butyrate');document.querySelectorAll('[data-relay]').forEach(b=>b.setAttribute('aria-pressed','false'));$('relay-explanation').textContent='Выберите этап: он покажет соответствующее поле в сцене. Нулевое значение означает, что поток ещё не произошёл или нужных участников нет.';}
+  for(const o of $('learning-metric').options){const relevant=['newcomer','resident','resourceR','bloodD','bloodM','stomach'].includes(o.value);const axis=o.value.startsWith('axis');o.hidden=sim.axis?!axis:sim.ecology?!relevant:relevant||axis;}
   const study=session.study;
   $('learning-title').textContent=study?.title||'Что происходит и почему';
   $('learning-phase').textContent=!study?'СВОБОДНАЯ ЛАБОРАТОРИЯ':!session.meta.guided?'СВОБОДНАЯ ВЕТКА':sim.tick>=study.end?'04 / ИТОГ · ПЛАН ЗАВЕРШЁН':'02 / НАБЛЮДАЕМ · 03 / СРАВНИВАЕМ';

@@ -1,3 +1,4 @@
+import {FlightCamera,safeFlightStart} from './flight.js';
 import {oralSurfaceGeometry,oralSurfaceHeight} from './oral-surface.js';
 import {oralPlaque,oralPH} from '../local/oral.js';
 import {filmGeometry,filmHeight} from './mucus-film.js';
@@ -17,7 +18,7 @@ import {cellBlueprint} from './cell-blueprints.js';
 export const ORGAN_POINTS={colon:[0,-.65,.35],mouth:[0,2.025,.28],skin:[-1.04,.28,.21],nose:[0,2.15,.37],lung:[.37,.94,.05],stomach:[.38,.03,.2],small:[0,-.54,.33],vagina:[0,-1.04,.22],urinary:[0,-.93,.28]};
 const instance=(pos,scale,color,q=[0,0,0,1],alpha=1,glow=0)=>({pos,scale,color,q,alpha,glow});
 export class World{
- constructor(canvas,overlay,model){this.canvas=canvas;this.overlay=overlay;this.ctx=overlay.getContext('2d');this.model=model;this.gpu=new GPU(canvas);this.cloud=new LivingCloud(model);this.travel={x:0,v:0};this.goal=0;this.yaw={x:.12,v:0};this.pitch={x:.06,v:0};this.targetYaw=.12;this.targetPitch=.06;this.pan=[0,0,0];this.follow=false;this.focusPoint=[{x:0,v:0},{x:4,v:0},{x:0,v:0}];this.selected=-1;this.selectedSpecies=null;this.inspect=false;this.exploded=false;this.lifts=Array.from({length:5},()=>({x:0,v:0}));this.explodeElapsed=0;this.clock=0;this.calm=false;this.field=0;this.ratio=1.4;this.showConnections=false;this.bodyGroups=[];this.tissueGroups=[];this.dynamic={};this.resources=[];this.one=new Float32Array(STRIDE);this.speciesBuffers={};this.bodyLabels=[];this.lost=false;this.contextGeneration=0;this.gpu.vivid=1;this.lifeRate=1;this.thoughts=true;this.quality='auto';this.autoLow=false;this.bubbleHits=[];this.bubbleSlots=[];this.visibleAgents=[];this.lodStats={};this.pickTargets=[];this.layerHover=-1;this.layerMode=false;this.blockFluid=false;this.cellPart=null;
+ constructor(canvas,overlay,model){this.flight=new FlightCamera();this.canvas=canvas;this.overlay=overlay;this.ctx=overlay.getContext('2d');this.model=model;this.gpu=new GPU(canvas);this.cloud=new LivingCloud(model);this.travel={x:0,v:0};this.goal=0;this.yaw={x:.12,v:0};this.pitch={x:.06,v:0};this.targetYaw=.12;this.targetPitch=.06;this.pan=[0,0,0];this.follow=false;this.focusPoint=[{x:0,v:0},{x:4,v:0},{x:0,v:0}];this.selected=-1;this.selectedSpecies=null;this.inspect=false;this.exploded=false;this.lifts=Array.from({length:5},()=>({x:0,v:0}));this.explodeElapsed=0;this.clock=0;this.calm=false;this.field=0;this.ratio=1.4;this.showConnections=false;this.bodyGroups=[];this.tissueGroups=[];this.dynamic={};this.resources=[];this.one=new Float32Array(STRIDE);this.speciesBuffers={};this.bodyLabels=[];this.lost=false;this.contextGeneration=0;this.gpu.vivid=1;this.lifeRate=1;this.thoughts=true;this.quality='auto';this.autoLow=false;this.bubbleHits=[];this.bubbleSlots=[];this.visibleAgents=[];this.lodStats={};this.pickTargets=[];this.layerHover=-1;this.layerMode=false;this.blockFluid=false;this.cellPart=null;
  this.initMeshes();this.buildBody();this.setSite();
  canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();this.lost=true;});
  canvas.addEventListener('webglcontextrestored',()=>{try{this.gpu=new GPU(canvas);this.gpu.vivid=1;this.resources=[];this.bodyGroups=[];this.tissueGroups=[];this.dynamic={};this.initMeshes();this.buildBody();this.setSite();this.lost=false;this.contextGeneration++;}catch(e){this.restoreError=e.message;}});
@@ -46,7 +47,7 @@ export class World{
  add(this.ring,[instance([0,-3.34,0],[1.4,1,1.4],'#547a73',undefined,.75,.2),instance([0,-3.36,0],[2.1,1,2.1],'#365956',undefined,.6)],'floor');
  const stars=[],rand=rng(531);for(let i=0;i<170;i++)stars.push(instance([(rand()-.5)*18,(rand()-.5)*12,-4-rand()*6],[.007,.007,.007],'#8ea99f',undefined,.45,.5));add(this.particle,stars,'stars');
  }
- setSite(){for(const m of this.resources)this.gpu.release(m);this.resources=[];this.cloud.model=this.model;this.cloud.reset(this.cloud.requested);this.selected=-1;this.follow=false;this.inspect=false;this.pan=[0,0,0];this.layerHover=-1;this.pickTargets=[];this.bubbleSlots=[];this.bubbleHits=[];this.buildTissue();}
+ setSite(){this.flight.exit();for(const m of this.resources)this.gpu.release(m);this.resources=[];this.cloud.model=this.model;this.cloud.reset(this.cloud.requested);this.selected=-1;this.follow=false;this.inspect=false;this.pan=[0,0,0];this.layerHover=-1;this.pickTargets=[];this.bubbleSlots=[];this.bubbleHits=[];this.buildTissue();}
  enterLocal(sim){this.layerMode=false;if(!this.local)this.ambientCloud=this.cloud;this.local=sim;this.cloud=new LocalCloud(sim,this.model);this.setSite();this.setExploded(false);this.lifts.forEach(l=>{l.x=0;l.v=0;});this.goal=2.35;}
  leaveLocal(){if(!this.local)return;this.local=null;this.cloud=this.ambientCloud;this.ambientCloud=null;this.setSite();}
  buildTissue(){if(this.local){const own=data=>{const mesh=this.gpu.mesh(data);this.resources.push(mesh);return mesh;};
@@ -78,11 +79,18 @@ export class World{
  recordGroup(group,data,alpha){
   for(let i=0;i<group.count;i++)this.pickTargets.push({geometry:group.mesh.geometry,data,offset:i*STRIDE,kind:group.transparent?'fluid':'tissue',layer:group.layer??0,opacity:alpha*data[i*STRIDE+13]});
  }
- setExploded(value){this.exploded=value;this.explodeElapsed=0;}
- update(dt,paused=false){if(this.travel.x>1.6||this.goal>1.6)this.cloud.advance(dt,{paused,calm:this.calm,rate:this.lifeRate});this.updateCamera(dt,paused);}
+ setExploded(value){this.flight.exit();this.exploded=value;this.explodeElapsed=0;}
+ flightRecords(){
+  if(this.travel.x>1.88)return this.pickTargets.filter(r=>r.kind==='tissue');
+  const groups=this.bodyGroups.filter(g=>!['stars','floor'].includes(g.site));if(this.travel.x<1.25)groups.push(this.skinGroup,...this.faceGroups);
+  return groups.flatMap(g=>Array.from({length:g.count},(_,i)=>({geometry:g.mesh.geometry,data:g.data,offset:i*STRIDE,kind:'tissue',opacity:1})));
+ }
+ startFlight(){if(this.inspect||this.lost||!this.cameraState||Math.abs(this.travel.x-this.goal)>.01||this.travel.x>1.25&&this.travel.x<1.89)return false;this.follow=false;this.goal=this.travel.x;return this.flight.enter(this.cameraState,this.flightRecords(),this.travel.x>1.88);}
+ update(dt,paused=false){if(this.flight.active&&!this.lost){const records=this.flightRecords(),safe=safeFlightStart(this.flight.position,this.flight.radius,records);if(safe){this.flight.position=safe;this.flight.update(dt,records);}else this.flight.exit();}if(this.travel.x>1.6||this.goal>1.6)this.cloud.advance(dt,{paused,calm:this.calm,rate:this.lifeRate});this.updateCamera(dt,paused);}
  updateCamera(dt,paused=false){if(dt>.05){const n=Math.ceil(dt/.05);for(let i=0;i<n;i++)this.updateCamera(dt/n,paused);return;}if(!paused)this.clock+=dt;this.explodeElapsed+=dt;settle(this.travel,this.goal,dt,.55,this.calm);settle(this.yaw,this.targetYaw,dt,.13,this.calm);settle(this.pitch,this.targetPitch,dt,.13,this.calm);for(let i=0;i<5;i++){if(!this.calm&&this.explodeElapsed<(this.exploded?i:4-i)*.035)continue;const s=this.lifts[i],target=this.exploded?1:0;if(this.calm){s.x=target;s.v=0;continue;}for(let k=0;k<4;k++){const h=dt/4;s.v+=(64*(target-s.x)-14.2*s.v)*h;s.x+=s.v*h;}}if(this.follow&&this.selected>=0){const point=this.cloud.position(this.selected);point[1]+=this.microShift;for(let i=0;i<3;i++)settle(this.focusPoint[i],point[i],dt,.27,this.calm);}}
- camera(target,distance,yaw,pitch,fog){const eye=[target[0]+Math.sin(yaw)*Math.cos(pitch)*distance,target[1]+Math.sin(pitch)*distance,target[2]+Math.cos(yaw)*Math.cos(pitch)*distance],vp=multiply(perspective(.72,this.w/this.h,Math.max(.001,distance/2000),Math.max(100,distance*20)),lookAt(eye,target));this.gpu.camera(vp,eye,fog);this.cameraState={target,eye,vp,near:Math.max(.001,distance/2000),far:Math.max(100,distance*20)};return this.cameraState;}
+ camera(target,distance,yaw,pitch,fog){if(this.flight.active){const eye=[...this.flight.position];target=eye.map((v,i)=>v+this.flight.direction()[i]);const near=this.flight.radius*.1,far=2000,vp=multiply(perspective(.72,this.w/this.h,near,far),lookAt(eye,target));this.gpu.camera(vp,eye,fog);this.cameraState={target,eye,vp,near,far};return this.cameraState;}const eye=[target[0]+Math.sin(yaw)*Math.cos(pitch)*distance,target[1]+Math.sin(pitch)*distance,target[2]+Math.cos(yaw)*Math.cos(pitch)*distance],vp=multiply(perspective(.72,this.w/this.h,Math.max(.001,distance/2000),Math.max(100,distance*20)),lookAt(eye,target));this.gpu.camera(vp,eye,fog);this.cameraState={target,eye,vp,near:Math.max(.001,distance/2000),far:Math.max(100,distance*20)};return this.cameraState;}
  drawGroup(group,alpha=1,material=0,dy=0,pickable=false){let data=group.data;if(dy){data=group.data.slice();for(let i=0;i<group.count;i++)data[i*STRIDE+1]+=dy;}this.gpu.upload(group.mesh,data,group.count);this.gpu.draw(group.mesh,group.count,alpha,material,!group.transparent&&alpha>.9,pickable?this.highlight(group.layer??0):0);if(pickable)this.recordGroup(group,data,alpha);}
+ renderAxis(alpha){const a=this.local.axis,nodes=[['Сенсор','sensor'],['Глутаматный выход','glutamate'],['Афферент','afferent'],['NTS','nts']];nodes.forEach(([label,key],i)=>{const p=[-18+i*12,8,0],value=a[key];writeInstance(this.one,0,p,[2,2,2],['#77ead1','#f7cc8e','#bba1ef','#f49eaf'][i],undefined,alpha,.1+value);this.gpu.upload(this.ball,this.one,1);this.gpu.draw(this.ball,1,alpha);this.label(label+' · '+value.toFixed(3),[p[0],12,0]);if(i<3){writeInstance(this.one,0,[p[0]+6,8,0],[.18,5,.18],'#8bbdba',quatFromY([1,0,0]),alpha,.1);this.gpu.upload(this.rod,this.one,1);this.gpu.draw(this.rod,1,alpha);}});}
  render(){this.w=this.canvas.clientWidth;this.h=this.canvas.clientHeight;const ratio=Math.min(devicePixelRatio||1,1.5);if(this.overlay.width!==Math.round(this.w*ratio)||this.overlay.height!==Math.round(this.h*ratio)){this.overlay.width=Math.round(this.w*ratio);this.overlay.height=Math.round(this.h*ratio);}const c=this.ctx;c.setTransform(ratio,0,0,ratio,0,0);c.clearRect(0,0,this.w,this.h);if(this.lost){c.fillStyle='#d1dcc6';c.font='16px system-ui';c.fillText('Графический контекст потерян. Ожидаем восстановления…',30,80);return;}
  const q=this.travel.x,blend=smooth(1.32,1.88,q);this.gpu.begin(this.model.time,q<1.5?Math.max(1,this.ratio):this.ratio);this.gpu.fields(this.local?this.cloud.fieldPixels:this.model.fields,this.local?0:this.field);this.bodyLabels=[];this.pickTargets=[];this.bubbleHits=[];
  if(this.inspect){this.renderCell();return;}
@@ -99,7 +107,7 @@ export class World{
   for(const group of this.tissueGroups.filter(g=>!g.transparent))this.drawGroup(group,blend,0,this.lifts[group.layer||0].x*(group.layer||0)*3.8,true);
   if(this.local?.mucus)this.renderMucus(blend,false);
   if(this.local?.oral)this.renderOral(blend);
-  this.renderCloud(blend);if(this.local)this.renderLocalEvents(blend);else{this.renderParticles(blend);this.renderLifeEvents(blend);}
+  if(this.local?.axis)this.renderAxis(blend);else this.renderCloud(blend);if(this.local)this.renderLocalEvents(blend);else{this.renderParticles(blend);this.renderLifeEvents(blend);}
   if(this.local?.mucus)this.renderMucus(blend,true);
   if(this.showConnections&&!this.local)this.connections(blend);
   for(const group of this.tissueGroups.filter(g=>g.transparent))this.drawGroup(group,blend,0,this.lifts[group.layer||0].x*(group.layer||0)*3.8,true);
@@ -316,6 +324,6 @@ export class World{
   return hit?.kind==='agent'?{...hit,via:'triangle'}:hit?{...hit,blocked:!this.layerMode}:null;
  }
  floorPoint(x,y){const r=rayFromCamera(x,y,this.w,this.h,this.cameraState.eye,this.cameraState.target,.72);if(Math.abs(r.dir[1])<.001)return[0,7,0];const t=(5-r.origin[1])/r.dir[1];return t>0?[clamp(r.origin[0]+r.dir[0]*t,-28,28),5,clamp(r.origin[2]+r.dir[2]*t,-28,28)]:[0,5,0];}
- focusAgent(i){this.selected=i;if(!this.follow){const target=this.cameraState?.target||[0,4,0];this.focusPoint.forEach((s,j)=>{s.x=target[j];s.v=0;});}this.follow=true;this.goal=2.88;this.targetPitch=.15;}
+ focusAgent(i){this.flight.exit();this.selected=i;if(!this.follow){const target=this.cameraState?.target||[0,4,0];this.focusPoint.forEach((s,j)=>{s.x=target[j];s.v=0;});}this.follow=true;this.goal=2.88;this.targetPitch=.15;}
 }
 function instancePart(mesh,pos,scale,q){return{mesh,pos,scale,q};}

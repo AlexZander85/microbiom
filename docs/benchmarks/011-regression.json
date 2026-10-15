@@ -1,0 +1,47 @@
+{
+  "release": "0.11.0",
+  "date": "2026-10-15",
+  "unitTests": {
+    "passed": 149,
+    "failed": 0
+  },
+  "browserSuites": [
+    {
+      "name": "axis-flight-browser",
+      "status": "PASS"
+    },
+    {
+      "name": "connected-browser",
+      "status": "PASS"
+    },
+    {
+      "name": "oral-browser",
+      "status": "PASS"
+    },
+    {
+      "name": "persistence-browser",
+      "status": "PASS"
+    },
+    {
+      "name": "mucus-browser",
+      "status": "PASS"
+    },
+    {
+      "name": "learning-browser",
+      "status": "PASS"
+    },
+    {
+      "name": "browser-webgl2",
+      "status": "PASS"
+    }
+  ],
+  "softwareRenderer": true,
+  "maxGlucoseErrorMmol": 2.6645352591003757e-15,
+  "standaloneBytes": 550493,
+  "limits": [
+    "Uncalibrated nutrient afferent path, not microbiota causation",
+    "Normalized NTS response, not mood or spike frequency",
+    "Flight is within separate scale spaces",
+    "No hardware GPU, scientific or child-usability acceptance"
+  ]
+}

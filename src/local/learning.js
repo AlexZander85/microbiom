@@ -1,3 +1,4 @@
+import {AXIS_TRIALS,axisPlan} from '../physiology/gut-brain.js';
 import {COMPETITION_TRIALS,competitionPlan} from './competition.js';
 import {ORAL_TRIALS,oralPlan} from './oral.js';
 import {LOCAL_SPECIES,EVENT_NAMES,LOCAL_CAUSE_NAMES} from './traits.js';
@@ -6,6 +7,11 @@ import {exportReplay} from './replay.js';
 
 // Teaching plans issue the same public commands as free play. No scripted outcomes.
 export const STUDIES={
+ gutbrain:{title:'Кишечник сообщает — мозг получает сигнал',scenario:'gutbrain',end:1000,metric:'axisNTS',
+ question:'Поступление глюкозы в кровь и передача сигнала от кишечника — одно и то же?',options:['Да: вещество в крови уже является нервным сигналом','Нет: нервный путь можно прервать отдельно от всасывания','По этому опыту можно определить настроение человека'],
+ setup:'Отдельный путь добавленной глюкозы: 1 ммоль на шагах 10 и 600 в A и B. В B можно прервать синаптическую или вагальную передачу до шага 450, либо направить те же импульсы сразу в кровь. A получает глюкозу через желудочный резерв и сохраняет передачу. Мишень — вызванная активность NTS, ядра одиночного пути ствола мозга. Нормированная модельная активность, не измеренная частота импульсов. Это нутриентный путь, не доказательство действия микробиома.',
+ plan:axisPlan(),prompt:'Почему при блокаде в крови есть глюкоза, но вызванный ответ слабее? После восстановления передачи вернулся ли ответ на второй импульс?',
+ takeaway:'Сенсорное звено в кишечном эпителии реагирует на глюкозу; глутаматная передача возбуждает вагальный афферент. По нерву идёт сигнал, а не глюкоза или серотонин. Стволовая мишень получает задержанный вход. Здесь вычислены только этот учебный путь и параллельный перенос добавленной глюкозы. Прямое поступление в кровь не активирует выбранный кишечный сенсор, но в настоящем организме существуют и другие сенсоры. Нет настроения, диагноза, полного мозга или микробного причинного звена.'},
  competition:{title:'Защита без войны',scenario:'competition',end:1600,metric:'newcomer',
  question:'Можно ли ограничить новичка, не нападая на него?',options:['Нет: защита возможна только через уничтожение','Да: соседи могут раньше использовать общий ресурс','Любая добавленная группа поможет одинаково'],
  setup:'A и B получают одинаковую небольшую группу новичка на шаге 30. Он использует R, как и часть жителей. В B на шаге 300 полностью выводим потребителей R — потерю функции задаём как внешний вынос, не антибиотик. На шаге 900 возвращаем выбранную функцию. Есть варианты без возврата и без нарушения. Q — другой ресурс. Все количества — условные эквиваленты углерода; фигурки — группы, не клетки.',
@@ -59,7 +65,7 @@ export const STUDIES={
   prompt:'Почему не надо уничтожать всех жителей просвета? Достаточно ли попадания в ткань для немедленного поглощения?',
   takeaway:'В этой модели барьер разделяет отсеки. Фагоцит поглощает доступные близкие цели в ткани, а не всех «плохих» по названию. Движение через открытый барьер условно.'}
 };
-export const METRICS={
+export const METRICS={axisNTS:{name:'Ось · вызванная активность NTS',unit:'норм. активность 0–1',continuous:true},axisVagus:{name:'Ось · вагальный афферент',unit:'норм. активность 0–1',continuous:true},axisBlood:{name:'Ось · добавленная глюкоза в крови',unit:'мМ модели',continuous:true},axisLumen:{name:'Ось · глюкоза в кишечном отсеке',unit:'мМ модели',continuous:true},
  newcomer:{name:'Конкуренция · биомасса новичка',unit:'у.е. C',continuous:true},
  resident:{name:'Конкуренция · биомасса потребителей R',unit:'у.е. C',continuous:true},
  resourceR:{name:'Конкуренция · доступный ресурс R',unit:'у.е. C',continuous:true},
@@ -102,6 +108,7 @@ export const RELAY=[
 ];
 export function studyFor(meta){
  const s=meta.study&&STUDIES[meta.study];
+ if(meta.study==='gutbrain'){const trial=meta.axisTrial??'synapse';if(!Object.hasOwn(AXIS_TRIALS,trial))throw new Error('Неизвестный контроль оси');return {...s,plan:axisPlan(trial),title:s.title+' · '+AXIS_TRIALS[trial].name};}
  if(meta.study==='competition'){const trial=meta.competitionTrial??'function';if(!Object.hasOwn(COMPETITION_TRIALS,trial))throw new Error('Неизвестный вариант восстановления');return {...s,plan:competitionPlan(trial),title:s.title+' · '+COMPETITION_TRIALS[trial].name};}
  if(meta.study!=='oral')return s;
  const trial=meta.oralTrial??'brush_regular';if(!Object.hasOwn(ORAL_TRIALS,trial))throw new Error('Неизвестный вариант ухода');
@@ -110,6 +117,7 @@ export function studyFor(meta){
 export function learningMeta(data,record){
  if(data===undefined)return {version:1,study:null,prediction:null,reflection:'',guided:false};
  if(!data||data.version!==1||!(data.study===null||Object.hasOwn(STUDIES,data.study))||typeof data.reflection!=='string'||data.reflection.length>600||typeof data.guided!=='boolean')throw new Error('Некорректная учебная запись');
+ if(data.axisTrial!==undefined&&(data.study!=='gutbrain'||!Object.hasOwn(AXIS_TRIALS,data.axisTrial)))throw new Error('Некорректный контроль оси');
  if(data.competitionTrial!==undefined&&(data.study!=='competition'||!Object.hasOwn(COMPETITION_TRIALS,data.competitionTrial)))throw new Error('Некорректный вариант восстановления');
  if(data.oralTrial!==undefined&&(data.study!=='oral'||!Object.hasOwn(ORAL_TRIALS,data.oralTrial)))throw new Error('Некорректный вариант ухода');
  const study=studyFor(data);
@@ -120,16 +128,16 @@ export function learningMeta(data,record){
    if(record.endTick>study.end||JSON.stringify(record.commands)!==JSON.stringify(expected))throw new Error('Команды не соответствуют учебному плану');
   }
  }else if(data.prediction!==null||data.guided)throw new Error('Некорректный свободный опыт');
- return {version:1,study:data.study,prediction:data.prediction,reflection:data.reflection,guided:data.guided,...(data.study==='competition'?{competitionTrial:data.competitionTrial??'function'}:{}),...(data.study==='oral'?{oralTrial:data.oralTrial??'brush_regular'}:{})};
+ return {version:1,study:data.study,prediction:data.prediction,reflection:data.reflection,guided:data.guided,...(data.study==='gutbrain'?{axisTrial:data.axisTrial??'synapse'}:{}),...(data.study==='competition'?{competitionTrial:data.competitionTrial??'function'}:{}),...(data.study==='oral'?{oralTrial:data.oralTrial??'brush_regular'}:{})};
 }
 export function measure(sim){
  const s=sim.summary(),a=assayCounts(sim);
- return {newcomer:s.ecology?.newcomer??0,resident:s.ecology?.resident??0,resourceR:s.ecology?.r??0,bloodD:s.ecology?.transport.bloodD??0,bloodM:s.ecology?.transport.bloodM??0,stomach:s.ecology?.transport.stomach??0,oralPH:s.oral?.minPH??0,oralPlaque:s.oral?.plaque??0,oralActive:s.oral?.active??0,oralMineral:s.oral?.mineral??0,oralDefects:s.oral?.defects??0,oralAcidTime:s.oral?.acidTime??0,mucusMinimum:(s.mucus?.minInner??0)*100,mucusOuter:s.mucus?.outer??0,mucusThin:s.mucus?.thinPatches??0,mucusForagers:s.mucus?.foragers??0,mucusSecreted:s.mucus?.secreted??0,mucusConsumed:s.mucus?(s.mucus.outerUsed+s.mucus.innerUsed):0,persisters:a.persisters,persisterLine:a.persisterOrigin,sensitiveLine:a.sensitive,geneticR:a.resistant,recoveredLine:a.recoveredLine,cells:s.cells,plasmids:s.plasmids,lysogens:s.lysogens,phages:s.phages,butyrate:s.butyrate,acetate:s.acetate,
+ return {axisNTS:s.axis?.nts??0,axisVagus:s.axis?.afferent??0,axisBlood:s.axis?.bloodConcentration??0,axisLumen:s.axis?.lumenConcentration??0,newcomer:s.ecology?.newcomer??0,resident:s.ecology?.resident??0,resourceR:s.ecology?.r??0,bloodD:s.ecology?.transport.bloodD??0,bloodM:s.ecology?.transport.bloodM??0,stomach:s.ecology?.transport.stomach??0,oralPH:s.oral?.minPH??0,oralPlaque:s.oral?.plaque??0,oralActive:s.oral?.active??0,oralMineral:s.oral?.mineral??0,oralDefects:s.oral?.defects??0,oralAcidTime:s.oral?.acidTime??0,mucusMinimum:(s.mucus?.minInner??0)*100,mucusOuter:s.mucus?.outer??0,mucusThin:s.mucus?.thinPatches??0,mucusForagers:s.mucus?.foragers??0,mucusSecreted:s.mucus?.secreted??0,mucusConsumed:s.mucus?(s.mucus.outerUsed+s.mucus.innerUsed):0,persisters:a.persisters,persisterLine:a.persisterOrigin,sensitiveLine:a.sensitive,geneticR:a.resistant,recoveredLine:a.recoveredLine,cells:s.cells,plasmids:s.plasmids,lysogens:s.lysogens,phages:s.phages,butyrate:s.butyrate,acetate:s.acetate,
   tissueCells:sim.entities.filter(e=>e.alive&&!e.traits.immune&&!e.traits.virus&&e.pos[1]<0).length,
   tissueButyrate:sim.flux.tissueButyrate};
 }
 export class LearningSession {
- constructor(meta={version:1,study:null,prediction:null,reflection:'',guided:false}){this.meta={...meta,...(meta.study==='competition'?{competitionTrial:meta.competitionTrial??'function'}:{}),...(meta.study==='oral'?{oralTrial:meta.oralTrial??'brush_regular'}:{})};this.samples=[];}
+ constructor(meta={version:1,study:null,prediction:null,reflection:'',guided:false}){this.meta={...meta,...(meta.study==='gutbrain'?{axisTrial:meta.axisTrial??'synapse'}:{}),...(meta.study==='competition'?{competitionTrial:meta.competitionTrial??'function'}:{}),...(meta.study==='oral'?{oralTrial:meta.oralTrial??'brush_regular'}:{})};this.samples=[];}
  get study(){return studyFor(this.meta);}
  applyPlan(sim){
   if(!this.meta.guided||!this.study)return;
@@ -159,6 +167,10 @@ export function narrate(sim,event){
  let text='',rule='',limit='Это правило условной локальной модели, не прогноз для человека.';
  const link=p=>{if(p&&!links.some(x=>x.seq===p.seq))links.push({seq:p.seq,tick:p.tick,label:EVENT_NAMES[p.kind]||p.kind});};
  switch(e.kind){
+ case 'axis_pulse':text=`Внесён ${e.amount} ммоль добавленной глюкозы: ${e.route==='gut'?'в желудочный резерв':'в кровь'}.`;rule='Количество, концентрация и нервный ответ — разные величины. Учтён только добавленный материал, не базальная гликемия.';break;
+ case 'axis_condition':text='Изменена передача или маршрут следующего импульса.';rule='Нервные блоки не меняют перенос глюкозы. При выключении вагального входа уже отправленный сигнал ещё может дойти; остаточная активность затухает.';break;
+ case 'axis_response':text='Вызванная активность стволовой мишени NTS пересекла учебную отметку 0.1.';rule='Ответ вычислен из кишечного сенсора, синаптической передачи, задержки и затухания. Отметка — для журнала, не клинический порог.';break;
+ case 'axis_decay':text='Вызванная активность NTS снизилась ниже отметки 0.05.';rule='Это затухание ответа выбранного пути, не выключение мозга и не изменение настроения.';break;
  case 'competition_arrival':text='Внесена небольшая группа новичка, использующая R.';rule='Плановое внесение одинаково в A и B. Входящая биомасса учтена отдельно от прироста. Новичок не получает заранее заданную судьбу.';break;
  case 'competition_condition':text='Изменено условие опыта: '+(e.action==='remove_competitors'?'потребители R выведены во внешний резерв':e.action==='restore_competitors'?'добавлены потребители R':e.action==='restore_other'?'добавлена равная биомасса потребителей Q':'перенос или поступление материала')+'.';rule='Команда меняет условие, но не переписывает биомассу новичка. Дальше работают потребление, прирост, поддержание и вымывание.';break;
  case 'competition_growth':text='Вычисленный прирост новичка стал больше его потерь.';rule='Больше доступного R позволяет получить больше материала для роста. Нет атаки на соседей.';link(sim.events.filter(p=>p.seq<e.seq&&p.kind==='competition_condition').at(-1));break;
@@ -209,10 +221,10 @@ export function narrate(sim,event){
  return {title:EVENT_NAMES[e.kind]||'Событие',text,rule,limit,links,actors:[...e.actors],tick:e.tick,seq:e.seq};
 }
 export function highlights(sim){
- const kinds=['competition_arrival','competition_condition','competition_growth','competition_limited','transport_meal','oral_sugar','oral_care','oral_acid','oral_buffer','oral_defect','mucus_supply','mucus_switch','mucus_thin','mucus_recover','persistence_enter','persistence_exit','challenge','washout','transfer','division','lysogeny','induction','lysis','engulf','digest','t6'];
+ const kinds=['axis_pulse','axis_condition','axis_response','axis_decay','competition_arrival','competition_condition','competition_growth','competition_limited','transport_meal','oral_sugar','oral_care','oral_acid','oral_buffer','oral_defect','mucus_supply','mucus_switch','mucus_thin','mucus_recover','persistence_enter','persistence_exit','challenge','washout','transfer','division','lysogeny','induction','lysis','engulf','digest','t6'];
  const result=[];
  for(const kind of kinds){const e=sim.events.find(e=>e.kind===kind);if(e)result.push(e);}
- for(const e of sim.events)if(['competition_condition','mucus_supply','challenge','washout'].includes(e.kind)&&!result.includes(e))result.push(e);
+ for(const e of sim.events)if(['axis_condition','axis_pulse','competition_condition','mucus_supply','challenge','washout'].includes(e.kind)&&!result.includes(e))result.push(e);
  return result.sort((a,b)=>a.seq-b.seq);
 }
 export function report(sim,control,session){
@@ -221,6 +233,7 @@ export function report(sim,control,session){
   `Живых микробных клеток: ${b.cells} в опыте / ${a.cells} в контроле. Носителей pDemoR: ${b.plasmids} / ${a.plasmids}.`,
   `Лизогенов: ${b.lysogens} / ${a.lysogens}. Микробов в ткани: ${b.tissueCells} / ${a.tissueCells}.`,
   `Бутирата в среде: ${b.butyrate.toFixed(4)} / ${a.butyrate.toFixed(4)} у.е. Использовано тканью с начала: ${b.tissueButyrate.toFixed(4)} / ${a.tissueButyrate.toFixed(4)} у.е.`];
+ if(sim.axis){const b=sim.summary().axis,a=control.summary().axis;observations.splice(1);observations.push(`Глюкоза в крови B / A: ${b.bloodConcentration.toFixed(4)} / ${a.bloodConcentration.toFixed(4)} мМ добавленного материала.`, `NTS B / A: ${b.nts.toFixed(4)} / ${a.nts.toFixed(4)} нормированной вызванной активности; площадь ответа ${b.ntsArea.toFixed(3)} / ${a.ntsArea.toFixed(3)}.`, `Ошибка баланса глюкозы ${b.error.toExponential(2)} ммоль. Нутриентный путь; влияние состава микробиома и настроение не вычисляются.`);}
  if(sim.ecology){
   const e=sim.summary().ecology,c=control.summary().ecology;observations.splice(1);
   observations.push(`Новичок B / A: ${e.newcomer.toFixed(4)} / ${c.newcomer.toFixed(4)} у.е. C. Потребители R: ${e.resident.toFixed(4)} / ${c.resident.toFixed(4)}. Доступный R: ${e.r.toFixed(4)} / ${c.r.toFixed(4)}.`,
