@@ -201,11 +201,13 @@ export class World{
  renderLocalEvents(alpha){
   if(this.local.oral){if(this.w>900&&this.travel.x<2.6){this.label('Налёт · микроколонии и матрикс',[-6,5,8],'#f4d28e');this.label('Эмаль · запас минералов, не диагноз',[-6,2,12],'#f8ebce');}return;}
   const sim=this.local;let n=0;
+  if(sim.pulseRelay){const o=sim.pulseRelay.oxygen;this.label('Группа 1 · субстрат → ацетат',[-8,9,0],'#8ce3ce');this.label('Группа 2 · ацетат → бутират',[4,9,0],'#f3db83');this.label('O₂ просвета '+o.lumen.toFixed(3)+' · ткань '+o.tissue.toFixed(3),[-6,13,4],'#b5d7f5');return;}
   if(!sim.mucus){writeInstance(this.one,0,[0,0,0],[.75,1,.75],sim.barrier>.5?'#75d6bd':'#e68b75',undefined,.04+sim.barrier*.16);this.gpu.upload(this.gel,this.one,1);this.gpu.draw(this.gel,1,alpha,0,false);}
-  for(const job of sim.jobs){const a=this.cloud.position(job.from-1),b=this.cloud.position(job.to-1),seg=segment(a,b,.045);writeInstance(this.miscBuffer,n++,seg.pos,seg.scale,'#ffdf6c',seg.q,1,.5);}
+  for(const job of sim.jobs){if(sim.contactStudy&&Math.hypot(...sim.get(job.from).pos.map((v,i)=>v-sim.get(job.to).pos[i]))>1.5)continue;const a=this.cloud.position(job.from-1),b=this.cloud.position(job.to-1),seg=segment(a,b,.045);writeInstance(this.miscBuffer,n++,seg.pos,seg.scale,'#ffdf6c',seg.q,1,.5);}
   for(const e of sim.entities)if(e.alive&&e.state==='hypha'&&e.parents.length){const parent=sim.get(e.parents[0]);if(parent?.alive){const seg=segment(this.cloud.position(e.id-1),this.cloud.position(parent.id-1),.12);writeInstance(this.miscBuffer,n++,seg.pos,seg.scale,'#ed80e7',seg.q);}}
   for(const event of sim.events.slice(-60)){if(sim.tick-event.tick>20||event.actors.length<2)continue;
    if(!['transfer','t6','adsorption','engulf'].includes(event.kind))continue;
+   if(sim.contactStudy&&Math.hypot(...sim.get(event.actors[0]).pos.map((v,i)=>v-sim.get(event.actors[1]).pos[i]))>1.5)continue;
    const a=this.cloud.position(event.actors[0]-1),b=this.cloud.position(event.actors[1]-1),seg=segment(a,b,.065);
    writeInstance(this.miscBuffer,n++,seg.pos,seg.scale,event.kind==='t6'?'#ff716b':event.kind==='engulf'?'#e9faff':'#ffe879',seg.q,1,.4);
   }
